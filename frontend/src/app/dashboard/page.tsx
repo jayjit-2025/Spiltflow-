@@ -40,7 +40,7 @@ export default function DashboardPage() {
   // Local state for forms
   const [assetId, setAssetId] = useState('');
   const [contributors, setContributors] = useState<{ address: string; share: number }[]>([
-    { address: address || '', share: 10000 },
+    { address: address || '', share: 100 },
   ]);
   
   // Royalty distribution form state
@@ -108,17 +108,23 @@ export default function DashboardPage() {
       totalShares += c.share;
     }
 
-    if (totalShares !== 10000) {
-      setRegisterError(`Total shares must equal exactly 10000 (100.00%). Currently: ${totalShares}.`);
+    if (totalShares !== 100) {
+      setRegisterError(`Total shares must equal exactly 100%. Currently: ${totalShares}%.`);
       return;
     }
+
+    // Convert percentages to basis points (bps) before writing to store/sending to contract
+    const bpsContributors = contributors.map((c) => ({
+      address: c.address,
+      share: Math.round(c.share * 100),
+    }));
 
     // Add transaction to persistent store
     const txId = addTx({
       title: 'Register Asset',
       description: `Registering asset "${assetId}" with ${contributors.length} contributors`,
       txType: 'REGISTER_ASSET',
-      txArgs: { assetId, owner: address, contributors, managerId },
+      txArgs: { assetId, owner: address, contributors: bpsContributors, managerId },
     });
 
     try {
@@ -126,7 +132,7 @@ export default function DashboardPage() {
       initializeKit();
       
       // Convert contributors input into Soroban XDR ScVal types
-      const scContributors = contributors.map((c) => ({
+      const scContributors = bpsContributors.map((c) => ({
         address: nativeToScVal(c.address, { type: 'address' }),
         share: nativeToScVal(c.share, { type: 'u32' }),
       }));
@@ -178,7 +184,7 @@ export default function DashboardPage() {
 
       // Reset form
       setAssetId('');
-      setContributors([{ address: address || '', share: 10000 }]);
+      setContributors([{ address: address || '', share: 100 }]);
     } catch (err: any) {
       console.error(err);
       updateTxStatus(txId, 'FAILED', null, err.message || 'Transaction failed');
@@ -371,11 +377,12 @@ export default function DashboardPage() {
                     <input
                       type="number"
                       placeholder="Share"
+                      step="any"
                       value={c.share || ''}
-                      onChange={(e) => updateContributor(index, 'share', parseInt(e.target.value) || 0)}
+                      onChange={(e) => updateContributor(index, 'share', parseFloat(e.target.value) || 0)}
                       className="w-full bg-accent border border-border pl-3 pr-8 py-2.5 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary text-foreground font-semibold"
                     />
-                    <span className="absolute right-3 top-2.5 text-[10px] font-bold text-muted-foreground">bps</span>
+                    <span className="absolute right-3 top-2.5 text-[10px] font-bold text-muted-foreground">%</span>
                   </div>
                   {contributors.length > 1 && (
                     <button
