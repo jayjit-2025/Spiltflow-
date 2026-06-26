@@ -132,10 +132,20 @@ export default function DashboardPage() {
       initializeKit();
       
       // Convert contributors input into Soroban XDR ScVal types
-      const scContributors = bpsContributors.map((c) => ({
-        address: nativeToScVal(c.address, { type: 'address' }),
-        share: nativeToScVal(c.share, { type: 'u32' }),
-      }));
+      const scContributors = bpsContributors.map((c) => {
+        return nativeToScVal(
+          {
+            address: c.address,
+            share: c.share,
+          },
+          {
+            type: {
+              address: ['symbol', 'address'],
+              share: ['symbol', 'u32'],
+            },
+          }
+        );
+      });
 
       // Prepare contract args: register_asset(asset_id: Symbol, owner: Address, contributors: Vec<ContributorShare>)
       const args = [

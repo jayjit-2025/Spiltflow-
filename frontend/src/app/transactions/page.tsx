@@ -68,10 +68,20 @@ export default function TransactionCenterPage() {
         const { assetId, contributors, managerId } = tx.txArgs;
 
         // Re-construct scContributors ScVal
-        const scContributors = contributors.map((c: any) => ({
-          address: nativeToScVal(c.address, { type: 'address' }),
-          share: nativeToScVal(c.share, { type: 'u32' }),
-        }));
+        const scContributors = contributors.map((c: any) => {
+          return nativeToScVal(
+            {
+              address: c.address,
+              share: c.share,
+            },
+            {
+              type: {
+                address: ['symbol', 'address'],
+                share: ['symbol', 'u32'],
+              },
+            }
+          );
+        });
 
         const args = [
           nativeToScVal(assetId, { type: 'symbol' }),
