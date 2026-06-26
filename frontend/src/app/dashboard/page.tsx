@@ -25,13 +25,14 @@ import {
   FileText,
   UserCheck,
 } from 'lucide-react';
-import { nativeToScVal } from '@stellar/stellar-sdk';
+import { nativeToScVal, rpc } from '@stellar/stellar-sdk';
+import { StellarWalletsKit } from '@creit.tech/stellar-wallets-kit';
 
 export default function DashboardPage() {
   const { isConnected, address, network, initializeKit } = useWalletStore();
   const { addTx, updateTxStatus } = useTxStore();
   const { addActivity } = useActivityStore();
-
+  
   // Selected manager/distributor addresses (can be modified in settings, fallback default)
   const managerId = FALLBACK_MANAGER_ID;
   const distributorId = FALLBACK_DISTRIBUTOR_ID;
@@ -122,30 +123,19 @@ export default function DashboardPage() {
 
     try {
       updateTxStatus(txId, 'PROCESSING');
-      const kit = initializeKit();
-
+      initializeKit();
+      
       // Convert contributors input into Soroban XDR ScVal types
-      const scContributors = contributors.map((c) => {
-        return nativeToScVal(
-          {
-            address: c.address,
-            share: c.share,
-          },
-          {
-            type: 'map',
-            template: {
-              address: 'Address',
-              share: 'u32',
-            },
-          }
-        );
-      });
+      const scContributors = contributors.map((c) => ({
+        address: nativeToScVal(c.address, { type: 'address' }),
+        share: nativeToScVal(c.share, { type: 'u32' }),
+      }));
 
       // Prepare contract args: register_asset(asset_id: Symbol, owner: Address, contributors: Vec<ContributorShare>)
       const args = [
-        nativeToScVal(assetId, { type: 'Symbol' }),
-        nativeToScVal(address, { type: 'Address' }),
-        nativeToScVal(scContributors, { type: 'Vec' }),
+        nativeToScVal(assetId, { type: 'symbol' }),
+        nativeToScVal(address, { type: 'address' }),
+        nativeToScVal(scContributors),
       ];
 
       // Build, simulate and assemble transaction with resource footprints
@@ -158,15 +148,15 @@ export default function DashboardPage() {
       );
 
       // Sign transaction via connected wallet
-      const { signedTxXdr } = await kit.signTransaction(assembledTx.toXDR());
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR());
       
       // Submit to network
       const serverUrl = rpc.Server.prototype.constructor.name; // trick to avoid unused import issues
       const server = new rpc.Server(network === 'PUBLIC' ? 'https://soroban-mainnet.stellar.org' : network === 'TESTNET' ? 'https://soroban-testnet.stellar.org' : 'http://localhost:8000');
       const submissionResponse = await server.sendTransaction(assembledTx.toEnvelope().toXDR());
       
-      if (submissionResponse.status === rpc.Api.SendTransactionStatus.ERROR) {
-        throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResultXdr)}`);
+      if (submissionResponse.status === 'ERROR') {
+        throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResult)}`);
       }
 
       const txHash = submissionResponse.hash;
@@ -228,12 +218,12 @@ export default function DashboardPage() {
 
     try {
       updateTxStatus(txId, 'PROCESSING');
-      const kit = initializeKit();
+      initializeKit();
 
       // args: distribute_royalty(payer: Address, asset_id: Symbol, amount: i128)
       const args = [
-        nativeToScVal(address, { type: 'Address' }),
-        nativeToScVal(distAssetId, { type: 'Symbol' }),
+        nativeToScVal(address, { type: 'address' }),
+        nativeToScVal(distAssetId, { type: 'symbol' }),
         nativeToScVal(stroopAmount, { type: 'i128' }),
       ];
 
@@ -245,12 +235,12 @@ export default function DashboardPage() {
         args
       );
 
-      const { signedTxXdr } = await kit.signTransaction(assembledTx.toXDR());
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR());
       const server = new rpc.Server(network === 'PUBLIC' ? 'https://soroban-mainnet.stellar.org' : network === 'TESTNET' ? 'https://soroban-testnet.stellar.org' : 'http://localhost:8000');
       const submissionResponse = await server.sendTransaction(assembledTx.toEnvelope().toXDR());
       
-      if (submissionResponse.status === rpc.Api.SendTransactionStatus.ERROR) {
-        throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResultXdr)}`);
+      if (submissionResponse.status === 'ERROR') {
+        throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResult)}`);
       }
 
       const txHash = submissionResponse.hash;

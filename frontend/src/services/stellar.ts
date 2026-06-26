@@ -9,7 +9,8 @@ import {
   xdr,
   Account,
 } from '@stellar/stellar-sdk';
-import { WalletNetwork } from '@creit.tech/stellar-wallets-kit';
+
+type NetworkType = 'TESTNET' | 'PUBLIC' | 'STANDALONE';
 
 // Default RPC server URLs
 export const TESTNET_RPC_URL = 'https://soroban-testnet.stellar.org';
@@ -35,10 +36,10 @@ export interface AssetDetails {
 /**
  * Gets the correct RPC URL based on the active network.
  */
-export function getRpcUrl(network: WalletNetwork): string {
-  return network === WalletNetwork.PUBLIC
+export function getRpcUrl(network: NetworkType): string {
+  return network === 'PUBLIC'
     ? 'https://soroban-mainnet.stellar.org'
-    : network === WalletNetwork.TESTNET
+    : network === 'TESTNET'
     ? TESTNET_RPC_URL
     : LOCALNET_RPC_URL;
 }
@@ -46,10 +47,10 @@ export function getRpcUrl(network: WalletNetwork): string {
 /**
  * Gets the network passphrase based on the active network.
  */
-export function getNetworkPassphrase(network: WalletNetwork): string {
-  return network === WalletNetwork.PUBLIC
+export function getNetworkPassphrase(network: NetworkType): string {
+  return network === 'PUBLIC'
     ? Networks.PUBLIC
-    : network === WalletNetwork.TESTNET
+    : network === 'TESTNET'
     ? Networks.TESTNET
     : Networks.STANDALONE;
 }
@@ -58,7 +59,7 @@ export function getNetworkPassphrase(network: WalletNetwork): string {
  * Fetches asset details from the Royalty Manager contract.
  */
 export async function fetchAssetDetails(
-  network: WalletNetwork,
+  network: NetworkType,
   managerId: string,
   assetId: string
 ): Promise<AssetDetails | null> {
@@ -67,7 +68,7 @@ export async function fetchAssetDetails(
   const contract = new Contract(managerId);
 
   // Prepare arguments for get_asset(asset_id: Symbol)
-  const args = [nativeToScVal(assetId, { type: 'Symbol' })];
+  const args = [nativeToScVal(assetId, { type: 'symbol' })];
 
   try {
     const response = await server.simulateTransaction(
@@ -109,7 +110,7 @@ export async function fetchAssetDetails(
  * Prepares, simulates, and signs a Soroban transaction.
  */
 export async function buildAndSimulateTx(
-  network: WalletNetwork,
+  network: NetworkType,
   senderAddress: string,
   contractId: string,
   functionName: string,
@@ -148,7 +149,7 @@ export async function buildAndSimulateTx(
  * Polls the Soroban RPC server to check transaction status until confirmed or failed.
  */
 export async function pollTxStatus(
-  network: WalletNetwork,
+  network: NetworkType,
   txHash: string,
   maxAttempts = 30,
   delayMs = 1500
@@ -171,3 +172,4 @@ export async function pollTxStatus(
 
   throw new Error('Transaction polling timed out');
 }
+

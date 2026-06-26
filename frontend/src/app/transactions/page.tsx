@@ -20,6 +20,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { nativeToScVal, rpc } from '@stellar/stellar-sdk';
+import { StellarWalletsKit } from '@creit.tech/stellar-wallets-kit';
 
 export default function TransactionCenterPage() {
   const { transactions, updateTxStatus, incrementRetry, clearHistory } = useTxStore();
@@ -61,32 +62,21 @@ export default function TransactionCenterPage() {
     updateTxStatus(txId, 'PROCESSING', null, null);
 
     try {
-      const kit = initializeKit();
+      initializeKit();
 
       if (tx.txType === 'REGISTER_ASSET') {
         const { assetId, contributors, managerId } = tx.txArgs;
 
         // Re-construct scContributors ScVal
-        const scContributors = contributors.map((c: any) => {
-          return nativeToScVal(
-            {
-              address: c.address,
-              share: c.share,
-            },
-            {
-              type: 'map',
-              template: {
-                address: 'Address',
-                share: 'u32',
-              },
-            }
-          );
-        });
+        const scContributors = contributors.map((c: any) => ({
+          address: nativeToScVal(c.address, { type: 'address' }),
+          share: nativeToScVal(c.share, { type: 'u32' }),
+        }));
 
         const args = [
-          nativeToScVal(assetId, { type: 'Symbol' }),
-          nativeToScVal(address, { type: 'Address' }),
-          nativeToScVal(scContributors, { type: 'Vec' }),
+          nativeToScVal(assetId, { type: 'symbol' }),
+          nativeToScVal(address, { type: 'address' }),
+          nativeToScVal(scContributors),
         ];
 
         // Re-build and simulate
@@ -99,12 +89,12 @@ export default function TransactionCenterPage() {
         );
 
         // Sign & Submit
-        const { signedTxXdr } = await kit.signTransaction(assembledTx.toXDR());
+        const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR());
         const server = new rpc.Server(network === 'PUBLIC' ? 'https://soroban-mainnet.stellar.org' : network === 'TESTNET' ? 'https://soroban-testnet.stellar.org' : 'http://localhost:8000');
         const submissionResponse = await server.sendTransaction(assembledTx.toEnvelope().toXDR());
         
-        if (submissionResponse.status === rpc.Api.SendTransactionStatus.ERROR) {
-          throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResultXdr)}`);
+        if (submissionResponse.status === 'ERROR') {
+          throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResult)}`);
         }
 
         const txHash = submissionResponse.hash;
@@ -127,8 +117,8 @@ export default function TransactionCenterPage() {
         const stroopAmount = BigInt(Math.floor(amountNum * 10000000));
 
         const args = [
-          nativeToScVal(address, { type: 'Address' }),
-          nativeToScVal(assetId, { type: 'Symbol' }),
+          nativeToScVal(address, { type: 'address' }),
+          nativeToScVal(assetId, { type: 'symbol' }),
           nativeToScVal(stroopAmount, { type: 'i128' }),
         ];
 
@@ -140,12 +130,12 @@ export default function TransactionCenterPage() {
           args
         );
 
-        const { signedTxXdr } = await kit.signTransaction(assembledTx.toXDR());
+        const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR());
         const server = new rpc.Server(network === 'PUBLIC' ? 'https://soroban-mainnet.stellar.org' : network === 'TESTNET' ? 'https://soroban-testnet.stellar.org' : 'http://localhost:8000');
         const submissionResponse = await server.sendTransaction(assembledTx.toEnvelope().toXDR());
         
-        if (submissionResponse.status === rpc.Api.SendTransactionStatus.ERROR) {
-          throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResultXdr)}`);
+        if (submissionResponse.status === 'ERROR') {
+          throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResult)}`);
         }
 
         const txHash = submissionResponse.hash;

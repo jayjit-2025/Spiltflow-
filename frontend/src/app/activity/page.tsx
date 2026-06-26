@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useActivityStore, ActivityItem } from '@/store/useActivityStore';
 import { useWalletStore } from '@/store/useWalletStore';
-import { fetchContractEvents, generateMockEvent, FALLBACK_MANAGER_ID, FALLBACK_DISTRIBUTOR_ID } from '@/services/events';
+import { fetchContractEvents, generateMockEvent } from '@/services/events';
+import { FALLBACK_MANAGER_ID, FALLBACK_DISTRIBUTOR_ID } from '@/services/stellar';
 import {
   Activity,
   Compass,

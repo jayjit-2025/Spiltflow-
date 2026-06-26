@@ -1,21 +1,23 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { StellarWalletsKit, WalletNetwork, WalletId } from '@creit.tech/stellar-wallets-kit';
+import { StellarWalletsKit, Networks } from '@creit.tech/stellar-wallets-kit';
+import { AlbedoModule, ALBEDO_ID } from '@creit.tech/stellar-wallets-kit/modules/albedo';
+import { FreighterModule, FREIGHTER_ID } from '@creit.tech/stellar-wallets-kit/modules/freighter';
+import { xBullModule, XBULL_ID } from '@creit.tech/stellar-wallets-kit/modules/xbull';
 
 type NetworkType = 'TESTNET' | 'PUBLIC' | 'STANDALONE';
 
 interface WalletState {
   address: string | null;
   isConnected: boolean;
-  activeWallet: WalletId | null;
+  activeWallet: string | null;
   network: NetworkType;
   isConnecting: boolean;
   error: string | null;
-  walletKit: StellarWalletsKit | null;
 
   setNetwork: (network: NetworkType) => void;
-  initializeKit: () => StellarWalletsKit;
-  connect: (walletId: WalletId) => Promise<void>;
+  initializeKit: () => void;
+  connect: (walletId: string) => Promise<void>;
   disconnect: () => void;
   setError: (error: string | null) => void;
 }
@@ -29,39 +31,37 @@ export const useWalletStore = create<WalletState>()(
       network: 'TESTNET' as NetworkType,
       isConnecting: false,
       error: null,
-      walletKit: null,
 
       initializeKit: () => {
-        let kit = get().walletKit;
-        if (!kit) {
-          const net = get().network;
-          const wn = net === 'PUBLIC' ? WalletNetwork.PUBLIC : net === 'STANDALONE' ? WalletNetwork.STANDALONE : WalletNetwork.TESTNET;
-          kit = new StellarWalletsKit({
+        const net = get().network;
+        const wn = net === 'PUBLIC' ? Networks.PUBLIC : net === 'STANDALONE' ? Networks.STANDALONE : Networks.TESTNET;
+        
+        if (typeof window !== 'undefined') {
+          StellarWalletsKit.init({
             network: wn,
-            allowMultipleWallets: true,
+            modules: [
+              new FreighterModule(),
+              new AlbedoModule(),
+              new xBullModule(),
+            ]
           });
-          set({ walletKit: kit });
         }
-        return kit;
       },
 
       setNetwork: (network) => {
         set({ network });
-        // Re-initialize kit when network changes
-        const wn = network === 'PUBLIC' ? WalletNetwork.PUBLIC : network === 'STANDALONE' ? WalletNetwork.STANDALONE : WalletNetwork.TESTNET;
-        const kit = new StellarWalletsKit({
-          network: wn,
-          allowMultipleWallets: true,
-        });
-        set({ walletKit: kit });
+        const wn = network === 'PUBLIC' ? Networks.PUBLIC : network === 'STANDALONE' ? Networks.STANDALONE : Networks.TESTNET;
+        if (typeof window !== 'undefined') {
+          StellarWalletsKit.setNetwork(wn);
+        }
       },
 
       connect: async (walletId) => {
         set({ isConnecting: true, error: null });
         try {
-          const kit = get().initializeKit();
-          await kit.setWallet(walletId);
-          const { address } = await kit.getAddress();
+          get().initializeKit();
+          StellarWalletsKit.setWallet(walletId);
+          const { address } = await StellarWalletsKit.getAddress();
           
           set({
             address,
@@ -82,6 +82,9 @@ export const useWalletStore = create<WalletState>()(
       },
 
       disconnect: () => {
+        if (typeof window !== 'undefined') {
+          StellarWalletsKit.disconnect().catch(console.error);
+        }
         set({
           address: null,
           isConnected: false,
@@ -95,7 +98,6 @@ export const useWalletStore = create<WalletState>()(
     {
       name: 'splitflow-wallet-store',
       storage: createJSONStorage(() => localStorage),
-      // Only persist serializable fields
       partialize: (state) => ({
         address: state.address,
         isConnected: state.isConnected,
@@ -105,3 +107,4 @@ export const useWalletStore = create<WalletState>()(
     }
   )
 );
+

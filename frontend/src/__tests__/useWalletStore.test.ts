@@ -4,28 +4,38 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-// Mock the external wallet kit so enum imports work in jsdom
+// Mock the external wallet kit so imports work in jsdom
 vi.mock('@creit.tech/stellar-wallets-kit', () => {
   return {
-    StellarWalletsKit: class {
-      openModal = vi.fn();
-      closeModal = vi.fn();
-      getAddress = vi.fn().mockResolvedValue({ address: 'GMOCK...' });
-      signTx = vi.fn();
+    StellarWalletsKit: {
+      init: vi.fn(),
+      setWallet: vi.fn(),
+      setNetwork: vi.fn(),
+      getAddress: vi.fn().mockResolvedValue({ address: 'GMOCK...' }),
+      disconnect: vi.fn().mockResolvedValue(undefined),
     },
-    WalletNetwork: {
+    Networks: {
       TESTNET: 'TESTNET',
       PUBLIC: 'PUBLIC',
       STANDALONE: 'STANDALONE',
     },
-    WalletId: {},
-    FREIGHTER_ID: 'FREIGHTER',
-    ALBEDO_ID: 'ALBEDO',
-    RABET_ID: 'RABET',
-    XBULL_ID: 'XBULL',
-    HANA_ID: 'HANA',
   };
 });
+
+// Mock modules so subpath imports don't fail in Vitest
+vi.mock('@creit.tech/stellar-wallets-kit/modules/freighter', () => ({
+  FreighterModule: class {},
+  FREIGHTER_ID: 'FREIGHTER',
+}));
+vi.mock('@creit.tech/stellar-wallets-kit/modules/albedo', () => ({
+  AlbedoModule: class {},
+  ALBEDO_ID: 'ALBEDO',
+}));
+vi.mock('@creit.tech/stellar-wallets-kit/modules/xbull', () => ({
+  xBullModule: class {},
+  XBULL_ID: 'XBULL',
+}));
+
 
 import { useWalletStore } from '@/store/useWalletStore';
 

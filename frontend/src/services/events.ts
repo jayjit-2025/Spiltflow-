@@ -1,5 +1,7 @@
-import { rpc, scValToNative, WalletNetwork } from '@stellar/stellar-sdk';
+import { rpc, scValToNative } from '@stellar/stellar-sdk';
 import { getRpcUrl } from './stellar';
+
+type NetworkType = 'TESTNET' | 'PUBLIC' | 'STANDALONE';
 
 export interface ParsedEvent {
   id: string;
@@ -17,7 +19,7 @@ export interface ParsedEvent {
  * Fetches and parses contract events from the Soroban RPC server.
  */
 export async function fetchContractEvents(
-  network: WalletNetwork,
+  network: NetworkType,
   contractIds: string[],
   startLedger: number
 ): Promise<{ events: ParsedEvent[]; latestLedger: number }> {
