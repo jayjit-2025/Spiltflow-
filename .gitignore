@@ -1,0 +1,16 @@
+# Rust build artifacts
+/target/
+Cargo.lock
+
+# JavaScript/Next.js dependencies and build outputs
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+
+# Local environment files and secrets
+**/.env.local
+**/.env.*.local
+**/*.log
+**/.DS_Store
+Thumbs.db
