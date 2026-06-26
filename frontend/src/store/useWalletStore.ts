@@ -61,7 +61,7 @@ export const useWalletStore = create<WalletState>()(
         try {
           get().initializeKit();
           StellarWalletsKit.setWallet(walletId);
-          const { address } = await StellarWalletsKit.getAddress();
+          const { address } = await StellarWalletsKit.fetchAddress();
           
           set({
             address,

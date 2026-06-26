@@ -12,6 +12,7 @@ vi.mock('@creit.tech/stellar-wallets-kit', () => {
       setWallet: vi.fn(),
       setNetwork: vi.fn(),
       getAddress: vi.fn().mockResolvedValue({ address: 'GMOCK...' }),
+      fetchAddress: vi.fn().mockResolvedValue({ address: 'GMOCK...' }),
       disconnect: vi.fn().mockResolvedValue(undefined),
     },
     Networks: {
