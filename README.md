@@ -1,11 +1,27 @@
-# SplitFlow 🟠
+<h1 align="center">SplitFlow 🟠</h1>
 
-> **Decentralized Royalty Distribution on Stellar** — A production-ready Soroban smart contract application that automates revenue sharing among contributors of digital assets.
+<p align="center">
+  <strong>Decentralized Royalty Distribution on Stellar: Revenue shared instantly. On-chain splits made simple.</strong>
+</p>
 
-[![CI/CD](https://github.com/jayjit-2025/Spiltflow-/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/jayjit-2025/Spiltflow-/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](./LICENSE)
-[![Stellar](https://img.shields.io/badge/Network-Stellar_Testnet-purple.svg)](https://stellar.org)
-[![Soroban](https://img.shields.io/badge/Runtime-Soroban_v21-blue.svg)](https://soroban.stellar.org)
+<p align="center">
+  <a href="http://localhost:3000">
+    <img src="https://img.shields.io/badge/%F0%9F%9A%80%20LIVE%20DEMO-VISIT%20APP-00d2ff?style=for-the-badge" alt="Visit App" />
+  </a>
+  <a href="https://github.com/jayjit-2025/Spiltflow-">
+    <img src="https://img.shields.io/badge/%F0%9F%8E%AC%20DEMO%20VIDEO-WATCH%20NOW-ff3366?style=for-the-badge" alt="Watch Now" />
+  </a>
+  <a href="https://github.com/jayjit-2025/Spiltflow-/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/jayjit-2025/Spiltflow-/ci-cd.yml?branch=main&label=CI%20Pipeline&style=for-the-badge" alt="CI Status" />
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/REACT-black?style=for-the-badge&logo=react" alt="React" />
+  <img src="https://img.shields.io/badge/STELLAR-ef4444?style=for-the-badge&logo=stellar" alt="Stellar" />
+  <img src="https://img.shields.io/badge/FREIGHTER-3b82f6?style=for-the-badge" alt="Freighter" />
+  <img src="https://img.shields.io/badge/LICENSE-MIT-22c55e?style=for-the-badge" alt="License" />
+</p>
 
 ---
 
