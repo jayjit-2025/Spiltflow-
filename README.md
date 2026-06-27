@@ -176,16 +176,6 @@ Open [http://localhost:3000](http://localhost:3000) 🎉
 ---
 
 ## 🧪 Testing
-
-### Frontend Unit Tests (Vitest + RTL)
-
-```bash
-cd frontend
-npm test               # Run once
-npm run test:watch     # Watch mode
-npm run test:coverage  # With coverage report
-```
-
 **15 tests across 3 suites:**
 - `useWalletStore.test.ts` — 5 tests (connect/disconnect, error, network)
 - `useTxStore.test.ts` — 6 tests (lifecycle, PENDING→CONFIRMED, retry, clearHistory)
@@ -197,7 +187,7 @@ npm run test:coverage  # With coverage report
 cd contracts
 cargo test --workspace
 ```
-
+Showing 3/3 tests passing successfully
 ![Smart Contract Test Passing Output](./assets/test_passing_cargo.png)
 
 Tests cover: asset registration, contributor validation, share sum enforcement, distribution, access control, deactivation/reactivation.
