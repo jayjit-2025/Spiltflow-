@@ -51,7 +51,9 @@ SplitFlow is a fully decentralized royalty distribution system built on the Stel
 
 
 ### Analytics Overview
-![SplitFlow Analytics](./assets/splitflow_analytics_preview.png)
+<img width="1917" height="707" alt="Screenshot 2026-06-27 211802" src="https://github.com/user-attachments/assets/05ae6187-7f62-4740-997d-719d14885570" />
+
+
 
 ---
 
