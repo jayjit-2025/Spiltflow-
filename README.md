@@ -281,9 +281,9 @@ This project uses **GitHub Actions** for continuous integration. Every push to `
 *   [x] Runs all 4 Soroban contract unit tests (`cargo test`)
 *   [x] Builds the production React bundle (`npm run build`)
 
-### 📸 CI/CD Pipeline Screenshot
 
-![Build Status passing](./assets/ci_cd_passing.png)
+
+
 
 View live runs: [GitHub Actions](https://github.com/jayjit-2025/Spiltflow-/actions)
 
