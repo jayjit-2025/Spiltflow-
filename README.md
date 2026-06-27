@@ -230,8 +230,11 @@ struct AssetData {
 
 | Contract | Contract ID | Explorer |
 |----------|-------------|---------|
-| RoyaltyManager | _Run deploy script_ | [stellar.expert](https://stellar.expert/explorer/testnet) |
-| RoyaltyDistributor | _Run deploy script_ | [stellar.expert](https://stellar.expert/explorer/testnet) |
+| RoyaltyManager | `CD2GSKODG4YI7CCHFKJTTR2BMZIJMQZRYU7JH666T2Z2WQC5HOVAVFW4` | [stellar.expert](https://stellar.expert/explorer/testnet/contract/CD2GSKODG4YI7CCHFKJTTR2BMZIJMQZRYU7JH666T2Z2WQC5HOVAVFW4) |
+| RoyaltyDistributor | `CAGLWDRQ2IIRGIFGJJZTUA4LM3KLEOCFZUHVNE6HIXHMY2KZP6GNXAJT` | [stellar.expert](https://stellar.expert/explorer/testnet/contract/CAGLWDRQ2IIRGIFGJJZTUA4LM3KLEOCFZUHVNE6HIXHMY2KZP6GNXAJT) |
+
+### On-Chain Interaction Reference
+* **Transaction Hash for Contract Interaction:** `5cac9796d59865b8c7ed7dba36883192bfd9dcb863f1e8106b1224247783ac54`
 
 > Contract IDs are auto-populated in `frontend/.env.local` by the deploy script.
 
