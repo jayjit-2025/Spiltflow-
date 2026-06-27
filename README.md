@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/badge/%F0%9F%8E%AC%20DEMO%20VIDEO-WATCH%20NOW-ff3366?style=for-the-badge" alt="Watch Now" />
   </a>
   <a href="https://github.com/jayjit-2025/Spiltflow-/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/jayjit-2025/Spiltflow-/ci-cd.yml?branch=main&label=CI%20Pipeline&style=for-the-badge" alt="CI Status" />
+    <img src="https://img.shields.io/github/actions/workflow/status/jayjit-2025/Spiltflow-/ci-cd.yml?branch=main&label=Build%20Status&style=for-the-badge" alt="CI Status" />
   </a>
 </p>
 
