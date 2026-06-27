@@ -41,6 +41,7 @@ SplitFlow is a fully decentralized royalty distribution system built on the Stel
 | 🧪 **Full Test Suite** | 15+ Vitest unit tests + Rust contract tests + integration test script |
 | 🚀 **CI/CD Ready** | GitHub Actions pipeline for lint, test, build, and automated Testnet deploy |
 
+---
 
 **📖 What is SplitFlow?**
 
@@ -58,6 +59,8 @@ When a creator registers an asset with contributor wallet addresses and royalty 
 
 📜 Records every payment permanently for auditability.
 
+---
+
 **🔴 Problem Statement**
 
 Traditional royalty distribution suffers from several challenges:
@@ -71,6 +74,8 @@ Traditional royalty distribution suffers from several challenges:
 4.Centralized systems that rely on intermediaries.
 
 5.No immutable record of payment distribution.
+
+---
 
 **🟢 Solution**
 
@@ -86,6 +91,7 @@ SplitFlow solves these challenges using Stellar Soroban Smart Contracts by provi
 
 📊 Permanent blockchain records for every payment.
 
+---
 
 ## 📸 App Preview & Screenshots
 
