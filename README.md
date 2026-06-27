@@ -41,6 +41,17 @@ SplitFlow is a fully decentralized royalty distribution system built on the Stel
 | 🧪 **Full Test Suite** | 15+ Vitest unit tests + Rust contract tests + integration test script |
 | 🚀 **CI/CD Ready** | GitHub Actions pipeline for lint, test, build, and automated Testnet deploy |
 
+## 📸 App Preview & Screenshots
+
+### Mobile Responsive UI
+![Mobile Responsive UI](./assets/mobile_ui.png)
+
+### Dashboard Overview
+![SplitFlow Dashboard](./assets/splitflow_dashboard_preview.png)
+
+### Analytics Overview
+![SplitFlow Analytics](./assets/splitflow_analytics_preview.png)
+
 ---
 
 ## 🏗️ Architecture
