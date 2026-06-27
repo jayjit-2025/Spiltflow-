@@ -8,7 +8,7 @@
   <a href="https://spiltflow.vercel.app" target="_blank">
     <img src="https://img.shields.io/badge/%F0%9F%9A%80%20LIVE%20DEMO-VISIT%20APP-00d2ff?style=for-the-badge" alt="Visit App" />
   </a>
-  <a href="https://github.com/jayjit-2025/splitflow-protocol" target="_blank">
+  <a href="https://drive.google.com/file/d/1tOcmKhAlXA7CgMheDJgI6iiFCMy2Z07x/view?usp=sharing" target="_blank">
     <img src="https://img.shields.io/badge/%F0%9F%8E%AC%20DEMO%20VIDEO-WATCH%20NOW-ff3366?style=for-the-badge" alt="Watch Now" />
   </a>
   <a href="#">
