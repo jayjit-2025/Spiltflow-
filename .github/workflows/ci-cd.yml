@@ -54,7 +54,7 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  # ── Job 2: Frontend Test & Build ───────────────────────────────────────────
+  # ── Job 2: Frontend Build ──────────────────────────────────────────────────
   frontend:
     name: Frontend — Test & Build
     runs-on: ubuntu-latest
@@ -73,11 +73,13 @@ jobs:
         working-directory: ./frontend
 
       - name: Run tests
-        run: npx vitest run
+        run: ./node_modules/.bin/vitest run --reporter=verbose
         working-directory: ./frontend
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
 
       - name: Build production bundle
-        run: npx next build
+        run: ./node_modules/.bin/next build
         working-directory: ./frontend
         env:
           NEXT_PUBLIC_SOROBAN_RPC_URL: https://soroban-testnet.stellar.org
