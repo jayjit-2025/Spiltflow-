@@ -260,33 +260,16 @@ Runtime overrides can also be set via the **Settings page** in the UI and are pe
 
 ## 🛠️ CI/CD Pipeline
 
-The GitHub Actions workflow (`.github/workflows/ci-cd.yml`) runs on every PR and push to `main`:
+This project uses **GitHub Actions** for continuous integration. Every push to `main` automatically:
 
-```
-┌────────────────────────────────────────────┐
-│              On Pull Request               │
-├──────────────┬─────────────┬──────────────┤
-│  Contracts   │  Frontend   │   Security   │
-│  ─────────── │  ────────── │  ────────── │
-│  cargo fmt   │  tsc        │  npm audit   │
-│  clippy      │  vitest     │  cargo-audit │
-│  cargo test  │  next build │              │
-│  wasm build  │             │              │
-└──────────────┴─────────────┴──────────────┘
-                      │
-              push to main
-                      │
-             ┌────────────────┐
-             │ Deploy Testnet │
-             │  stellar CLI   │
-             │  next build    │
-             └────────────────┘
-```
+*   [x] Runs all 4 Soroban contract unit tests (`cargo test`)
+*   [x] Builds the production React bundle (`npm run build`)
 
-**Required GitHub Secrets:**
-- `TESTNET_DEPLOYER_SECRET_KEY` — Stellar secret key with testnet XLM
-- `TESTNET_MANAGER_CONTRACT_ID` — (optional, for build env vars)
-- `TESTNET_DISTRIBUTOR_CONTRACT_ID` — (optional, for build env vars)
+### 📸 CI/CD Pipeline Screenshot
+
+![Build Status passing](./assets/ci_cd_passing.png)
+
+View live runs: [GitHub Actions](https://github.com/jayjit-2025/Spiltflow-/actions)
 
 ---
 
