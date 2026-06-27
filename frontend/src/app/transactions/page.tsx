@@ -8,6 +8,8 @@ import {
   buildAndSimulateTx,
   pollTxStatus,
   XLM_SAC_ID,
+  getNetworkPassphrase,
+  getRpcUrl,
 } from '@/services/stellar';
 import {
   History,
@@ -19,7 +21,7 @@ import {
   RefreshCw,
   AlertTriangle,
 } from 'lucide-react';
-import { nativeToScVal, rpc } from '@stellar/stellar-sdk';
+import { nativeToScVal, xdr, rpc, TransactionBuilder } from '@stellar/stellar-sdk';
 import { StellarWalletsKit } from '@creit.tech/stellar-wallets-kit';
 
 export default function TransactionCenterPage() {
@@ -67,26 +69,24 @@ export default function TransactionCenterPage() {
       if (tx.txType === 'REGISTER_ASSET') {
         const { assetId, contributors, managerId } = tx.txArgs;
 
-        // Re-construct scContributors ScVal
-        const scContributors = contributors.map((c: any) => {
-          return nativeToScVal(
-            {
-              address: c.address,
-              share: c.share,
-            },
-            {
-              type: {
-                address: ['symbol', 'address'],
-                share: ['symbol', 'u32'],
-              },
-            }
-          );
-        });
+        // Re-construct scContributors ScVal (map-based struct encoding)
+        const scContributors = contributors.map((c: any) =>
+          xdr.ScVal.scvMap([
+            new xdr.ScMapEntry({
+              key: xdr.ScVal.scvSymbol('address'),
+              val: nativeToScVal(c.address, { type: 'address' }),
+            }),
+            new xdr.ScMapEntry({
+              key: xdr.ScVal.scvSymbol('share'),
+              val: xdr.ScVal.scvU32(c.share),
+            }),
+          ])
+        );
 
         const args = [
           nativeToScVal(assetId, { type: 'symbol' }),
           nativeToScVal(address, { type: 'address' }),
-          nativeToScVal(scContributors),
+          xdr.ScVal.scvVec(scContributors),
         ];
 
         // Re-build and simulate
@@ -99,9 +99,14 @@ export default function TransactionCenterPage() {
         );
 
         // Sign & Submit
-        const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR());
-        const server = new rpc.Server(network === 'PUBLIC' ? 'https://soroban-mainnet.stellar.org' : network === 'TESTNET' ? 'https://soroban-testnet.stellar.org' : 'http://localhost:8000');
-        const submissionResponse = await server.sendTransaction(assembledTx.toEnvelope().toXDR());
+        const passphrase = getNetworkPassphrase(network);
+        const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR(), {
+          networkPassphrase: passphrase,
+          address,
+        });
+        const signedTx = TransactionBuilder.fromXDR(signedTxXdr, passphrase);
+        const server = new rpc.Server(getRpcUrl(network));
+        const submissionResponse = await server.sendTransaction(signedTx);
         
         if (submissionResponse.status === 'ERROR') {
           throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResult)}`);
@@ -140,9 +145,14 @@ export default function TransactionCenterPage() {
           args
         );
 
-        const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR());
-        const server = new rpc.Server(network === 'PUBLIC' ? 'https://soroban-mainnet.stellar.org' : network === 'TESTNET' ? 'https://soroban-testnet.stellar.org' : 'http://localhost:8000');
-        const submissionResponse = await server.sendTransaction(assembledTx.toEnvelope().toXDR());
+        const passphrase2 = getNetworkPassphrase(network);
+        const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR(), {
+          networkPassphrase: passphrase2,
+          address,
+        });
+        const signedTx = TransactionBuilder.fromXDR(signedTxXdr, passphrase2);
+        const server = new rpc.Server(getRpcUrl(network));
+        const submissionResponse = await server.sendTransaction(signedTx);
         
         if (submissionResponse.status === 'ERROR') {
           throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResult)}`);

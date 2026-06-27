@@ -28,9 +28,9 @@ if (!DEPLOYER_SECRET) {
   process.exit(1);
 }
 
-const WASM_DIR = path.resolve(__dirname, '../contracts');
-const MANAGER_WASM = path.join(WASM_DIR, 'royalty_manager/target/wasm32-unknown-unknown/release/royalty_manager.wasm');
-const DISTRIBUTOR_WASM = path.join(WASM_DIR, 'royalty_distributor/target/wasm32-unknown-unknown/release/royalty_distributor.wasm');
+const WASM_DIR = path.resolve(__dirname, '../target/wasm32-unknown-unknown/release');
+const MANAGER_WASM = path.join(WASM_DIR, 'royalty_manager.wasm');
+const DISTRIBUTOR_WASM = path.join(WASM_DIR, 'royalty_distributor.wasm');
 const ENV_OUTPUT = path.resolve(__dirname, '../frontend/.env.local');
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -67,6 +67,10 @@ async function main() {
   );
   console.log(`  ✓ RoyaltyManager deployed: ${managerContractId}`);
 
+  // Sleep to prevent TxBadSeq on the next deployment
+  console.log('  Waiting 5s for sequence number increment...');
+  await new Promise((r) => setTimeout(r, 5000));
+
   // 2. Deploy RoyaltyDistributor
   console.log('\n[2/4] Deploying RoyaltyDistributor...');
   const distributorContractId = run(
@@ -77,6 +81,10 @@ async function main() {
       --fee 1000000`
   );
   console.log(`  ✓ RoyaltyDistributor deployed: ${distributorContractId}`);
+
+  // Sleep to wait for ledger closure and testnet RPC sync/propagation
+  console.log('  Waiting 8s for testnet synchronization...');
+  await new Promise((r) => setTimeout(r, 8000));
 
   // 3. Initialize RoyaltyManager (set admin)
   console.log('\n[3/4] Initializing RoyaltyManager...');
@@ -104,7 +112,7 @@ async function main() {
       -- initialize \
       --admin ${deployerPublicKey} \
       --manager_address ${managerContractId} \
-      --token_address CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA`
+      --token_address CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
   );
   console.log('  ✓ RoyaltyDistributor initialized');
 
@@ -117,7 +125,7 @@ NEXT_PUBLIC_SOROBAN_RPC_URL=https://soroban-${network}.stellar.org
 NEXT_PUBLIC_NETWORK_PASSPHRASE=${network === 'testnet' ? 'Test SDF Network ; September 2015' : 'Public Global Stellar Network ; September 2015'}
 NEXT_PUBLIC_MANAGER_CONTRACT_ID=${managerContractId}
 NEXT_PUBLIC_DISTRIBUTOR_CONTRACT_ID=${distributorContractId}
-NEXT_PUBLIC_XLM_SAC_ID=CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA
+NEXT_PUBLIC_XLM_SAC_ID=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
 `;
   fs.writeFileSync(ENV_OUTPUT, envContent);
   console.log(`  ✓ Written to ${ENV_OUTPUT}`);

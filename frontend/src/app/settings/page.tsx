@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWalletStore } from '@/store/useWalletStore';
 import { useTxStore } from '@/store/useTxStore';
 import { useActivityStore } from '@/store/useActivityStore';
@@ -17,6 +17,32 @@ export default function SettingsPage() {
   const [tokenId, setTokenId] = useState(XLM_SAC_ID);
   const [rpcUrl, setRpcUrl] = useState(TESTNET_RPC_URL);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedManager = localStorage.getItem('splitflow:manager_id') || FALLBACK_MANAGER_ID;
+      let storedDistributor = localStorage.getItem('splitflow:distributor_id');
+      const storedToken = localStorage.getItem('splitflow:token_id') || XLM_SAC_ID;
+      const storedRpc = localStorage.getItem('splitflow:rpc_url') || TESTNET_RPC_URL;
+
+      // Auto-heal: If saved distributor ID is empty, equals manager ID, or matches the old distributor ID, replace with fallback distributor ID
+      if (
+        (!storedDistributor ||
+          storedDistributor === storedManager ||
+          storedDistributor === 'CBDSNV5OLO7OR5BH3AQOEEWXGDBBZCVT6FDJT7MCOHHH53MPVRKZV27K') &&
+        FALLBACK_DISTRIBUTOR_ID &&
+        FALLBACK_DISTRIBUTOR_ID !== storedManager
+      ) {
+        storedDistributor = FALLBACK_DISTRIBUTOR_ID;
+        localStorage.setItem('splitflow:distributor_id', FALLBACK_DISTRIBUTOR_ID);
+      }
+
+      setManagerId(storedManager);
+      if (storedDistributor) setDistributorId(storedDistributor);
+      setTokenId(storedToken);
+      setRpcUrl(storedRpc);
+    }
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();

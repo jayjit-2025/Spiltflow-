@@ -17,10 +17,33 @@ export const TESTNET_RPC_URL = 'https://soroban-testnet.stellar.org';
 export const LOCALNET_RPC_URL = 'http://localhost:8000';
 
 // Default fallback contract addresses (populated after deployment)
-// If a local addresses.json is present, it will be loaded dynamically in the UI
-export const FALLBACK_MANAGER_ID = 'CAAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAEAQC526';
-export const FALLBACK_DISTRIBUTOR_ID = 'CABAEAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAFNSZ';
-export const XLM_SAC_ID = 'CDLZFC3SYJYDZT7K6AOFM66QNBF3SQ3FMW6M4G5YZECG4CW33U6BCUSP'; // Native XLM token address on Testnet
+export const FALLBACK_MANAGER_ID = process.env.NEXT_PUBLIC_MANAGER_CONTRACT_ID || 'CD2GSKODG4YI7CCHFKJTTR2BMZIJMQZRYU7JH666T2Z2WQC5HOVAVFW4';
+export const FALLBACK_DISTRIBUTOR_ID = process.env.NEXT_PUBLIC_DISTRIBUTOR_CONTRACT_ID || '';
+export const XLM_SAC_ID = process.env.NEXT_PUBLIC_XLM_SAC_ID || 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
+
+export interface ContractSettings {
+  managerId: string;
+  distributorId: string;
+  tokenId: string;
+}
+
+export function getContractSettings(): ContractSettings {
+  if (typeof window !== 'undefined') {
+    const managerId = localStorage.getItem('splitflow:manager_id');
+    const distributorId = localStorage.getItem('splitflow:distributor_id');
+    const tokenId = localStorage.getItem('splitflow:token_id');
+    return {
+      managerId: managerId || FALLBACK_MANAGER_ID,
+      distributorId: distributorId || FALLBACK_DISTRIBUTOR_ID,
+      tokenId: tokenId || XLM_SAC_ID,
+    };
+  }
+  return {
+    managerId: FALLBACK_MANAGER_ID,
+    distributorId: FALLBACK_DISTRIBUTOR_ID,
+    tokenId: XLM_SAC_ID,
+  };
+}
 
 export interface ContributorInput {
   address: string;
@@ -141,7 +164,7 @@ export async function buildAndSimulateTx(
   }
 
   // 4. Assemble the transaction with simulation resource results
-  const assembledTx = rpc.assembleTransaction(tx, simulation);
+  const assembledTx = rpc.assembleTransaction(tx, simulation).build();
   return assembledTx;
 }
 

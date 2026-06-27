@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useActivityStore, ActivityItem } from '@/store/useActivityStore';
 import { useWalletStore } from '@/store/useWalletStore';
 import { fetchContractEvents, generateMockEvent } from '@/services/events';
-import { FALLBACK_MANAGER_ID, FALLBACK_DISTRIBUTOR_ID } from '@/services/stellar';
+import { getContractSettings } from '@/services/stellar';
 import {
   Activity,
   Compass,
@@ -41,7 +41,8 @@ export default function ActivityFeedPage() {
       } else {
         // Real mode: query actual contract events from Stellar ledger
         try {
-          const contractIds = [FALLBACK_MANAGER_ID, FALLBACK_DISTRIBUTOR_ID];
+          const settings = getContractSettings();
+          const contractIds = [settings.managerId, settings.distributorId].filter(Boolean);
           const startLedgerVal = latestLedger === 0 ? 0 : latestLedger;
           const result = await fetchContractEvents(network, contractIds, startLedgerVal);
           

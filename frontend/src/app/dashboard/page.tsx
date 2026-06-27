@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWalletStore } from '@/store/useWalletStore';
 import { useTxStore } from '@/store/useTxStore';
 import { useActivityStore } from '@/store/useActivityStore';
@@ -12,6 +12,9 @@ import {
   FALLBACK_DISTRIBUTOR_ID,
   XLM_SAC_ID,
   AssetDetails,
+  getContractSettings,
+  getNetworkPassphrase,
+  getRpcUrl,
 } from '@/services/stellar';
 import {
   Wallet,
@@ -25,7 +28,7 @@ import {
   FileText,
   UserCheck,
 } from 'lucide-react';
-import { nativeToScVal, rpc } from '@stellar/stellar-sdk';
+import { nativeToScVal, xdr, rpc, TransactionBuilder } from '@stellar/stellar-sdk';
 import { StellarWalletsKit } from '@creit.tech/stellar-wallets-kit';
 
 export default function DashboardPage() {
@@ -34,8 +37,31 @@ export default function DashboardPage() {
   const { addActivity } = useActivityStore();
   
   // Selected manager/distributor addresses (can be modified in settings, fallback default)
-  const managerId = FALLBACK_MANAGER_ID;
-  const distributorId = FALLBACK_DISTRIBUTOR_ID;
+  const [managerId, setManagerId] = useState(FALLBACK_MANAGER_ID);
+  const [distributorId, setDistributorId] = useState(FALLBACK_DISTRIBUTOR_ID);
+
+  useEffect(() => {
+    const settings = getContractSettings();
+    let currentDistributorId = settings.distributorId;
+
+    // Auto-heal: If the saved distributor ID is empty or incorrectly set to the manager ID,
+    // and we have a valid fallback distributor contract, update it automatically.
+    if (
+      (!currentDistributorId ||
+        currentDistributorId === settings.managerId ||
+        currentDistributorId === 'CBDSNV5OLO7OR5BH3AQOEEWXGDBBZCVT6FDJT7MCOHHH53MPVRKZV27K') &&
+      FALLBACK_DISTRIBUTOR_ID &&
+      FALLBACK_DISTRIBUTOR_ID !== settings.managerId
+    ) {
+      currentDistributorId = FALLBACK_DISTRIBUTOR_ID;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('splitflow:distributor_id', FALLBACK_DISTRIBUTOR_ID);
+      }
+    }
+
+    setManagerId(settings.managerId);
+    setDistributorId(currentDistributorId);
+  }, []);
 
   // Local state for forms
   const [assetId, setAssetId] = useState('');
@@ -131,28 +157,29 @@ export default function DashboardPage() {
       updateTxStatus(txId, 'PROCESSING');
       initializeKit();
       
-      // Convert contributors input into Soroban XDR ScVal types
-      const scContributors = bpsContributors.map((c) => {
-        return nativeToScVal(
-          {
-            address: c.address,
-            share: c.share,
-          },
-          {
-            type: {
-              address: ['symbol', 'address'],
-              share: ['symbol', 'u32'],
-            },
-          }
-        );
-      });
+      // Convert contributors into Soroban XDR ScVal struct instances.
+      // Each ContributorShare is a Soroban struct: { address: Address, share: u32 }
+      const scContributors = bpsContributors.map((c) =>
+        xdr.ScVal.scvMap([
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol('address'),
+            val: nativeToScVal(c.address, { type: 'address' }),
+          }),
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol('share'),
+            val: xdr.ScVal.scvU32(c.share),
+          }),
+        ])
+      );
 
       // Prepare contract args: register_asset(asset_id: Symbol, owner: Address, contributors: Vec<ContributorShare>)
       const args = [
         nativeToScVal(assetId, { type: 'symbol' }),
         nativeToScVal(address, { type: 'address' }),
-        nativeToScVal(scContributors),
+        xdr.ScVal.scvVec(scContributors),
       ];
+
+      console.log("[SplitFlow] Invoking register_asset on contract ID:", managerId);
 
       // Build, simulate and assemble transaction with resource footprints
       const assembledTx = await buildAndSimulateTx(
@@ -163,13 +190,19 @@ export default function DashboardPage() {
         args
       );
 
-      // Sign transaction via connected wallet
-      const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR());
-      
+      // Sign transaction via connected wallet (pass networkPassphrase so wallets sign for the correct chain)
+      const passphrase = getNetworkPassphrase(network);
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR(), {
+        networkPassphrase: passphrase,
+        address,
+      });
+
+      // Parse the signed transaction envelope XDR string back into a Transaction object
+      const signedTx = TransactionBuilder.fromXDR(signedTxXdr, passphrase);
+
       // Submit to network
-      const serverUrl = rpc.Server.prototype.constructor.name; // trick to avoid unused import issues
-      const server = new rpc.Server(network === 'PUBLIC' ? 'https://soroban-mainnet.stellar.org' : network === 'TESTNET' ? 'https://soroban-testnet.stellar.org' : 'http://localhost:8000');
-      const submissionResponse = await server.sendTransaction(assembledTx.toEnvelope().toXDR());
+      const server = new rpc.Server(getRpcUrl(network));
+      const submissionResponse = await server.sendTransaction(signedTx);
       
       if (submissionResponse.status === 'ERROR') {
         throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResult)}`);
@@ -216,6 +249,19 @@ export default function DashboardPage() {
       return;
     }
 
+    const effectiveDistributorId = distributorId || '';
+    if (!effectiveDistributorId || !effectiveDistributorId.startsWith('C') || effectiveDistributorId === managerId) {
+      alert(
+        '⚠️ Royalty Distributor is not configured.\n\n' +
+        'The Distributor contract has not been deployed yet (it is different from the Manager).\n\n' +
+        'Steps to fix:\n' +
+        '1. Run: node scripts/deploy-distributor.js   (from the project root)\n' +
+        '2. Copy the printed Distributor contract ID\n' +
+        '3. Go to Settings → Contract Addresses → paste it under "Royalty Distributor Contract ID" → Save'
+      );
+      return;
+    }
+
     const amountNum = parseFloat(distAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
       alert('Distribution amount must be a positive number.');
@@ -251,9 +297,14 @@ export default function DashboardPage() {
         args
       );
 
-      const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR());
-      const server = new rpc.Server(network === 'PUBLIC' ? 'https://soroban-mainnet.stellar.org' : network === 'TESTNET' ? 'https://soroban-testnet.stellar.org' : 'http://localhost:8000');
-      const submissionResponse = await server.sendTransaction(assembledTx.toEnvelope().toXDR());
+      const passphrase2 = getNetworkPassphrase(network);
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(assembledTx.toXDR(), {
+        networkPassphrase: passphrase2,
+        address,
+      });
+      const signedTx = TransactionBuilder.fromXDR(signedTxXdr, passphrase2);
+      const server = new rpc.Server(getRpcUrl(network));
+      const submissionResponse = await server.sendTransaction(signedTx);
       
       if (submissionResponse.status === 'ERROR') {
         throw new Error(`Submission failed: ${JSON.stringify(submissionResponse.errorResult)}`);
