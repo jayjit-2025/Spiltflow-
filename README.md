@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://splitflow-protocol.vercel.app" target="_blank">
+  <a href="https://spiltflow.vercel.app" target="_blank">
     <img src="https://img.shields.io/badge/%F0%9F%9A%80%20LIVE%20DEMO-VISIT%20APP-00d2ff?style=for-the-badge" alt="Visit App" />
   </a>
   <a href="https://github.com/jayjit-2025/splitflow-protocol" target="_blank">
@@ -23,8 +23,6 @@
   <img src="https://img.shields.io/badge/FREIGHTER-3b82f6?style=for-the-badge" alt="Freighter" />
   <img src="https://img.shields.io/badge/LICENSE-MIT-22c55e?style=for-the-badge" alt="License" />
 </p>
-
----
 
 ---
 
