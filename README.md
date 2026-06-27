@@ -188,6 +188,7 @@ cd contracts
 cargo test --workspace
 ```
 Showing 3/3 tests passing successfully
+
 ![Smart Contract Test Passing Output](./assets/test_passing_cargo.png)
 
 Tests cover: asset registration, contributor validation, share sum enforcement, distribution, access control, deactivation/reactivation.
