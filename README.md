@@ -47,7 +47,7 @@ SplitFlow is a fully decentralized royalty distribution system built on the Stel
 ![Mobile Responsive UI](./assets/mobile_ui.png)
 
 ### Dashboard Overview
-![SplitFlow Dashboard](./assets/splitflow_dashboard_preview.png)
+[![SplitFlow Dashboard](./assets/splitflow_dashboard_preview.png)](https://github.com/jayjit-2025/dApp-Reputation-System#-cicd-pipeline-screenshot)
 
 ### Analytics Overview
 ![SplitFlow Analytics](./assets/splitflow_analytics_preview.png)
