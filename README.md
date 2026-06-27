@@ -43,7 +43,7 @@ SplitFlow is a fully decentralized royalty distribution system built on the Stel
 
 ---
 
-**📖 What is SplitFlow?**
+## 📖 What is SplitFlow?
 
 SplitFlow is a decentralized royalty distribution platform built on Stellar Soroban that automates revenue sharing for collaborative digital assets.
 
@@ -61,7 +61,7 @@ When a creator registers an asset with contributor wallet addresses and royalty 
 
 ---
 
-**🔴 Problem Statement**
+## 🔴 Problem Statement
 
 Traditional royalty distribution suffers from several challenges:
 
@@ -77,7 +77,7 @@ Traditional royalty distribution suffers from several challenges:
 
 ---
 
-**🟢 Solution**
+## 🟢 Solution
 
 SplitFlow solves these challenges using Stellar Soroban Smart Contracts by providing:
 
