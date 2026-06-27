@@ -1,8 +1,8 @@
 /**
  * Test Suite 1: useWalletStore — wallet connection state management
+ * Uses direct Zustand store access (no React rendering needed)
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
 
 // Mock the external wallet kit so imports work in jsdom
 vi.mock('@creit.tech/stellar-wallets-kit', () => {
@@ -23,7 +23,7 @@ vi.mock('@creit.tech/stellar-wallets-kit', () => {
   };
 });
 
-// Mock modules so subpath imports don't fail in Vitest
+// Mock modules so subpath imports don't fail
 vi.mock('@creit.tech/stellar-wallets-kit/modules/freighter', () => ({
   FreighterModule: class {},
   FREIGHTER_ID: 'FREIGHTER',
@@ -37,82 +37,61 @@ vi.mock('@creit.tech/stellar-wallets-kit/modules/xbull', () => ({
   XBULL_ID: 'XBULL',
 }));
 
-
 import { useWalletStore } from '@/store/useWalletStore';
 
-// We need to clear the Zustand store state between tests
 const initialState = useWalletStore.getState();
 
 describe('useWalletStore', () => {
   beforeEach(() => {
-    // Reset state between tests
     useWalletStore.setState(initialState);
   });
 
   it('should start in a disconnected state', () => {
-    const { result } = renderHook(() => useWalletStore());
-    expect(result.current.isConnected).toBe(false);
-    expect(result.current.address).toBeNull();
-    expect(result.current.activeWallet).toBeNull();
-    expect(result.current.isConnecting).toBe(false);
-    expect(result.current.error).toBeNull();
+    const state = useWalletStore.getState();
+    expect(state.isConnected).toBe(false);
+    expect(state.address).toBeNull();
+    expect(state.activeWallet).toBeNull();
+    expect(state.isConnecting).toBe(false);
+    expect(state.error).toBeNull();
   });
 
   it('should disconnect and clear address and wallet', () => {
-    // First, set a "connected" state manually
+    // Set a "connected" state manually
     useWalletStore.setState({
       address: 'GABC123XYZ456',
       isConnected: true,
-      activeWallet: 'FREIGHTER' as any,
+      activeWallet: 'FREIGHTER',
       error: null,
     });
 
-    const { result } = renderHook(() => useWalletStore());
-    expect(result.current.isConnected).toBe(true);
-    expect(result.current.address).toBe('GABC123XYZ456');
+    expect(useWalletStore.getState().isConnected).toBe(true);
+    expect(useWalletStore.getState().address).toBe('GABC123XYZ456');
 
     // Disconnect
-    act(() => {
-      result.current.disconnect();
-    });
+    useWalletStore.getState().disconnect();
 
-    expect(result.current.isConnected).toBe(false);
-    expect(result.current.address).toBeNull();
-    expect(result.current.activeWallet).toBeNull();
+    expect(useWalletStore.getState().isConnected).toBe(false);
+    expect(useWalletStore.getState().address).toBeNull();
+    expect(useWalletStore.getState().activeWallet).toBeNull();
   });
 
   it('should set an error state', () => {
-    const { result } = renderHook(() => useWalletStore());
-
-    act(() => {
-      result.current.setError('User rejected the connection request.');
-    });
-
-    expect(result.current.error).toBe('User rejected the connection request.');
+    useWalletStore.getState().setError('User rejected the connection request.');
+    expect(useWalletStore.getState().error).toBe('User rejected the connection request.');
   });
 
   it('should clear error after setting it', () => {
-    const { result } = renderHook(() => useWalletStore());
+    useWalletStore.getState().setError('Some error');
+    expect(useWalletStore.getState().error).toBe('Some error');
 
-    act(() => {
-      result.current.setError('Some error');
-    });
-    expect(result.current.error).toBe('Some error');
-
-    act(() => {
-      result.current.setError(null);
-    });
-    expect(result.current.error).toBeNull();
+    useWalletStore.getState().setError(null);
+    expect(useWalletStore.getState().error).toBeNull();
   });
 
   it('should switch network via setNetwork', () => {
-    const { result } = renderHook(() => useWalletStore());
-    expect(result.current.network).toBe('TESTNET');
+    expect(useWalletStore.getState().network).toBe('TESTNET');
 
-    act(() => {
-      result.current.setNetwork('PUBLIC' as any);
-    });
-
-    expect(result.current.network).toBe('PUBLIC');
+    useWalletStore.getState().setNetwork('PUBLIC' as any);
+    expect(useWalletStore.getState().network).toBe('PUBLIC');
   });
 });

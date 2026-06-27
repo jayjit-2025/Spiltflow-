@@ -1,8 +1,8 @@
 /**
  * Test Suite 3: useActivityStore — activity feed state management
+ * Uses direct Zustand store access (no React rendering needed)
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
 import { useActivityStore } from '@/store/useActivityStore';
 
 const initialState = useActivityStore.getState();
@@ -13,26 +13,22 @@ describe('useActivityStore', () => {
   });
 
   it('should start with empty activities', () => {
-    const { result } = renderHook(() => useActivityStore());
-    expect(result.current.activities).toHaveLength(0);
+    expect(useActivityStore.getState().activities).toHaveLength(0);
   });
 
   it('should add an activity with correct fields', () => {
-    const { result } = renderHook(() => useActivityStore());
-
-    act(() => {
-      result.current.addActivity({
-        type: 'REGISTRATION',
-        assetId: 'my_song_1',
-        title: 'Asset Registered',
-        description: 'Asset "my_song_1" was registered by owner GX3J...',
-        hash: 'abc123',
-        payer: 'GABC123',
-      });
+    useActivityStore.getState().addActivity({
+      type: 'REGISTRATION',
+      assetId: 'my_song_1',
+      title: 'Asset Registered',
+      description: 'Asset "my_song_1" was registered by owner GX3J...',
+      hash: 'abc123',
+      payer: 'GABC123',
     });
 
-    expect(result.current.activities).toHaveLength(1);
-    const activity = result.current.activities[0];
+    const state = useActivityStore.getState();
+    expect(state.activities).toHaveLength(1);
+    const activity = state.activities[0];
     expect(activity.type).toBe('REGISTRATION');
     expect(activity.assetId).toBe('my_song_1');
     expect(activity.title).toBe('Asset Registered');
@@ -42,38 +38,27 @@ describe('useActivityStore', () => {
   });
 
   it('should insert newer activities at the top (most recent first)', () => {
-    const { result } = renderHook(() => useActivityStore());
-
-    act(() => {
-      result.current.addActivity({
-        type: 'REGISTRATION', assetId: 'asset_1', title: 'First', description: '', hash: 'h1',
-      });
+    useActivityStore.getState().addActivity({
+      type: 'REGISTRATION', assetId: 'asset_1', title: 'First', description: '', hash: 'h1',
     });
 
-    act(() => {
-      result.current.addActivity({
-        type: 'DISTRIBUTION', assetId: 'asset_2', title: 'Second', description: '', hash: 'h2', amount: '100',
-      });
+    useActivityStore.getState().addActivity({
+      type: 'DISTRIBUTION', assetId: 'asset_2', title: 'Second', description: '', hash: 'h2', amount: '100',
     });
 
-    expect(result.current.activities[0].title).toBe('Second');
-    expect(result.current.activities[1].title).toBe('First');
+    const state = useActivityStore.getState();
+    expect(state.activities[0].title).toBe('Second');
+    expect(state.activities[1].title).toBe('First');
   });
 
   it('should clear all activities', () => {
-    const { result } = renderHook(() => useActivityStore());
+    useActivityStore.getState().addActivity({ type: 'REGISTRATION', assetId: 'a', title: 'X', description: '' });
+    useActivityStore.getState().addActivity({ type: 'DISTRIBUTION', assetId: 'b', title: 'Y', description: '', amount: '50' });
 
-    act(() => {
-      result.current.addActivity({ type: 'REGISTRATION', assetId: 'a', title: 'X', description: '' });
-      result.current.addActivity({ type: 'DISTRIBUTION', assetId: 'b', title: 'Y', description: '', amount: '50' });
-    });
+    expect(useActivityStore.getState().activities).toHaveLength(2);
 
-    expect(result.current.activities).toHaveLength(2);
+    useActivityStore.getState().clearActivities();
 
-    act(() => {
-      result.current.clearActivities();
-    });
-
-    expect(result.current.activities).toHaveLength(0);
+    expect(useActivityStore.getState().activities).toHaveLength(0);
   });
 });
