@@ -337,6 +337,8 @@ Runtime overrides can also be set via the **Settings page** in the UI and are pe
 
 ## 🛠️ CI/CD Pipeline
 
+<img width="157" height="37" alt="image" src="https://github.com/user-attachments/assets/c9744cb9-9bcc-4481-b1d5-08fd353138b6" />
+
 This project uses **GitHub Actions** for continuous integration. Every push to `main` automatically:
 
 *   [x] Runs all 4 Soroban contract unit tests (`cargo test`)
