@@ -1,7 +1,7 @@
-<h1 align="center">RepuTE</h1>
+<h1 align="center">Spiltflow</h1>
 
 <p align="center">
-  <strong>Stellar On-Chain Reputation System: Trust is earned. Reputation is proof.</strong>
+  <strong>decentralized royalty distribution platform built on Stellar Soroban</strong>
 </p>
 
 <p align="center">
