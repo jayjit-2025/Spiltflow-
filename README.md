@@ -267,6 +267,9 @@ struct AssetData {
 
 ### On-Chain Interaction Reference
 * **Transaction Hash for Contract Interaction:** `5cac9796d59865b8c7ed7dba36883192bfd9dcb863f1e8106b1224247783ac54`
+**Screenshot of Proof**
+<img width="1917" height="745" alt="Screenshot 2026-06-27 213732" src="https://github.com/user-attachments/assets/0b9fd4fb-920b-4579-8d72-671cce01a1bb" />
+
 
 > Contract IDs are auto-populated in `frontend/.env.local` by the deploy script.
 
