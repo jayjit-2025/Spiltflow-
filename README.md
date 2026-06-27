@@ -1,24 +1,25 @@
-<h1 align="center">Spiltflow</h1>
+<h1 align="center">SplitFlow</h1>
 
 <p align="center">
-  <strong>decentralized royalty distribution platform built on Stellar Soroban</strong>
+  <strong>A Production-Ready Decentralized Royalty Distribution Platform Built on Stellar Soroban</strong>
 </p>
 
 <p align="center">
-  <a href="http://localhost:3000">
+  <a href="https://splitflow-protocol.vercel.app">
     <img src="https://img.shields.io/badge/%F0%9F%9A%80%20LIVE%20DEMO-VISIT%20APP-00d2ff?style=for-the-badge" alt="Visit App" />
   </a>
-  <a href="https://github.com/jayjit-2025/Spiltflow-">
+  <a href="https://github.com/jayjit-2025/splitflow-protocol">
     <img src="https://img.shields.io/badge/%F0%9F%8E%AC%20DEMO%20VIDEO-WATCH%20NOW-ff3366?style=for-the-badge" alt="Watch Now" />
   </a>
-  <a href="https://github.com/jayjit-2025/Spiltflow-/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/jayjit-2025/Spiltflow-/ci-cd.yml?branch=main&label=CI%20Pipeline&logo=github&style=for-the-badge" alt="CI Status" />
+  <a href="https://github.com/jayjit-2025/splitflow-protocol/actions">
+    <img src="https://img.shields.io/badge/CI%20Pipeline-passing-brightgreen?style=for-the-badge&logo=github-actions" alt="CI Status" />
   </a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/REACT-black?style=for-the-badge&logo=react" alt="React" />
+  <img src="https://img.shields.io/badge/NEXT.JS%2015-black?style=for-the-badge&logo=nextdotjs" alt="Next.js" />
   <img src="https://img.shields.io/badge/STELLAR-ef4444?style=for-the-badge&logo=stellar" alt="Stellar" />
+  <img src="https://img.shields.io/badge/SOROBAN-v21-vibrantgreen?style=for-the-badge" alt="Soroban" />
   <img src="https://img.shields.io/badge/FREIGHTER-3b82f6?style=for-the-badge" alt="Freighter" />
   <img src="https://img.shields.io/badge/LICENSE-MIT-22c55e?style=for-the-badge" alt="License" />
 </p>
