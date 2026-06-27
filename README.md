@@ -227,7 +227,25 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) 🎉
 
+
 ---
+## 🔗 Mission Credentials
+
+To fulfill the **Level 3 (Orange Belt)** requirements, the following identifiers are provided for verification:
+
+| Category | Identifier / Link |
+| :--- | :--- |
+| **RoyaltyManager Contract ID** | `CD2GSKODG4YI7CCHFKJTTR2BMZIJMQZRYU7JH666T2Z2WQC5HOVAVFW4` |
+| **RoyaltyDistributor Contract ID** | `CAGLWDRQ2IIRGIFGJJZTUA4LM3KLEOCFZVHVNE6HIXHMY2KZP6GNXAJT` |
+| **Transaction Hash** | `5cac9796d59865b8c7ed7dba36883192bfd9dcb863f1e8106b1224247783ac54` |
+| **Stellar Explorer** | [View Split Engine on Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CAGLWDRQ2IIRGIFGJJZTUA4LM3KLEOCFZVHVNE6HIXHMY2KZP6GNXAJT) |
+| **CI/CD Pipeline** | ![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square&logo=github-actions) |
+| **Live Demo Link** | [Visit Live Application (Vercel)](https://spiltflow.vercel.app) |
+| **Demo Video** | [Watch Walkthrough (1–2 min)](https://github.com/jayjit-2025/splitflow-protocol) |
+
+---
+---
+
 
 ## 🧪 Testing
 **15 tests across 3 suites:**
