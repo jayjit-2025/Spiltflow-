@@ -98,9 +98,8 @@ SplitFlow solves these challenges using Stellar Soroban Smart Contracts by provi
 
 ### 📱 Mobile View (Responsive Portrait UI)
 
-<p align="center">
-  <img src="https://i.imgur.com/your_generated_image_link_here.png" alt="SplitFlow Mobile Dashboard UI Mockup" width="360" style="border-radius: 20px; border: 1px solid #18181b;" />
-</p>
+<img width="720" height="1413" alt="WhatsApp Image 2026-07-07 at 7 26 33 PM" src="https://github.com/user-attachments/assets/e1b68945-1cc6-46b7-bd37-ebd789a7b1d9" />
+
 
 
 ### Dashboard Overview
