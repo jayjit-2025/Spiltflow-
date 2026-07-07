@@ -1,21 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useWalletStore } from '@/store/useWalletStore';
 import { ALBEDO_ID } from '@creit.tech/stellar-wallets-kit/modules/albedo';
 import { FREIGHTER_ID } from '@creit.tech/stellar-wallets-kit/modules/freighter';
 import { XBULL_ID } from '@creit.tech/stellar-wallets-kit/modules/xbull';
-import { Wallet, LogOut, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Wallet, LogOut, Loader2, AlertCircle } from 'lucide-react';
 
 export default function WalletConnect() {
   const { address, isConnected, isConnecting, error, connect, disconnect, network, setNetwork } = useWalletStore();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleConnect = async (walletId: string) => {
     await connect(walletId);
     setIsOpen(false);
   };
-
 
   const truncateAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -73,9 +78,9 @@ export default function WalletConnect() {
         </button>
       )}
 
-      {/* Wallet Selector Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Wallet Selector Modal via Portal */}
+      {isOpen && mounted && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/65 backdrop-blur-sm"
@@ -165,7 +170,8 @@ export default function WalletConnect() {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
