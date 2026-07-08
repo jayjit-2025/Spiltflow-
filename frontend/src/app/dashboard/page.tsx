@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { useWalletStore } from '@/store/useWalletStore';
 import { useTxStore } from '@/store/useTxStore';
 import { useActivityStore } from '@/store/useActivityStore';
@@ -27,11 +29,92 @@ import {
   AlertTriangle,
   FileText,
   UserCheck,
+  Activity,
+  ArrowRight,
 } from 'lucide-react';
 import { nativeToScVal, xdr, rpc, TransactionBuilder } from '@stellar/stellar-sdk';
 import { StellarWalletsKit } from '@creit.tech/stellar-wallets-kit';
 
+// ─── Registration Success Modal ──────────────────────────────────────────────
+function RegistrationSuccessModal({
+  assetId,
+  onGoToFeed,
+}: {
+  assetId: string;
+  onGoToFeed: () => void;
+}) {
+  // Lock page scroll while modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+  const modal = (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reg-success-title"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+
+      {/* Panel */}
+      <div
+        className="relative w-full max-w-md rounded-2xl border border-border bg-[hsl(224,71%,4%)] p-8 flex flex-col items-center gap-6 shadow-2xl"
+        style={{
+          boxShadow: '0 0 60px rgba(249,115,22,0.12), 0 25px 50px rgba(0,0,0,0.6)',
+        }}
+      >
+        {/* Glow ring around icon */}
+        <div className="relative flex items-center justify-center">
+          <div className="absolute h-24 w-24 rounded-full bg-green-500/10 blur-xl" />
+          <div className="h-20 w-20 rounded-full bg-green-500/10 border border-green-500/25 flex items-center justify-center">
+            <CheckCircle className="h-10 w-10 text-green-400" strokeWidth={1.5} />
+          </div>
+        </div>
+
+        {/* Copy */}
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h3
+            id="reg-success-title"
+            className="text-xl font-black tracking-tight text-foreground"
+          >
+            Asset Successfully Registered
+          </h3>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+            <span className="font-semibold text-foreground">&ldquo;{assetId}&rdquo;</span> has been
+            successfully registered on the Stellar blockchain.
+          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Visit the Activity Feed to verify your registration and view the transaction details.
+          </p>
+        </div>
+
+        {/* Divider */}
+        <div className="w-full h-px bg-border" />
+
+        {/* CTA */}
+        <button
+          id="go-to-activity-feed-btn"
+          onClick={onGoToFeed}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 transition-all duration-200 orange-glow-btn cursor-pointer"
+        >
+          <Activity className="h-4 w-4" />
+          <span>Go to Activity Feed</span>
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+
+  return createPortal(modal, document.body);
+}
+
 export default function DashboardPage() {
+  const router = useRouter();
   const { isConnected, address, network, initializeKit } = useWalletStore();
   const { addTx, updateTxStatus } = useTxStore();
   const { addActivity } = useActivityStore();
@@ -81,6 +164,10 @@ export default function DashboardPage() {
 
   // Form errors
   const [registerError, setRegisterError] = useState('');
+
+  // Success modal: stores the asset ID of the just-confirmed registration,
+  // or null when the modal is not visible.
+  const [successAssetId, setSuccessAssetId] = useState<string | null>(null);
 
   // Add/remove contributor fields
   const addContributorField = () => {
@@ -229,7 +316,10 @@ export default function DashboardPage() {
         source: 'LOCAL',
       });
 
-      // Reset form
+      // Show the success modal — the user will navigate to Activity Feed from there.
+      setSuccessAssetId(assetId);
+
+      // Reset form (modal remains until user navigates away)
       setAssetId('');
       setContributors([{ address: address || '', share: 100 }]);
     } catch (err: any) {
@@ -384,6 +474,16 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-10">
+      {/* Success modal — rendered via Portal so it clears all stacking contexts */}
+      {successAssetId !== null && (
+        <RegistrationSuccessModal
+          assetId={successAssetId}
+          onGoToFeed={() => {
+            setSuccessAssetId(null);
+            router.push('/activity');
+          }}
+        />
+      )}
       {/* Dashboard Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
         <div>

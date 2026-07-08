@@ -119,12 +119,15 @@ export default function TransactionCenterPage() {
         updateTxStatus(txId, 'CONFIRMED', txHash);
 
         addActivity({
+          id: `local-${txHash}`,
           type: 'REGISTRATION',
           assetId,
           title: 'Asset Registered (Retry)',
           description: `Asset "${assetId}" registered successfully after retry`,
+          timestamp: Date.now(),
           hash: txHash,
           payer: address,
+          source: 'LOCAL',
         });
       } else if (tx.txType === 'DISTRIBUTE_ROYALTY') {
         const { assetId, amount, distributorId } = tx.txArgs;
@@ -165,13 +168,16 @@ export default function TransactionCenterPage() {
         updateTxStatus(txId, 'CONFIRMED', txHash);
 
         addActivity({
+          id: `local-${txHash}`,
           type: 'DISTRIBUTION',
           assetId,
           title: 'Royalties Distributed (Retry)',
           description: `Split ${amount} XLM for asset "${assetId}" successfully after retry`,
+          timestamp: Date.now(),
           hash: txHash,
           amount,
           payer: address,
+          source: 'LOCAL',
         });
       }
     } catch (err: any) {
