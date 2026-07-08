@@ -170,6 +170,41 @@ export default function DashboardPage() {
   const [successAssetId, setSuccessAssetId] = useState<string | null>(null);
 
   // Add/remove contributor fields
+  // Validation function for Asset ID
+  const validateAssetId = (val: string): { isValid: boolean; error: string } => {
+    if (!val) {
+      return { isValid: false, error: 'Asset ID is required.' };
+    }
+    if (val.length < 3 || val.length > 32) {
+      return { isValid: false, error: 'Asset ID must be between 3 and 32 characters.' };
+    }
+    // Check characters: A-Z, a-z, 0-9, hyphen, underscore
+    const allowedRegex = /^[a-zA-Z0-9-_]+$/;
+    if (!allowedRegex.test(val)) {
+      return { isValid: false, error: 'Spaces and special characters are not allowed.' };
+    }
+    return { isValid: true, error: '' };
+  };
+
+  const handleAssetIdChange = (val: string) => {
+    setAssetId(val);
+    const result = validateAssetId(val);
+    if (!val) {
+      setValidationError('');
+      setValidationStatus('IDLE');
+    } else if (result.isValid) {
+      setValidationError('');
+      setValidationStatus('VALID');
+    } else {
+      setValidationError(result.error);
+      setValidationStatus('INVALID');
+    }
+  };
+
+  // Validation state variables
+  const [validationError, setValidationError] = useState('');
+  const [validationStatus, setValidationStatus] = useState<'IDLE' | 'VALID' | 'INVALID'>('IDLE');
+
   const addContributorField = () => {
     if (contributors.length >= 10) {
       setRegisterError('Maximum 10 contributors allowed.');
@@ -202,8 +237,9 @@ export default function DashboardPage() {
       return;
     }
 
-    if (!assetId.trim()) {
-      setRegisterError('Asset ID is required.');
+    const validation = validateAssetId(assetId);
+    if (!validation.isValid) {
+      setRegisterError(validation.error);
       return;
     }
 
@@ -509,14 +545,35 @@ export default function DashboardPage() {
 
           <form onSubmit={handleRegisterAsset} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Asset Identifier</label>
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Asset Identifier</label>
+                {validationStatus === 'VALID' && (
+                  <span className="text-[10px] text-green-400 font-bold flex items-center gap-1">
+                    ✓ Valid Asset ID
+                  </span>
+                )}
+                {validationStatus === 'INVALID' && (
+                  <span className="text-[10px] text-destructive-foreground bg-destructive/10 px-2 py-0.5 rounded font-bold">
+                    {validationError}
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
-                placeholder="e.g. song_retro_vibe"
+                placeholder="e.g. summer_song_2026, retro-beats"
                 value={assetId}
-                onChange={(e) => setAssetId(e.target.value)}
-                className="w-full bg-accent border border-border px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary text-foreground font-medium"
+                onChange={(e) => handleAssetIdChange(e.target.value)}
+                className={`w-full bg-accent border px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-1 text-foreground font-medium transition-all ${
+                  validationStatus === 'INVALID'
+                    ? 'border-destructive focus:ring-destructive'
+                    : validationStatus === 'VALID'
+                    ? 'border-green-500/50 focus:ring-green-500'
+                    : 'border-border focus:ring-primary'
+                }`}
               />
+              <span className="text-[10px] text-muted-foreground leading-normal mt-0.5">
+                Use only letters (A-Z, a-z), numbers (0-9), hyphens (-), and underscores (_). Spaces and special characters are not allowed.
+              </span>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -574,7 +631,12 @@ export default function DashboardPage() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 text-white font-bold text-sm rounded-xl shadow-lg transition-all duration-200 orange-glow-btn cursor-pointer"
+              disabled={validationStatus === 'INVALID' || !assetId}
+              className={`w-full py-3 text-white font-bold text-sm rounded-xl shadow-lg transition-all duration-200 orange-glow-btn ${
+                validationStatus === 'INVALID' || !assetId
+                  ? 'opacity-40 cursor-not-allowed bg-secondary/80 border border-border/50 shadow-none'
+                  : 'bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 cursor-pointer'
+              }`}
             >
               Submit On-Chain Registry
             </button>
