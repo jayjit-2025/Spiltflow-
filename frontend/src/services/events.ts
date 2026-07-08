@@ -27,21 +27,24 @@ export async function fetchContractEvents(
   const server = new rpc.Server(rpcUrl);
 
   try {
-    // 1. Fetch current latest ledger to know where we are
+    // 1. Fetch the current network tip
     const latestLedgerResponse = await server.getLatestLedger();
     const latestLedger = latestLedgerResponse.sequence;
 
-    if (startLedger >= latestLedger) {
+    // Nothing new to fetch if we are already at or past the tip.
+    if (startLedger > latestLedger) {
       return { events: [], latestLedger };
     }
 
-    // 2. Query events from startLedger to latestLedger
+    // 2. Query events for ONLY the configured contract IDs.
+    //    The contractIds filter is the primary isolation mechanism — it restricts
+    //    the result set to events emitted by this deployment's contracts only.
     const eventsResponse = await server.getEvents({
-      startLedger: startLedger,
+      startLedger,
       filters: [
         {
           type: 'contract',
-          contractIds: contractIds,
+          contractIds,
         },
       ],
       limit: 50,
@@ -49,7 +52,9 @@ export async function fetchContractEvents(
 
     const parsedEvents: ParsedEvent[] = [];
 
-    // 3. Parse each event based on its contract topics and data schema
+    // 3. Parse each event.
+    //    event.id has the canonical format "{ledger}-{txIndex}-{eventIndex}".
+    //    We preserve it verbatim so the activity store can deduplicate reliably.
     for (const event of eventsResponse.events) {
       try {
         const topics = event.topic.map((t) => scValToNative(t));
@@ -57,18 +62,26 @@ export async function fetchContractEvents(
 
         if (typeof eventTypeSymbol !== 'string') continue;
 
-        const timestamp = Date.now(); // RPC events don't always have a JS timestamp, fallback to current time
+        // Use the ledger close time if provided by the SDK; otherwise fall back
+        // to wall-clock time.  event.ledger is available as a number.
+        const timestamp =
+          typeof (event as any).ledgerClosedAt === 'string'
+            ? new Date((event as any).ledgerClosedAt).getTime()
+            : Date.now();
+
         const hash = event.txHash;
+        // Canonical unique ID from the RPC — never overwrite with a random value.
+        const id = String(event.id);
 
         if (eventTypeSymbol === 'asset_registered') {
           const assetId = topics[1];
           const owner = scValToNative(event.value);
           parsedEvents.push({
-            id: `${event.id}`,
+            id,
             type: 'REGISTRATION',
             assetId,
             title: 'Asset Registered',
-            description: `Asset "${assetId}" was registered by owner ${owner.slice(0, 6)}...${owner.slice(-4)}`,
+            description: `Asset "${assetId}" registered by ${String(owner).slice(0, 6)}...${String(owner).slice(-4)}`,
             timestamp,
             hash,
             payer: owner,
@@ -76,13 +89,11 @@ export async function fetchContractEvents(
         } else if (eventTypeSymbol === 'royalty_distributed') {
           const assetId = topics[1];
           const payer = topics[2];
-          // Value contains (amount, remainder)
           const value = scValToNative(event.value);
-          const amount = value[0].toString();
-          const remainder = value[1].toString();
-
+          const amount = Array.isArray(value) ? value[0].toString() : value.toString();
+          const remainder = Array.isArray(value) ? value[1].toString() : '0';
           parsedEvents.push({
-            id: `${event.id}`,
+            id,
             type: 'DISTRIBUTION',
             assetId,
             title: 'Royalties Distributed',
@@ -96,11 +107,11 @@ export async function fetchContractEvents(
           const assetId = topics[1];
           const owner = scValToNative(event.value);
           parsedEvents.push({
-            id: `${event.id}`,
+            id,
             type: 'DEACTIVATION',
             assetId,
             title: 'Asset Deactivated',
-            description: `Asset "${assetId}" was deactivated by owner`,
+            description: `Asset "${assetId}" was deactivated`,
             timestamp,
             hash,
             payer: owner,
@@ -109,7 +120,7 @@ export async function fetchContractEvents(
           const assetId = topics[1];
           const owner = scValToNative(event.value);
           parsedEvents.push({
-            id: `${event.id}`,
+            id,
             type: 'UPDATE',
             assetId,
             title: 'Asset Updated',
@@ -120,15 +131,16 @@ export async function fetchContractEvents(
           });
         }
       } catch (err) {
-        console.error('Failed to parse single event:', err, event);
+        console.error('[events] Failed to parse single event:', err, event);
       }
     }
 
     return { events: parsedEvents, latestLedger };
   } catch (err) {
-    console.error('Error fetching contract events:', err);
-    // In case of error, return empty but keep the same startLedger
-    return { events: [], latestLedger: startLedger };
+    console.error('[events] Error fetching contract events:', err);
+    // Return empty on error; do NOT reset the cursor — let the caller retry
+    // from the same startLedger on the next tick.
+    return { events: [], latestLedger: startLedger - 1 };
   }
 }
 

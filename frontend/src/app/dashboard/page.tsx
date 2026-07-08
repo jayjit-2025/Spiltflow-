@@ -215,14 +215,18 @@ export default function DashboardPage() {
       await pollTxStatus(network, txHash);
       updateTxStatus(txId, 'CONFIRMED', txHash);
 
-      // Add to Activity Feed
+      // Add to Activity Feed immediately (tagged as LOCAL so the store knows it
+      // came from this session's transaction, not from the RPC poller).
       addActivity({
+        id: `local-${txHash}`,
         type: 'REGISTRATION',
         assetId,
         title: 'Asset Registered',
         description: `Successfully registered asset "${assetId}" on-chain`,
+        timestamp: Date.now(),
         hash: txHash,
         payer: address,
+        source: 'LOCAL',
       });
 
       // Reset form
@@ -316,15 +320,18 @@ export default function DashboardPage() {
       await pollTxStatus(network, txHash);
       updateTxStatus(txId, 'CONFIRMED', txHash);
 
-      // Add to Activity Feed
+      // Add to Activity Feed immediately (tagged as LOCAL)
       addActivity({
+        id: `local-${txHash}`,
         type: 'DISTRIBUTION',
         assetId: distAssetId,
         title: 'Royalties Distributed',
         description: `Split ${distAmount} XLM for asset "${distAssetId}"`,
+        timestamp: Date.now(),
         hash: txHash,
         amount: distAmount,
         payer: address,
+        source: 'LOCAL',
       });
 
       setDistAssetId('');

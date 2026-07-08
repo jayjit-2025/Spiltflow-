@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface ActivityItem {
   id: string;
@@ -11,37 +10,40 @@ export interface ActivityItem {
   amount?: string;
   payer?: string;
   hash?: string;
+  /**
+   * 'REAL'      — event fetched from an on-chain Soroban RPC response
+   * 'SIMULATED' — locally generated mock event (never from the ledger)
+   * 'LOCAL'     — event pushed directly after a successful dashboard transaction
+   */
+  source: 'REAL' | 'SIMULATED' | 'LOCAL';
 }
 
 interface ActivityState {
   activities: ActivityItem[];
-  addActivity: (activity: Omit<ActivityItem, 'id' | 'timestamp'>) => void;
+  /**
+   * Add an activity only if its `id` has not already been recorded.
+   * For real on-chain events `id` is the canonical RPC event ID (`{ledger}-{index}`).
+   * For local/simulated events a caller-provided unique string is expected.
+   */
+  addActivity: (activity: ActivityItem) => void;
   clearActivities: () => void;
 }
 
-export const useActivityStore = create<ActivityState>()(
-  persist(
-    (set) => ({
-      activities: [],
+export const useActivityStore = create<ActivityState>()((set, get) => ({
+  activities: [],
 
-      addActivity: (activity) => {
-        const newActivity: ActivityItem = {
-          ...activity,
-          id: Math.random().toString(36).substring(2, 11),
-          timestamp: Date.now(),
-        };
-        set((state) => ({
-          activities: [newActivity, ...state.activities].slice(0, 100), // Keep up to 100 activities
-        }));
-      },
+  addActivity: (activity) => {
+    // Deduplication guard: skip if we already have this event ID
+    const exists = get().activities.some((a) => a.id === activity.id);
+    if (exists) return;
 
-      clearActivities: () => {
-        set({ activities: [] });
-      },
-    }),
-    {
-      name: 'splitflow-activity-store',
-      storage: createJSONStorage(() => localStorage),
-    }
-  )
-);
+    set((state) => ({
+      // Newest first; cap at 200 entries
+      activities: [activity, ...state.activities].slice(0, 200),
+    }));
+  },
+
+  clearActivities: () => {
+    set({ activities: [] });
+  },
+}));
