@@ -116,33 +116,59 @@ SplitFlow solves these challenges using Stellar Soroban Smart Contracts by provi
 ## 🏗️ Architecture
 
 ```
-SplitFlow/
-├── contracts/                     # Soroban smart contracts (Rust)
-│   ├── Cargo.toml                 # Workspace definition
-│   ├── royalty_manager/           # Asset registry + RBAC
-│   │   └── src/
-│   │       ├── lib.rs             # Contract implementation
-│   │       └── test.rs            # Unit & integration tests
-│   └── royalty_distributor/       # Token splitting engine
-│       └── src/
-│           ├── lib.rs
-│           └── test.rs
-│
-├── frontend/                      # Next.js 15 App Router
-│   └── src/
-│       ├── app/                   # Pages (dashboard, analytics, settings, etc.)
-│       ├── components/            # WalletConnect, Providers, etc.
-│       ├── services/              # Soroban SDK layer (stellar.ts, events.ts)
-│       ├── store/                 # Zustand state stores
-│       └── __tests__/             # Vitest unit tests (15 tests)
-│
-├── scripts/                       # Automation scripts
-│   ├── deploy.ts                  # Deploy contracts + write .env.local
-│   ├── initialize.ts              # Post-deploy contract initialization
-│   └── test-integration.ts        # End-to-end on-chain integration test
-│
-└── .github/workflows/
-    └── ci-cd.yml                  # Full CI/CD pipeline
+                         ┌──────────────────────┐
+                         │      Creator         │
+                         │ (Asset Owner/Artist) │
+                         └──────────┬───────────┘
+                                    │
+                Register Asset + Contributor Shares
+                                    │
+                                    ▼
+                     ┌──────────────────────────┐
+                     │    SplitFlow Frontend    │
+                     │ (Next.js + Freighter)    │
+                     └──────────┬───────────────┘
+                                │
+                     Soroban SDK │  Wallet Signing
+                                ▼
+                  ┌──────────────────────────────┐
+                  │   RoyaltyManager Contract    │
+                  │ Asset Registry + Ownership   │
+                  └──────────┬───────────────────┘
+                             │
+                 Stores Asset Metadata &
+               Contributor Wallet Addresses
+                             │
+                             ▼
+                    Stellar Testnet Ledger
+                             ▲
+                             │
+           Query Asset        │      Verify Registration
+                             │
+                     ┌────────┴────────┐
+                     │      Buyer      │
+                     └────────┬────────┘
+                              │
+                      Purchase / Pay XLM
+                              │
+                              ▼
+                 ┌─────────────────────────────┐
+                 │ RoyaltyDistributor Contract │
+                 │ Automatic Revenue Splitting │
+                 └──────────┬──────────────────┘
+                            │
+          Reads Contributor Shares from Manager
+                            │
+        ┌───────────────────┼────────────────────┐
+        ▼                   ▼                    ▼
+ Contributor A        Contributor B       Contributor C
+      Wallet              Wallet              Wallet
+           Instant On-Chain Royalty Distribution
+
+                            │
+                            ▼
+                  Activity Feed + Analytics
+                  (Events • TX History • Charts)
 ```
 
 ### Smart Contract Interaction Model
