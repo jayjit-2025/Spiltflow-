@@ -116,83 +116,67 @@ SplitFlow solves these challenges using Stellar Soroban Smart Contracts by provi
 ## 🏗️ Architecture
 
 ```
-                         ┌──────────────────────┐
-                         │      Creator         │
-                         │ (Asset Owner/Artist) │
-                         └──────────┬───────────┘
-                                    │
-                Register Asset + Contributor Shares
-                                    │
-                                    ▼
-                     ┌──────────────────────────┐
-                     │    SplitFlow Frontend    │
-                     │ (Next.js + Freighter)    │
-                     └──────────┬───────────────┘
-                                │
-                     Soroban SDK │  Wallet Signing
-                                ▼
-                  ┌──────────────────────────────┐
-                  │   RoyaltyManager Contract    │
-                  │ Asset Registry + Ownership   │
-                  └──────────┬───────────────────┘
-                             │
-                 Stores Asset Metadata &
-               Contributor Wallet Addresses
-                             │
-                             ▼
-                    Stellar Testnet Ledger
-                             ▲
-                             │
-           Query Asset        │      Verify Registration
-                             │
-                     ┌────────┴────────┐
-                     │      Buyer      │
-                     └────────┬────────┘
-                              │
-                      Purchase / Pay XLM
-                              │
-                              ▼
-                 ┌─────────────────────────────┐
-                 │ RoyaltyDistributor Contract │
-                 │ Automatic Revenue Splitting │
-                 └──────────┬──────────────────┘
-                            │
-          Reads Contributor Shares from Manager
-                            │
-        ┌───────────────────┼────────────────────┐
-        ▼                   ▼                    ▼
- Contributor A        Contributor B       Contributor C
-      Wallet              Wallet              Wallet
-           Instant On-Chain Royalty Distribution
+flowchart TD
 
-                            │
-                            ▼
-                  Activity Feed + Analytics
-                  (Events • TX History • Charts)
+    Creator[Creator / Artist]
+    Buyer[Buyer / Customer]
+    Frontend[SplitFlow Frontend\nNext.js + Freighter Wallet]
+    Manager[RoyaltyManager\nAsset Registry]
+    Distributor[RoyaltyDistributor\nPayment Splitting Engine]
+    Ledger[(Stellar Soroban Blockchain)]
+    Contributors[Contributors\nWallet A • Wallet B • Wallet C]
+    Activity[Activity Feed\nAnalytics • TX Center]
+
+    Creator -->|1. Register Asset\nContributor Shares| Frontend
+    Frontend -->|Signed Transaction| Manager
+    Manager -->|Store Asset Registry| Ledger
+
+    Buyer -->|2. Search Asset| Frontend
+    Frontend -->|Query Asset| Manager
+    Manager -->|Return Asset Details| Frontend
+
+    Buyer -->|3. Purchase Asset\nPay XLM| Frontend
+    Frontend -->|Execute Distribution| Distributor
+    Distributor -->|Read Contributor Shares| Manager
+    Distributor -->|Atomic Payment Split| Ledger
+
+    Ledger -->|Transfer Funds| Contributors
+
+    Ledger -->|Contract Events| Activity
+    Frontend -->|View Events & Charts| Activity
 ```
 
 ### Smart Contract Interaction Model
 
 ```
-         User (Frontend)
-              │
-              ▼
-   ┌─────────────────────┐
-   │  RoyaltyDistributor │   ←── receives payment (i128 token amount)
-   │  distribute(id, amt)│
-   └────────┬────────────┘
-            │  invoke_contract()
-            ▼
-   ┌─────────────────────┐
-   │   RoyaltyManager    │   ←── returns Vec<Contributor> { address, share }
-   │  get_contributors() │
-   └─────────────────────┘
-            │  for each contributor
-            ▼
-   ┌─────────────────────┐
-   │   SEP-0041 Token    │   ←── transfer(from=payer, to=contributor, amount=share)
-   │   (XLM SAC / other) │
-   └─────────────────────┘
+    User[User]
+
+    Frontend[SplitFlow Frontend]
+
+    Wallet[Freighter Wallet]
+
+    Manager[RoyaltyManager]
+
+    Distributor[RoyaltyDistributor]
+
+    Blockchain[(Stellar Soroban Blockchain)]
+
+    User -->|"Register Asset"| Frontend
+    Frontend -->|"Sign Transaction"| Wallet
+    Wallet -->|"register_asset()"| Manager
+
+    User -->|"Purchase Asset"| Frontend
+    Frontend -->|"Sign Transaction"| Wallet
+    Wallet -->|"distribute_royalty()"| Distributor
+
+    Distributor -->|"Read Contributor Shares"| Manager
+
+    Manager -->|"Store Asset"| Blockchain
+
+    Distributor -->|"Split Royalty Payment"| Blockchain
+
+    Blockchain -->|"Events"| Frontend
+
 ```
 
 ---
