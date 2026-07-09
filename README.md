@@ -115,50 +115,47 @@ SplitFlow solves these challenges using Stellar Soroban Smart Contracts by provi
 
 ## 🏗️ Architecture
 
-```
+```mermaid
 flowchart TD
 
     Creator[Creator / Artist]
     Buyer[Buyer / Customer]
-    Frontend[SplitFlow Frontend\nNext.js + Freighter Wallet]
-    Manager[RoyaltyManager\nAsset Registry]
-    Distributor[RoyaltyDistributor\nPayment Splitting Engine]
+    Frontend[SplitFlow Frontend<br/>Next.js + Freighter Wallet]
+    Manager[RoyaltyManager<br/>Asset Registry]
+    Distributor[RoyaltyDistributor<br/>Payment Splitting Engine]
     Ledger[(Stellar Soroban Blockchain)]
-    Contributors[Contributors\nWallet A • Wallet B • Wallet C]
-    Activity[Activity Feed\nAnalytics • TX Center]
+    Contributors[Contributors<br/>Wallet A • Wallet B • Wallet C]
+    Activity[Activity Feed<br/>Analytics • TX Center]
 
-    Creator -->|1. Register Asset\nContributor Shares| Frontend
-    Frontend -->|Signed Transaction| Manager
-    Manager -->|Store Asset Registry| Ledger
+    Creator -->|"1. Register Asset<br/>Contributor Shares"| Frontend
+    Frontend -->|"Signed Transaction"| Manager
+    Manager -->|"Store Asset Registry"| Ledger
 
-    Buyer -->|2. Search Asset| Frontend
-    Frontend -->|Query Asset| Manager
-    Manager -->|Return Asset Details| Frontend
+    Buyer -->|"2. Search Asset"| Frontend
+    Frontend -->|"Query Asset"| Manager
+    Manager -->|"Return Asset Details"| Frontend
 
-    Buyer -->|3. Purchase Asset\nPay XLM| Frontend
-    Frontend -->|Execute Distribution| Distributor
-    Distributor -->|Read Contributor Shares| Manager
-    Distributor -->|Atomic Payment Split| Ledger
+    Buyer -->|"3. Purchase Asset<br/>Pay XLM"| Frontend
+    Frontend -->|"Execute Distribution"| Distributor
+    Distributor -->|"Read Contributor Shares"| Manager
+    Distributor -->|"Atomic Payment Split"| Ledger
 
-    Ledger -->|Transfer Funds| Contributors
+    Ledger -->|"Transfer Funds"| Contributors
 
-    Ledger -->|Contract Events| Activity
-    Frontend -->|View Events & Charts| Activity
+    Ledger -->|"Contract Events"| Activity
+    Frontend -->|"View Events & Charts"| Activity
 ```
 
 ### Smart Contract Interaction Model
 
-```
+```mermaid
+flowchart LR
+
     User[User]
-
     Frontend[SplitFlow Frontend]
-
     Wallet[Freighter Wallet]
-
     Manager[RoyaltyManager]
-
     Distributor[RoyaltyDistributor]
-
     Blockchain[(Stellar Soroban Blockchain)]
 
     User -->|"Register Asset"| Frontend
@@ -176,7 +173,6 @@ flowchart TD
     Distributor -->|"Split Royalty Payment"| Blockchain
 
     Blockchain -->|"Events"| Frontend
-
 ```
 
 ---
