@@ -400,6 +400,19 @@ The complete user testing responses, transaction records, and feedback are avail
 [https://docs.google.com/spreadsheets/d/1fQ2C87wEhySW1UtPiiFuh_STCdFVW3oXbsrkQjbKHkM/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1fQ2C87wEhySW1UtPiiFuh_STCdFVW3oXbsrkQjbKHkM/edit?usp=sharing)
 
 ---
+
+## 💬 User Feedback Summary
+During our initial testing and presentation phase, we gathered feedback from 12 early users (a mix of developers and digital creators) who tested the platform on the Stellar Testnet.
+**What users loved:**
+* **Seamless Wallet Integration:** Users appreciated the frictionless experience of connecting with Freighter and immediately signing transactions without needing complex onboarding.
+* **Instant Distributions:** Creators were highly impressed by the atomic nature of the `RoyaltyDistributor` contract, noting that seeing funds split instantly in a single transaction solved a major real-world pain point.
+* **Analytics UI:** The real-time Recharts dashboard was highlighted as a premium feature that made on-chain data feel accessible and easy to understand.
+**Areas for Improvement (Next Steps):**
+* **Mobile Wallet Support:** A few users requested deeper integration with mobile-first wallets (like LOBSTR) via WalletConnect for easier on-the-go asset management.
+* **Fiat Off-Ramps:** Creators noted that while earning XLM/USDC is great, having a built-in guide or integration for fiat off-ramping would make the platform more attractive to non-crypto native artists.
+* **Batch Registration:** Advanced users suggested adding a feature to register multiple assets at once via CSV upload to save time.
+
+---
 ## 🔧 Configuration
 
 All frontend config is through environment variables. See [`frontend/.env.example`](./frontend/.env.example):
