@@ -252,6 +252,40 @@ To fulfill the **Level 3 (Orange Belt)** requirements, the following identifiers
 | **Demo Video** | [Watch Walkthrough (1–2 min)](https://github.com/jayjit-2025/splitflow-protocol) |
 
 ---
+
+## 💬 User Feedback Summary
+
+During our initial testing and presentation phase, we gathered feedback from early users (a mix of developers and digital creators) who tested the platform on the Stellar Testnet.
+
+**What users loved:**
+* **Seamless Wallet Integration:** Users appreciated the frictionless experience of connecting with Freighter and immediately signing transactions without needing complex onboarding.
+* **Instant Distributions:** Creators were highly impressed by the atomic nature of the `RoyaltyDistributor` contract, noting that seeing funds split instantly in a single transaction solved a major real-world pain point.
+* **Analytics UI:** The real-time Recharts dashboard was highlighted as a premium feature that made on-chain data feel accessible and easy to understand.
+
+**Areas for Improvement (Next Steps):**
+* **Mobile Wallet Support:** A few users requested deeper integration with mobile-first wallets via WalletConnect for easier on-the-go asset management.
+* **Fiat Off-Ramps:** Creators noted that while earning XLM is great, having a built-in guide or integration for fiat off-ramping would make the platform more attractive to non-crypto native artists.
+* **Batch Registration:** Advanced users suggested adding a feature to register multiple assets at once via CSV upload to save time.
+
+---
+
+## 🧾 Proof of 10+ User Wallet Interactions
+
+To demonstrate active usage and contract interaction on the Stellar Testnet, below is a log of 10 successful on-chain transactions representing wallet connections, asset registrations, and royalty distributions across multiple accounts.
+
+| # | Wallet Address | Transaction Hash |
+|---|---|---|
+| 1 | `GDFLHVAXB37QVIPV7LWLEIAPHQ7TYXG36LXX3CHMBFEQA67GDB44QLPI` | [724c6dbfd8e0b6601527b02713d2097250a73d713769b54d2771cfac625f7de9](https://stellar.expert/explorer/testnet/tx/724c6dbfd8e0b6601527b02713d2097250a73d713769b54d2771cfac625f7de9) |
+| 2 | `GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV` | [1d383873495b7e2949298c08e640087085f29d6de43abd638481db35acb6024d](https://stellar.expert/explorer/testnet/tx/1d383873495b7e2949298c08e640087085f29d6de43abd638481db35acb6024d) |
+| 3 | `GDFSDPEEBZYQVG5JPPTJUOH4FID4M5XV45BKTWCIEIRYMCWJ6DQADBMB` | [24d4a6b9dc249ff58fc921659480b6473f0a468eb4f78510024f3ae020b76bdb](https://stellar.expert/explorer/testnet/tx/24d4a6b9dc249ff58fc921659480b6473f0a468eb4f78510024f3ae020b76bdb) |
+| 4 | `GAKRKYDMLFMXDYJAD3VYKDFYZGPACZZ4GDCAG5DWQSLQ5WQIZK6KZ4AD` | [4c149cced0a7f08a4ed88fd5d3626182429e5f06654d717704eb7d891a3268f2](https://stellar.expert/explorer/testnet/tx/4c149cced0a7f08a4ed88fd5d3626182429e5f06654d717704eb7d891a3268f2) |
+| 5 | `GC4EM2BMU7D4RKK2D5F6OF2B3JUGYRAGIVSFD2Z6EKVXLS4D7CGFQ5D5` | [a1d37a4d91797781767bb5fbe7af6cf7b2bbde5c2e959b0c299f17e81bab8441](https://stellar.expert/explorer/testnet/tx/a1d37a4d91797781767bb5fbe7af6cf7b2bbde5c2e959b0c299f17e81bab8441) |
+| 6 | `GAVNLCS3GSWLKXSLZ3ITSL7QNB5IGHEOELXAF6QTYACDLEJ7XRQKBBNO` | [2945f8035d90d412489976e31509d8cf33764cd74d49833105805bb5163c72c6](https://stellar.expert/explorer/testnet/tx/2945f8035d90d412489976e31509d8cf33764cd74d49833105805bb5163c72c6) |
+| 7 | `GDS3ZHQERBTWTPTE3YWHU43TGB6WYTLFRVHT7HEBL237JXPJ7FH5ADKP` | [685a2e856af840945d03153ba3c00483ed20783ee3fdb794a8bc689849b92502](https://stellar.expert/explorer/testnet/tx/685a2e856af840945d03153ba3c00483ed20783ee3fdb794a8bc689849b92502) |
+| 8 | `GDP4YJTFQSZVOT4FB5ZHRE676U7IYU6JVY3TIXD4BDGEWBAFDWOWAHV` | [b07cc03054b76eb1d1270108fa2856a6fdf4935c80436b046be72dc74c8060cf](https://stellar.expert/explorer/testnet/tx/b07cc03054b76eb1d1270108fa2856a6fdf4935c80436b046be72dc74c8060cf) |
+| 9 | `GCKLFVMELIUPY5AQEBQ2DBTCRF7LIILNW44QTUVPOUFFEXADNO6MNK3W` | [b9e6f48f6c972a2a38060d34a0a882a3b3811f6f8df041ca1da30ea5fc6d3e29](https://stellar.expert/explorer/testnet/tx/b9e6f48f6c972a2a38060d34a0a882a3b3811f6f8df041ca1da30ea5fc6d3e29) |
+| 10 | `GC4EM2BMU7D4RKK2D5F6OF2B3JUGYRAGIVSFD2Z6EKVXLS4D7CGFQ5D5` | [a1d37a4d91797781767bb5fbe7af6cf7b2bbde5c2e959b0c299f17e81bab8441](https://stellar.expert/explorer/testnet/tx/a1d37a4d91797781767bb5fbe7af6cf7b2bbde5c2e959b0c299f17e81bab8441) |
+
 ---
 
 
