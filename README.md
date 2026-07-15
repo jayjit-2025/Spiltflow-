@@ -406,6 +406,14 @@ NEXT_PUBLIC_XLM_SAC_ID=CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA
 Runtime overrides can also be set via the **Settings page** in the UI and are persisted to `localStorage`.
 
 ---
+### User Testing Responses
+
+The complete user testing responses, transaction records, and feedback are available in the Google Sheets document below:
+
+**Google Sheets:**  
+
+[https://docs.google.com/spreadsheets/d/1fQ2C87wEhySW1UtPiiFuh_STCdFVW3oXbsrkQjbKHkM/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1fQ2C87wEhySW1UtPiiFuh_STCdFVW3oXbsrkQjbKHkM/edit?usp=sharing)
+---
 
 ## 🛠️ CI/CD Pipeline
 
