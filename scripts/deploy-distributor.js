@@ -26,7 +26,9 @@ const RPC_URL = 'https://soroban-testnet.stellar.org';
 const HORIZON_URL = 'https://horizon-testnet.stellar.org';
 const XLM_SAC = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
 
-const WASM_DIR = path.resolve(__dirname, '../target/wasm32v1-none/release');
+const WASM_DIR = fs.existsSync(path.resolve(__dirname, '../target/wasm32-unknown-unknown/release'))
+  ? path.resolve(__dirname, '../target/wasm32-unknown-unknown/release')
+  : path.resolve(__dirname, '../target/wasm32v1-none/release');
 const DISTRIBUTOR_WASM = path.join(WASM_DIR, 'royalty_distributor.wasm');
 const ENV_FILE = path.resolve(__dirname, '../frontend/.env.local');
 

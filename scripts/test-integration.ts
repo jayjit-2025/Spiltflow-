@@ -37,7 +37,9 @@ const NETWORK_PASSPHRASE = Networks.TESTNET;
 const FRIENDBOT_URL = 'https://friendbot.stellar.org/?addr=';
 
 // Contract WASM paths — cargo workspace builds to the root target/ dir
-const WASM_DIR = path.resolve(__dirname, '../target/wasm32v1-none/release');
+const WASM_DIR = fs.existsSync(path.resolve(__dirname, '../target/wasm32-unknown-unknown/release'))
+  ? path.resolve(__dirname, '../target/wasm32-unknown-unknown/release')
+  : path.resolve(__dirname, '../target/wasm32v1-none/release');
 const MANAGER_WASM = path.join(WASM_DIR, 'royalty_manager.wasm');
 const DISTRIBUTOR_WASM = path.join(WASM_DIR, 'royalty_distributor.wasm');
 

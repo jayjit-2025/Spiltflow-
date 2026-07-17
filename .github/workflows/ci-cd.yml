@@ -112,19 +112,23 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Deploy Contracts to Stellar Testnet
+      - name: Deploy Contracts to Stellar Testnet & Run Integration Tests
         run: |
           # Re-build WASM release binaries for safety
           cargo build --target wasm32-unknown-unknown --release --workspace
           # Execute deploy script (Simulation/Dry-run or live deploy with key)
           if [ -n "${{ secrets.DEPLOYER_SECRET_KEY }}" ]; then
-            npx ts-node scripts/deploy.ts --network testnet
+            npm run deploy -- --network testnet
+            npm run test:integration
           else
             echo "⚠️ DEPLOYER_SECRET_KEY secret missing. Skipping live deployment and performing build/validation only."
           fi
         env:
           DEPLOYER_SECRET_KEY: ${{ secrets.DEPLOYER_SECRET_KEY }}
+          MANAGER_CONTRACT_ID: CD2GSKODG4YI7CCHFKJTTR2BMZIJMQZRYU7JH666T2Z2WQC5HOVAVFW4
+          DISTRIBUTOR_CONTRACT_ID: CAGLWDRQ2IIRGIFGJJZTUA4LM3KLEOCFZUHVNE6HIXHMY2KZP6GNXAJT
+
 

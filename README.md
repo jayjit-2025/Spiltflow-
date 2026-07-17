@@ -177,63 +177,69 @@ flowchart LR
 
 ---
 
-## 🚀 Quick Start
+## 🚀 End-to-End Deployment Guide
 
-### Prerequisites
+Follow these 9 sequential steps to set up, deploy, and verify SplitFlow from a clean clone:
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Rust | ≥ 1.75  | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
-| Stellar CLI | latest | `cargo install --locked stellar-cli --features opt` |
-| Node.js | ≥ 20 | [nodejs.org](https://nodejs.org) |
-
-### 1. Clone & Install
-
+### Step 1: Install Dependencies
 ```bash
-git clone https://github.com/jayjit-2025/Spiltflow-.git
-cd Spiltflow-
+# Install root deployment dependencies (ts-node, typescript, @stellar/stellar-sdk)
+npm install
+
+# Install frontend dependencies
+cd frontend && npm install && cd ..
 ```
 
-### 2. Build & Test Smart Contracts
-
+### Step 2: Build Smart Contracts
 ```bash
-cd contracts
-
-# Run all contract tests
-cargo test --workspace
-
-# Build WASM artifacts
+# Compile Soroban smart contracts to WASM release targets
 cargo build --target wasm32-unknown-unknown --release --workspace
 ```
 
-### 3. Deploy to Testnet
-
+### Step 3: Deploy RoyaltyManager
 ```bash
-# Fund a testnet account (via Stellar Laboratory or Friendbot)
-# Then export your secret key:
+# Set your funded Testnet deployer secret key
 export DEPLOYER_SECRET_KEY="SXXXX..."
 
-# Deploy both contracts + auto-generate .env.local
+# Deploy RoyaltyManager contract to Stellar Testnet
 npx ts-node scripts/deploy.ts --network testnet
 ```
 
-### 4. Run the Frontend
-
+### Step 4: Deploy RoyaltyDistributor
+*(Note: `scripts/deploy.ts` deploys both contracts automatically, or you can deploy the distributor individually)*
 ```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Copy environment template (populated by deploy script)
-cp .env.example .env.local
-
-# Start development server
-npm run dev
+# Deploy RoyaltyDistributor linked to the Manager
+node scripts/deploy-distributor.js
 ```
 
-Open [http://localhost:3000](http://localhost:3000) 🎉
+### Step 5: Initialize Contracts
+```bash
+# Initialize RoyaltyManager admin controls and bind RoyaltyDistributor to Manager & Token
+npx ts-node scripts/initialize.ts
+```
+
+### Step 6: Configure Frontend Environment Variables
+Copy `frontend/.env.example` to `frontend/.env.local` (automatically populated by `deploy.ts`):
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+
+### Step 7: Run Frontend
+```bash
+cd frontend && npm run dev
+```
+
+### Step 8: Connect Freighter Wallet
+1. Open [http://localhost:3000](http://localhost:3000) in your browser.
+2. Click **Connect Wallet** in the top navigation bar.
+3. Select **Freighter Wallet** and approve the connection request. Ensure your Freighter wallet network is set to **Testnet**.
+
+### Step 9: Verify Successful Deployment
+1. Navigate to the **Console Dashboard**.
+2. Register a test asset (e.g. `test_song_2026`) with contributor splits totaling 100%.
+3. Sign the transaction in Freighter and observe the **Asset Successfully Registered** confirmation modal.
+4. Execute a royalty distribution of 10 XLM for the registered asset and verify the atomic splits on the **Activity Feed** and **Analytics** pages.
+
 
 
 ---
@@ -445,17 +451,17 @@ During our initial testing and presentation phase, we gathered feedback from 12 
 ---
 ## 🔧 Configuration
 
-All frontend config is through environment variables. See [`frontend/.env.example`](./frontend/.env.example):
+All frontend configuration is managed via environment variables. See [`frontend/.env.example`](./frontend/.env.example):
 
-```env
-NEXT_PUBLIC_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
-NEXT_PUBLIC_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
-NEXT_PUBLIC_MANAGER_CONTRACT_ID=C...
-NEXT_PUBLIC_DISTRIBUTOR_CONTRACT_ID=C...
-NEXT_PUBLIC_XLM_SAC_ID=CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA
-```
+| Environment Variable | Required | Description | Default / Example Value |
+|----------------------|----------|-------------|-------------------------|
+| `NEXT_PUBLIC_SOROBAN_RPC_URL` | Yes | Stellar Soroban RPC node URL | `https://soroban-testnet.stellar.org` |
+| `NEXT_PUBLIC_NETWORK_PASSPHRASE` | Yes | Network passphrase for transaction signing | `"Test SDF Network ; September 2015"` |
+| `NEXT_PUBLIC_MANAGER_CONTRACT_ID` | Yes | Deployed contract ID of `RoyaltyManager` | `CD2GSKODG4YI7CCHFKJTTR2BMZIJMQZRYU7JH666T2Z2WQC5HOVAVFW4` |
+| `NEXT_PUBLIC_DISTRIBUTOR_CONTRACT_ID` | Yes | Deployed contract ID of `RoyaltyDistributor` | `CAGLWDRQ2IIRGIFGJJZTUA4LM3KLEOCFZUHVNE6HIXHMY2KZP6GNXAJT` |
+| `NEXT_PUBLIC_XLM_SAC_ID` | Yes | Stellar Asset Contract ID for native XLM token | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
 
-Runtime overrides can also be set via the **Settings page** in the UI and are persisted to `localStorage`.
+> **Runtime Overrides:** Users can also dynamically override contract addresses at runtime via the **Settings page** in the UI. Overrides are stored in browser `localStorage`.
 
 
 

@@ -1,0 +1,23 @@
+{
+  "name": "splitflow-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SplitFlow — Decentralized Royalty Distribution Platform Built on Stellar Soroban",
+  "scripts": {
+    "contracts:build": "cargo build --target wasm32-unknown-unknown --release --workspace",
+    "contracts:test": "cargo test --workspace",
+    "deploy": "ts-node scripts/deploy.ts",
+    "deploy:distributor": "node scripts/deploy-distributor.js",
+    "initialize": "ts-node scripts/initialize.ts",
+    "test:integration": "ts-node scripts/test-integration.ts",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build",
+    "frontend:test": "npm --prefix frontend test"
+  },
+  "devDependencies": {
+    "@stellar/stellar-sdk": "^16.0.1",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
