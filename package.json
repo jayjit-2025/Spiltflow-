@@ -2,6 +2,7 @@
   "name": "splitflow-root",
   "version": "1.0.0",
   "private": true,
+  "type": "commonjs",
   "description": "SplitFlow — Decentralized Royalty Distribution Platform Built on Stellar Soroban",
   "scripts": {
     "contracts:build": "cargo build --target wasm32-unknown-unknown --release --workspace",

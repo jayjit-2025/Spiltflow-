@@ -37,9 +37,9 @@ const NETWORK_PASSPHRASE = Networks.TESTNET;
 const FRIENDBOT_URL = 'https://friendbot.stellar.org/?addr=';
 
 // Contract WASM paths — cargo workspace builds to the root target/ dir
-const WASM_DIR = fs.existsSync(path.resolve(__dirname, '../target/wasm32-unknown-unknown/release'))
-  ? path.resolve(__dirname, '../target/wasm32-unknown-unknown/release')
-  : path.resolve(__dirname, '../target/wasm32v1-none/release');
+const WASM_DIR = fs.existsSync(path.resolve(__dirname, '../target/wasm32v1-none/release/royalty_manager.wasm'))
+  ? path.resolve(__dirname, '../target/wasm32v1-none/release')
+  : path.resolve(__dirname, '../target/wasm32-unknown-unknown/release');
 const MANAGER_WASM = path.join(WASM_DIR, 'royalty_manager.wasm');
 const DISTRIBUTOR_WASM = path.join(WASM_DIR, 'royalty_distributor.wasm');
 
@@ -256,7 +256,21 @@ async function main() {
   }
   console.log('  ✓ All 3 contributors confirmed in on-chain storage');
 
-  // 5. Distribute royalties
+  const XLM_SAC =
+    process.env.XLM_SAC_ID ?? 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
+
+  async function getBalance(addr: string): Promise<bigint> {
+    const result = await invokeContract(admin, XLM_SAC, 'balance', [
+      nativeToScVal(addr, { type: 'address' }),
+    ]);
+    return result ? BigInt(scValToNative(result)) : BigInt(0);
+  }
+
+  // 5. Record initial balances before distribution
+  const initialBal1 = await getBalance(contributor1.publicKey());
+  const initialBal2 = await getBalance(contributor2.publicKey());
+  const initialBal3 = await getBalance(contributor3.publicKey());
+
   console.log('\n[5/6] Distributing 100 XLM to "test_track_001"...');
   const AMOUNT_STROOPS = BigInt(100_000_000); // 100 XLM
 
@@ -269,28 +283,18 @@ async function main() {
 
   // 6. Verify balances
   console.log('\n[6/6] Verifying contributor balances...');
-  const XLM_SAC =
-    process.env.XLM_SAC_ID ?? 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
-
-  async function getBalance(addr: string): Promise<bigint> {
-    const result = await invokeContract(admin, XLM_SAC, 'balance', [
-      nativeToScVal(addr, { type: 'address' }),
-    ]);
-    return result ? BigInt(scValToNative(result)) : BigInt(0);
-  }
-
   const bal1 = await getBalance(contributor1.publicKey());
   const bal2 = await getBalance(contributor2.publicKey());
   const bal3 = await getBalance(contributor3.publicKey());
 
-  console.log(`  Contributor 1 (50%): ${bal1} stroops`);
-  console.log(`  Contributor 2 (30%): ${bal2} stroops`);
-  console.log(`  Contributor 3 (20%): ${bal3} stroops`);
+  console.log(`  Contributor 1 (50%): ${bal1} stroops (+${bal1 - initialBal1})`);
+  console.log(`  Contributor 2 (30%): ${bal2} stroops (+${bal2 - initialBal2})`);
+  console.log(`  Contributor 3 (20%): ${bal3} stroops (+${bal3 - initialBal3})`);
 
   const tolerance = BigInt(1);
-  const expected1 = (AMOUNT_STROOPS * BigInt(50)) / BigInt(100);
-  const expected2 = (AMOUNT_STROOPS * BigInt(30)) / BigInt(100);
-  const expected3 = (AMOUNT_STROOPS * BigInt(20)) / BigInt(100);
+  const expected1 = initialBal1 + (AMOUNT_STROOPS * BigInt(50)) / BigInt(100);
+  const expected2 = initialBal2 + (AMOUNT_STROOPS * BigInt(30)) / BigInt(100);
+  const expected3 = initialBal3 + (AMOUNT_STROOPS * BigInt(20)) / BigInt(100);
 
   if (bal1 < expected1 - tolerance || bal1 > expected1 + tolerance) {
     throw new Error(`Contributor 1 balance mismatch: expected ~${expected1}, got ${bal1}`);
