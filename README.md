@@ -146,34 +146,139 @@ flowchart TD
     Frontend -->|"View Events & Charts"| Activity
 ```
 
-### Smart Contract Interaction Model
+### Royalty Distribution Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Buyer as Buyer / Customer
+    participant UI as SplitFlow Console UI
+    participant Wallet as Freighter Wallet
+    participant RPC as Soroban RPC Server
+    participant Dist as RoyaltyDistributor Contract
+    participant Mgr as RoyaltyManager Contract
+    participant SAC as Native XLM Token (SAC)
+    participant Cont as Contributor Wallets
+
+    Buyer->>UI: Enter Asset ID & Payment Amount (XLM)
+    UI->>RPC: Fetch Asset Details via get_asset(asset_id)
+    RPC->>Mgr: Query Storage Key Asset(asset_id)
+    Mgr-->>RPC: Return AssetInfo (owner, contributors, is_active)
+    RPC-->>UI: Return Contributor Split Percentages
+    UI->>RPC: Simulate distribute_royalty(payer, asset_id, amount)
+    RPC-->>UI: Return Assembled TX Envelope + Resource Footprint
+    UI->>Wallet: Request Signature for Assembled TX
+    Wallet->>Buyer: Display Transaction Approval Prompt
+    Buyer->>Wallet: Approve Transaction
+    Wallet-->>UI: Return Signed XDR Envelope
+    UI->>RPC: Submit sendTransaction(signedTx)
+    RPC->>Dist: Execute distribute_royalty()
+    Dist->>Mgr: Fetch Contributor BPS Shares
+    Dist->>SAC: Transfer Total XLM Amount from Buyer to Distributor
+    loop For each Contributor
+        Dist->>SAC: Transfer (Amount * BPS / 10000) XLM to Contributor
+        SAC-->>Cont: Deposit Split Funds Directly
+    end
+    Dist->>SAC: Transfer Dust Remainder to Creator
+    Dist->>RPC: Publish Event: royalty_distributed(asset_id, payer)
+    RPC-->>UI: Transaction Success Confirmation + Tx Hash
+    UI-->>Buyer: Show Confirmation & Update Activity Feed
+```
+
+### User End-to-End Workflow Diagram
+
+```mermaid
+flowchart TD
+    Start([User Visits SplitFlow App]) --> Connect[Connect Wallet via StellarWalletsKit]
+    Connect --> SelectWallet{Choose Wallet Provider}
+    SelectWallet -->|Freighter| Auth[Approve Wallet Session]
+    SelectWallet -->|Albedo / xBull / HANA| Auth
+    
+    Auth --> Mode{Action Choice}
+    
+    Mode -->|Register Asset| RegForm[Fill Asset ID & Contributor BPS Splits]
+    RegForm --> Validate[Real-Time Regex & BPS 10,000 Sum Check]
+    Validate -->|Valid| SimReg[Simulate register_asset TX]
+    SimReg --> SignReg[Sign via Freighter]
+    SignReg --> SubmitReg[Submit to Soroban Testnet]
+    SubmitReg --> Modal[Show Asset Successfully Registered Modal]
+    Modal --> FeedNav[Navigate to Activity Feed]
+    
+    Mode -->|Distribute Royalty| DistForm[Search Asset ID & Enter XLM Amount]
+    DistForm --> FetchAsset[Query Asset Metadata on Ledger]
+    FetchAsset --> SimDist[Simulate distribute_royalty TX]
+    SimDist --> SignDist[Sign via Freighter]
+    SignDist --> SubmitDist[Submit to Soroban Testnet]
+    SubmitDist --> SplitExec[Atomic On-Chain Token Transfer to Payees]
+    SplitExec --> FeedNav
+    
+    FeedNav --> Track[View On-Chain Events, Tx Hashes & Recharts Analytics]
+```
+
+### Deployment Pipeline Diagram
 
 ```mermaid
 flowchart LR
-
-    User[User]
-    Frontend[SplitFlow Frontend]
-    Wallet[Freighter Wallet]
-    Manager[RoyaltyManager]
-    Distributor[RoyaltyDistributor]
-    Blockchain[(Stellar Soroban Blockchain)]
-
-    User -->|"Register Asset"| Frontend
-    Frontend -->|"Sign Transaction"| Wallet
-    Wallet -->|"register_asset()"| Manager
-
-    User -->|"Purchase Asset"| Frontend
-    Frontend -->|"Sign Transaction"| Wallet
-    Wallet -->|"distribute_royalty()"| Distributor
-
-    Distributor -->|"Read Contributor Shares"| Manager
-
-    Manager -->|"Store Asset"| Blockchain
-
-    Distributor -->|"Split Royalty Payment"| Blockchain
-
-    Blockchain -->|"Events"| Frontend
+    Clean[Clean Clone] --> Install[Step 1: npm install]
+    Install --> BuildWasm[Step 2: cargo build --target wasm32-unknown-unknown --release]
+    BuildWasm --> DeployMgr[Step 3: npx ts-node scripts/deploy.ts]
+    DeployMgr --> DeployDist[Step 4: node scripts/deploy-distributor.js]
+    DeployDist --> Init[Step 5: npx ts-node scripts/initialize.ts]
+    Init --> Env[Step 6: Write frontend/.env.local]
+    Env --> RunUI[Step 7: npm run dev]
+    RunUI --> ConnectUI[Step 8: Connect Freighter]
+    ConnectUI --> Verify[Step 9: Verify On-Chain Distribution]
 ```
+
+### CI/CD Workflow Pipeline Diagram
+
+```mermaid
+flowchart TD
+    Push[Push / PR to main] --> Job1[Job 1: Smart Contracts]
+    Push --> Job2[Job 2: Frontend]
+    
+    subgraph Job 1: Rust Workspace
+        Checkout1[Checkout Code] --> RustSetup[Setup Rust & wasm32 Target]
+        RustSetup --> CargoCache[Cache Cargo Registry]
+        CargoCache --> CargoTest[cargo test --workspace]
+        CargoTest --> CargoBuild[cargo build --release]
+        CargoBuild --> WASMArtifacts[Upload WASM Artifacts]
+    end
+    
+    subgraph Job 2: Next.js Frontend
+        Checkout2[Checkout Code] --> NodeSetup[Setup Node.js 20]
+        NodeSetup --> NPMInstall[npm install --legacy-peer-deps]
+        NPMInstall --> Vitest[npm test - Unit Tests]
+        Vitest --> NextBuild[npm run build - Prod Bundle]
+    end
+    
+    Job1 --> Job3[Job 3: CD & Integration]
+    Job2 --> Job3
+    
+    subgraph Job 3: Automated Testnet Deployment
+        StellarCLI[Install & Cache Stellar CLI] --> CheckSecret{DEPLOYER_SECRET_KEY Set?}
+        CheckSecret -->|Yes| LiveDeploy[Deploy to Testnet & Run Integration Suite]
+        CheckSecret -->|No| BuildVerify[Dry-Run Compilation & Output Verification]
+    end
+```
+
+### 📂 Feature → File Mapping
+
+| Core Feature | Implementation File(s) | Primary Responsibility |
+|--------------|------------------------|------------------------|
+| 🔑 **Wallet Integration & Management** | [`frontend/src/store/useWalletStore.ts`](./frontend/src/store/useWalletStore.ts)<br/>[`frontend/src/components/WalletConnect.tsx`](./frontend/src/components/WalletConnect.tsx) | Connects to Freighter, Albedo, xBull, HANA via `StellarWalletsKit`, manages active account session and network switching |
+| ⚡ **Stellar & Soroban Service Layer** | [`frontend/src/services/stellar.ts`](./frontend/src/services/stellar.ts) | `@stellar/stellar-sdk` RPC server initialization, `TransactionBuilder` construction, simulation, and status polling |
+| 📝 **Asset Registration & Asset Lookup UI** | [`frontend/src/app/dashboard/page.tsx`](./frontend/src/app/dashboard/page.tsx) | Real-time Asset ID regex validation, BPS split calculator, `register_asset` contract invocation, and asset metadata search |
+| 💸 **Royalty Distribution Execution** | [`frontend/src/app/dashboard/page.tsx`](./frontend/src/app/dashboard/page.tsx) | Prepares distribution stroop conversions, invokes `distribute_royalty` on `RoyaltyDistributor`, handles wallet signing |
+| 📡 **On-Chain Event Sync & Activity Feed** | [`frontend/src/services/events.ts`](./frontend/src/services/events.ts)<br/>[`frontend/src/store/useActivityStore.ts`](./frontend/src/store/useActivityStore.ts)<br/>[`frontend/src/app/activity/page.tsx`](./frontend/src/app/activity/page.tsx) | Cursor-based polling of Soroban ledger events (`asset_registered`, `royalty_distributed`), deduplication, and activity feed rendering |
+| 📊 **Analytics & Charts** | [`frontend/src/app/analytics/page.tsx`](./frontend/src/app/analytics/page.tsx) | Aggregates volume data, top assets, and split metrics using Recharts interactive charts |
+| 📜 **Transaction History Log** | [`frontend/src/store/useTxStore.ts`](./frontend/src/store/useTxStore.ts)<br/>[`frontend/src/app/transactions/page.tsx`](./frontend/src/app/transactions/page.tsx) | Client-side persistent transaction lifecycle state management (`PROCESSING`, `CONFIRMED`, `FAILED`) |
+| ⚙️ **Runtime Settings & Address Overrides** | [`frontend/src/app/settings/page.tsx`](./frontend/src/app/settings/page.tsx) | Manages contract address overrides and local storage settings |
+| 🔐 **RoyaltyManager Smart Contract** | [`contracts/royalty_manager/src/lib.rs`](./contracts/royalty_manager/src/lib.rs) | Soroban Rust contract for asset registration, BPS sum validation, access control, and metadata querying |
+| 💰 **RoyaltyDistributor Smart Contract** | [`contracts/royalty_distributor/src/lib.rs`](./contracts/royalty_distributor/src/lib.rs) | Soroban Rust contract for atomic payment splitting and token transfers to contributor wallets |
+| 🚀 **Deploy & Init Automation Scripts** | [`scripts/deploy.ts`](./scripts/deploy.ts)<br/>[`scripts/deploy-distributor.js`](./scripts/deploy-distributor.js)<br/>[`scripts/initialize.ts`](./scripts/initialize.ts) | Automated deployment of WASM binaries to Stellar Testnet, contract linking, and `.env.local` generation |
+| 🧪 **On-Chain Integration Test Suite** | [`scripts/test-integration.ts`](./scripts/test-integration.ts) | End-to-end Testnet testing script with Friendbot funding, contract deployment, asset registration, and balance verification |
+| 🛠️ **CI/CD Workflow** | [`.github/workflows/ci-cd.yml`](./.github/workflows/ci-cd.yml) | GitHub Actions workflow for contract unit testing, WASM builds, frontend builds, and automated Testnet deployment |
 
 ---
 
