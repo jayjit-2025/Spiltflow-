@@ -249,7 +249,7 @@ To fulfill the **Level 3 (Orange Belt)** requirements, the following identifiers
 | **Stellar Explorer** | [View Split Engine on Stellar.Expert](https://stellar.expert/explorer/testnet/contract/CAGLWDRQ2IIRGIFGJJZTUA4LM3KLEOCFZVHVNE6HIXHMY2KZP6GNXAJT) |
 | **CI/CD Pipeline** | ![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square&logo=github-actions) |
 | **Live Demo Link** | [Visit Live Application (Vercel)](https://spiltflow.vercel.app) |
-| **Demo Video** | [Watch Walkthrough (1–2 min)](https://github.com/jayjit-2025/splitflow-protocol) |
+| **Demo Video** | [Watch Walkthrough (1–2 min)](https://drive.google.com/file/d/1tOcmKhAlXA7CgMheDJgI6iiFCMy2Z07x/view?usp=sharing) |
 
 ---
 

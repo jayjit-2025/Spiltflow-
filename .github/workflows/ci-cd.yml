@@ -79,3 +79,52 @@ jobs:
           NEXT_PUBLIC_MANAGER_CONTRACT_ID: CD2GSKODG4YI7CCHFKJTTR2BMZIJMQZRYU7JH666T2Z2WQC5HOVAVFW4
           NEXT_PUBLIC_DISTRIBUTOR_CONTRACT_ID: CAGLWDRQ2IIRGIFGJJZTUA4LM3KLEOCFZUHVNE6HIXHMY2KZP6GNXAJT
           NEXT_PUBLIC_XLM_SAC_ID: CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+
+  # ── Job 3: Continuous Deployment ───────────────────────────────────────────
+  deploy:
+    name: Continuous Deployment & Validation
+    needs: [contracts, frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Stellar CLI
+        id: cache-stellar-cli
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/stellar
+          key: ${{ runner.os }}-stellar-cli-v21
+
+      - name: Install Stellar CLI
+        if: steps.cache-stellar-cli.outputs.cache-hit != 'true'
+        run: cargo install --locked stellar-cli --features opt
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Deploy Contracts to Stellar Testnet
+        run: |
+          # Re-build WASM release binaries for safety
+          cargo build --target wasm32-unknown-unknown --release --workspace
+          # Execute deploy script (Simulation/Dry-run or live deploy with key)
+          if [ -n "${{ secrets.DEPLOYER_SECRET_KEY }}" ]; then
+            npx ts-node scripts/deploy.ts --network testnet
+          else
+            echo "⚠️ DEPLOYER_SECRET_KEY secret missing. Skipping live deployment and performing build/validation only."
+          fi
+        env:
+          DEPLOYER_SECRET_KEY: ${{ secrets.DEPLOYER_SECRET_KEY }}
+
