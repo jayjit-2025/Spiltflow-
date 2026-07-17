@@ -1,6 +1,5 @@
 # Rust build artifacts
 /target/
-Cargo.lock
 
 # JavaScript/Next.js dependencies and build outputs
 **/node_modules/
