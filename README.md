@@ -325,41 +325,37 @@ npx ts-node scripts/test-integration.ts
 
 | Function | Auth Required | Description |
 |----------|--------------|-------------|
-| `initialize(admin)` | — | One-time setup, sets admin address |
-| `register_asset(asset_id, owner, contributors)` | Owner | Register asset with contributor splits |
-| `update_contributors(asset_id, contributors)` | Owner | Update split percentages |
-| `deactivate_asset(asset_id)` | Owner | Halt further distributions |
-| `reactivate_asset(asset_id)` | Owner | Resume distributions |
-| `get_asset(asset_id)` | — | Read full asset metadata |
-| `get_contributors(asset_id)` | — | Read contributor list (used by distributor) |
+| `initialize(admin: Address)` | — | One-time setup, sets admin address |
+| `register_asset(asset_id: Symbol, owner: Address, contributors: Vec<ContributorShare>)` | Owner (`require_auth`) | Register asset with contributor splits |
+| `update_asset(asset_id: Symbol, contributors: Vec<ContributorShare>)` | Owner (`require_auth`) | Update split percentages |
+| `deactivate_asset(asset_id: Symbol)` | Owner (`require_auth`) | Halt further distributions |
+| `get_asset(asset_id: Symbol)` | — | Read full asset metadata (returns owner, contributors, and active status) |
 
 ### RoyaltyDistributor
 
 | Function | Auth Required | Description |
 |----------|--------------|-------------|
-| `initialize(manager_id, token_id)` | Admin | Configure contract addresses |
-| `distribute(asset_id, amount)` | Payer (`require_auth`) | Split `amount` of token among contributors |
+| `initialize(admin: Address, manager_address: Address, token_address: Address)` | — | Configure contract admin, manager, and token addresses |
+| `distribute_royalty(payer: Address, asset_id: Symbol, amount: i128)` | Payer (`require_auth`) | Split `amount` of token among contributors |
 
 ### Data Types
 
 ```rust
-// Contributor — share in basis points (e.g. 5000 = 50.00%)
-struct Contributor {
+// ContributorShare — share in basis points (e.g. 5000 = 50.00%)
+struct ContributorShare {
     address: Address,
-    share: u32,       // 1..=10000
+    share: u32,       // 1..=10000 basis points
 }
 
-// Asset registration data
-struct AssetData {
-    asset_id: Symbol,
+// AssetInfo registration data
+struct AssetInfo {
     owner: Address,
-    contributors: Vec<Contributor>,
+    contributors: Vec<ContributorShare>,
     is_active: bool,
-    created_at: u64,
 }
 ```
 
-> **Share validation:** The sum of all `contributor.share` values must equal exactly `10_000` basis points (100.00%). The contract enforces this on every `register_asset` and `update_contributors` call.
+> **Share validation:** The sum of all `contributor.share` values must equal exactly `10_000` basis points (100.00%). The contract enforces this on every `register_asset` and `update_asset` call.
 
 ---
 
