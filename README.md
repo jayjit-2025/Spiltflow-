@@ -709,7 +709,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: cargo install --locked stellar-cli --features opt
+      - run: |
+          mkdir -p ~/.cargo/bin
+          curl -sSL "https://github.com/stellar/stellar-cli/releases/download/v21.4.0/stellar-cli-21.4.0-x86_64-unknown-linux-gnu.tar.gz" | tar -xz -C ~/.cargo/bin
+          chmod +x ~/.cargo/bin/*
       - run: npm install --legacy-peer-deps
       - run: |
           cargo build --target wasm32-unknown-unknown --release --workspace
