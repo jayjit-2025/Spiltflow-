@@ -11,6 +11,12 @@
   <a href="https://drive.google.com/file/d/1tOcmKhAlXA7CgMheDJgI6iiFCMy2Z07x/view?usp=sharing" target="_blank">
     <img src="https://img.shields.io/badge/%F0%9F%8E%AC%20DEMO%20VIDEO-WATCH%20NOW-ff3366?style=for-the-badge" alt="Watch Now" />
   </a>
+  <a href="https://forms.gle/s95TY76EMsL5vi8r6" target="_blank">
+    <img src="https://img.shields.io/badge/%F0%9F%93%9D%20FEEDBACK%20FORM-SUBMIT-8b5cf6?style=for-the-badge" alt="Feedback Form" />
+  </a>
+  <a href="https://docs.google.com/presentation/d/1-O71V3EasT8KFTj3N0S5FmgUUxwsuMpe/edit?usp=sharing&ouid=113848484361067460938&rtpof=true&sd=true" target="_blank">
+    <img src="https://img.shields.io/badge/%F0%9F%93%8A%20PITCH%20DECK-VIEW%20PPT-f59e0b?style=for-the-badge" alt="Pitch Deck" />
+  </a>
   <a href="#">
     <img src="https://img.shields.io/badge/CI%20PIPELINE-PASSING-22c55e?style=for-the-badge&logo=github-actions&logoColor=white" alt="CI Status" />
   </a>
@@ -584,6 +590,31 @@ This project uses **GitHub Actions** for continuous integration. Every push to `
 
 
 View live runs: [GitHub Actions](https://github.com/jayjit-2025/Spiltflow-/actions)
+
+## 💙 Level 5 Blue Belt User Onboarding and Feedback
+
+### 📋 Google Form — User Feedback Collection
+We collect comprehensive user onboarding details and product feedback via Google Form:
+
+👉 **[SplitFlow User Feedback Form](https://forms.gle/s95TY76EMsL5vi8r6)**
+
+**Fields collected:**
+* Full Name
+* Email Address
+* Stellar Wallet Address
+* Product Rating (1–5 stars)
+* Key Project Parameters & Usability Assessment
+* User Feedback & Feature Requests
+
+### 📊 Exported User Responses
+View the real-time aggregated feedback and ratings collected from active onboarded users:
+
+📈 **[Exported User Responses Spreadsheet](https://docs.google.com/spreadsheets/d/1fQ2C87wEhySW1UtPiiFuh_STCdFVW3oXbsrkQjbKHkM/edit?usp=sharing)**
+
+### 📽️ PPT Presentation
+Review the complete project presentation deck covering architecture, user onboarding insights, and Level 5 milestones:
+
+📊 **[SplitFlow Level 5 Pitch Deck & Presentation](https://docs.google.com/presentation/d/1-O71V3EasT8KFTj3N0S5FmgUUxwsuMpe/edit?usp=sharing&ouid=113848484361067460938&rtpof=true&sd=true)**
 
 ---
 
