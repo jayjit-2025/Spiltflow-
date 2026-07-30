@@ -4,7 +4,7 @@ import './globals.css';
 import Providers from '@/components/Providers';
 import WalletConnect from '@/components/WalletConnect';
 import Link from 'next/link';
-import { Activity, LayoutDashboard, Settings, TrendingUp, Compass, History, Menu } from 'lucide-react';
+import { Activity, LayoutDashboard, Settings, TrendingUp, Compass, History, Menu, BookOpen } from 'lucide-react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,9 +23,9 @@ export default function RootLayout({
       <body className={`${inter.className} min-h-full flex flex-col bg-background text-foreground antialiased pb-16 md:pb-0`}>
         <Providers>
           {/* Top Header */}
-          <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-              {/* Logo */}
+          <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+            <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+              {/* Brand Logo */}
               <Link href="/" className="flex items-center gap-2 group">
                 <Compass className="h-6 w-6 text-primary group-hover:rotate-45 transition-transform duration-300" />
                 <span className="text-xl font-bold tracking-wider bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -62,6 +62,13 @@ export default function RootLayout({
                 >
                   <TrendingUp className="h-4 w-4 text-primary/80" />
                   <span>Analytics</span>
+                </Link>
+                <Link
+                  href="/docs"
+                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <BookOpen className="h-4 w-4 text-primary/80" />
+                  <span>Docs</span>
                 </Link>
                 <Link
                   href="/settings"
@@ -113,6 +120,13 @@ export default function RootLayout({
             >
               <TrendingUp className="h-5 w-5" />
               <span className="text-[10px] mt-1 font-medium">Analytics</span>
+            </Link>
+            <Link
+              href="/docs"
+              className="flex flex-col items-center justify-center flex-1 text-center py-1 text-muted-foreground hover:text-primary active:text-primary transition-colors"
+            >
+              <BookOpen className="h-5 w-5" />
+              <span className="text-[10px] mt-1 font-medium">Docs</span>
             </Link>
             <Link
               href="/settings"

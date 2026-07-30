@@ -591,6 +591,24 @@ This project uses **GitHub Actions** for continuous integration. Every push to `
 
 View live runs: [GitHub Actions](https://github.com/jayjit-2025/Spiltflow-/actions)
 
+---
+
+## 📖 Documentation Suite & Live Web Docs
+
+SplitFlow provides extensive documentation available both in the codebase repository and live inside the web application:
+
+🌐 **[Live Web App Documentation (`/docs`)](https://spiltflow.vercel.app/docs)**
+
+### 🗂️ Repository Guides (`docs/`)
+
+* 🏗️ **[Architecture Overview](docs/ARCHITECTURE.md)** — System architecture, sequence diagrams, component workflows, RBAC security, and basis-point (BPS) payment split math.
+* 🔐 **[Smart Contracts Specification](docs/SMART_CONTRACTS.md)** — Technical specification for `RoyaltyManager` and `RoyaltyDistributor` Soroban Rust contracts (functions, structs, events, storage keys).
+* ⚡ **[Frontend & Stellar SDK Reference](docs/FRONTEND_INTEGRATION.md)** — Direct reference for `@stellar/stellar-sdk` RPC server calls, `StellarWalletsKit` wallet integration, transaction simulation, and state stores.
+* 🛠️ **[Deployment & CI/CD Guide](docs/DEPLOYMENT_GUIDE.md)** — Step-by-step local setup, Rust/WASM compilation, Stellar Testnet contract deployment scripts, and GitHub Actions workflow.
+* 👤 **[User & Onboarding Guide](docs/USER_GUIDE.md)** — End-to-end walkthrough for creators and payees covering wallet connection, asset registration, executing payouts, and tracking history.
+
+---
+
 ## 💙 Level 5 Blue Belt User Onboarding and Feedback
 
 ### 📋 Google Form — User Feedback Collection
