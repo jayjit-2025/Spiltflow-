@@ -3,58 +3,99 @@
 import React from 'react';
 import Link from 'next/link';
 import { useWalletStore } from '@/store/useWalletStore';
-import { ArrowRight, Compass, Shield, Zap, Sparkles, Coins } from 'lucide-react';
+import { ArrowRight, Compass, Shield, Zap, Sparkles, Coins, CheckCircle2, ArrowUpRight } from 'lucide-react';
 
 export default function LandingPage() {
-  const { isConnected, isConnecting } = useWalletStore();
+  const { isConnected } = useWalletStore();
 
   return (
     <div className="flex flex-col gap-20 py-10">
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center text-center max-w-4xl mx-auto gap-8 pt-12">
-        {/* Background Glows */}
-        <div className="absolute top-0 -z-10 h-[300px] w-[300px] rounded-full bg-primary/10 blur-[100px]" />
-        <div className="absolute bottom-0 -z-10 h-[250px] w-[250px] rounded-full bg-orange-600/5 blur-[80px]" />
+      <section className="relative flex flex-col items-center text-center max-w-4xl mx-auto gap-8 pt-8 md:pt-12">
+        {/* Animated Background Orbs */}
+        <div className="absolute top-0 -z-10 h-[350px] w-[350px] rounded-full bg-primary/15 blur-[110px] animate-pulse-subtle" />
+        <div className="absolute bottom-0 -z-10 h-[280px] w-[280px] rounded-full bg-orange-600/10 blur-[90px] animate-float-reverse" />
 
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-semibold tracking-wider uppercase animate-pulse">
-          <Sparkles className="h-3.5 w-3.5" />
+        {/* Badge */}
+        <div className="animate-fade-up inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold tracking-wider uppercase shadow-lg backdrop-blur-md">
+          <Sparkles className="h-3.5 w-3.5 text-orange-400 animate-spin" style={{ animationDuration: '8s' }} />
           <span>Automated Trustless Splits</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
+        {/* Headline */}
+        <h1 className="animate-fade-up text-5xl md:text-7xl font-black tracking-tight leading-[1.1]" style={{ animationDelay: '150ms' }}>
           Decentralized Royalties,{' '}
           <span className="orange-gradient-text">Distributed Instantly.</span>
         </h1>
 
-        <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
+        {/* Subtitle */}
+        <p className="animate-fade-up text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed" style={{ animationDelay: '250ms' }}>
           SplitFlow is a next-generation revenue-sharing platform built on the Stellar network. 
           Register digital assets, specify contributors, and distribute royalties instantly at the protocol level—no middleman, no delays, and total transparency.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
+        {/* CTA Buttons */}
+        <div className="animate-fade-up flex flex-col sm:flex-row items-center gap-4 mt-2" style={{ animationDelay: '350ms' }}>
           {isConnected ? (
             <Link
               href="/dashboard"
-              className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-primary to-orange-600 text-white font-bold rounded-xl shadow-xl transition-all duration-300 orange-glow-btn cursor-pointer"
+              className="group flex items-center gap-2.5 px-8 py-3.5 bg-gradient-to-r from-primary to-orange-600 text-white font-bold rounded-xl shadow-xl orange-glow-btn button-press-effect cursor-pointer"
             >
               <span>Go to Dashboard</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
             </Link>
           ) : (
             <Link
               href="/dashboard"
-              className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-primary to-orange-600 text-white font-bold rounded-xl shadow-xl transition-all duration-300 orange-glow-btn cursor-pointer"
+              className="group flex items-center gap-2.5 px-8 py-3.5 bg-gradient-to-r from-primary to-orange-600 text-white font-bold rounded-xl shadow-xl orange-glow-btn button-press-effect cursor-pointer"
             >
               <span>Launch App</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
             </Link>
           )}
           <a
             href="#features"
-            className="px-8 py-3.5 bg-secondary hover:bg-secondary/80 border border-border font-bold text-foreground rounded-xl transition-all duration-200"
+            className="px-8 py-3.5 bg-secondary/80 hover:bg-secondary border border-border font-bold text-foreground rounded-xl transition-all duration-300 button-press-effect hover:border-primary/40"
           >
             Learn More
           </a>
+        </div>
+
+        {/* Floating Interactive Token Split Visualizer Preview Card */}
+        <div className="animate-fade-up animate-float-slow w-full max-w-2xl mt-6 p-6 rounded-2xl glass-panel border border-primary/20 shadow-2xl space-y-4" style={{ animationDelay: '450ms' }}>
+          <div className="flex items-center justify-between border-b border-border/60 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-mono font-bold text-foreground">Asset #album_split_001</span>
+            </div>
+            <span className="text-[11px] font-mono text-muted-foreground bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+              Live Soroban Execution
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 text-left">
+            <div className="p-3 rounded-xl bg-secondary/50 border border-border/50 space-y-1">
+              <div className="text-[10px] uppercase font-bold text-muted-foreground">Producer (50%)</div>
+              <div className="text-sm font-extrabold text-foreground">50.00 XLM</div>
+              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-full bg-primary rounded-full w-1/2" />
+              </div>
+            </div>
+            <div className="p-3 rounded-xl bg-secondary/50 border border-border/50 space-y-1">
+              <div className="text-[10px] uppercase font-bold text-muted-foreground">Vocalist (30%)</div>
+              <div className="text-sm font-extrabold text-foreground">30.00 XLM</div>
+              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-full bg-orange-400 rounded-full w-[30%]" />
+              </div>
+            </div>
+            <div className="p-3 rounded-xl bg-secondary/50 border border-border/50 space-y-1">
+              <div className="text-[10px] uppercase font-bold text-muted-foreground">Designer (20%)</div>
+              <div className="text-sm font-extrabold text-foreground">20.00 XLM</div>
+              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-full bg-amber-500 rounded-full w-[20%]" />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -66,7 +107,7 @@ export default function LandingPage() {
           { label: 'Instant Payees', value: '45,210' },
           { label: 'Average Split Fee', value: '< 0.0001 XLM' },
         ].map((stat, i) => (
-          <div key={i} className="p-6 rounded-2xl glass-panel border border-border text-center glass-card-glow">
+          <div key={i} className="p-6 rounded-2xl glass-panel border border-border text-center glass-card-glow card-hover-lift cursor-default">
             <div className="text-3xl font-extrabold text-foreground tracking-tight">{stat.value}</div>
             <div className="text-xs text-muted-foreground mt-2 uppercase tracking-wider font-semibold">
               {stat.label}
@@ -85,7 +126,7 @@ export default function LandingPage() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4">
+          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4 card-hover-lift">
             <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
               <Zap className="h-6 w-6" />
             </div>
@@ -95,7 +136,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4">
+          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4 card-hover-lift">
             <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
               <Shield className="h-6 w-6" />
             </div>
@@ -105,7 +146,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4">
+          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4 card-hover-lift">
             <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
               <Coins className="h-6 w-6" />
             </div>
@@ -118,7 +159,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works */}
-      <section className="flex flex-col md:flex-row items-center gap-12 max-w-5xl mx-auto w-full p-8 rounded-3xl bg-gradient-to-br from-secondary/40 to-background border border-border relative overflow-hidden">
+      <section className="flex flex-col md:flex-row items-center gap-12 max-w-5xl mx-auto w-full p-8 rounded-3xl bg-gradient-to-br from-secondary/40 to-background border border-border relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 -z-10 h-[150px] w-[150px] rounded-full bg-primary/5 blur-[60px]" />
         <div className="flex-1 flex flex-col gap-6">
           <h2 className="text-3xl font-black tracking-tight">How it Works</h2>
@@ -128,8 +169,8 @@ export default function LandingPage() {
               { step: '2', title: 'Route Payments', desc: 'Direct your product checkout or streaming service payouts to our Royalty Distributor contract.' },
               { step: '3', title: 'Split Instantly', desc: 'Our distributor pulls the asset configurations and splits incoming funds directly into payees\' wallets.' }
             ].map((item, i) => (
-              <div key={i} className="flex gap-4">
-                <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold shrink-0 text-sm">
+              <div key={i} className="flex gap-4 group">
+                <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold shrink-0 text-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                   {item.step}
                 </div>
                 <div>
@@ -140,7 +181,7 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-        <div className="w-full md:w-[350px] aspect-square rounded-2xl bg-secondary/50 border border-border flex items-center justify-center p-6 text-center relative overflow-hidden shrink-0">
+        <div className="w-full md:w-[350px] aspect-square rounded-2xl bg-secondary/50 border border-border flex items-center justify-center p-6 text-center relative overflow-hidden shrink-0 card-hover-lift">
           <div className="flex flex-col gap-3 items-center">
             <Compass className="h-12 w-12 text-primary animate-spin" style={{ animationDuration: '20s' }} />
             <div className="font-extrabold text-sm text-foreground">Soroban Engine Online</div>
@@ -153,3 +194,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

@@ -632,7 +632,7 @@ export default function DashboardPage() {
             <button
               type="submit"
               disabled={validationStatus === 'INVALID' || !assetId}
-              className={`w-full py-3 text-white font-bold text-sm rounded-xl shadow-lg transition-all duration-200 orange-glow-btn ${
+              className={`w-full py-3 text-white font-bold text-sm rounded-xl shadow-lg transition-all duration-200 orange-glow-btn button-press-effect ${
                 validationStatus === 'INVALID' || !assetId
                   ? 'opacity-40 cursor-not-allowed bg-secondary/80 border border-border/50 shadow-none'
                   : 'bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 cursor-pointer'
@@ -646,7 +646,7 @@ export default function DashboardPage() {
         {/* Panel 2: Distribute Royalties Form & On-Chain Query */}
         <div className="flex flex-col gap-8">
           {/* Form 2: Distribute */}
-          <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-6 relative overflow-hidden glass-card-glow">
+          <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-6 relative overflow-hidden glass-card-glow card-hover-lift">
             <div className="flex items-center gap-3 border-b border-border/50 pb-4">
               <Coins className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-bold tracking-wide">Distribute Royalties</h3>
@@ -679,7 +679,7 @@ export default function DashboardPage() {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 text-white font-bold text-sm rounded-xl shadow-lg transition-all duration-200 orange-glow-btn cursor-pointer"
+                className="w-full py-3 bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 text-white font-bold text-sm rounded-xl shadow-lg transition-all duration-200 orange-glow-btn button-press-effect cursor-pointer"
               >
                 Execute Splitting Pipeline
               </button>
@@ -687,7 +687,7 @@ export default function DashboardPage() {
           </div>
 
           {/* On-Chain Query */}
-          <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-5 relative overflow-hidden">
+          <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-5 relative overflow-hidden card-hover-lift">
             <div className="flex items-center gap-3 border-b border-border/50 pb-4">
               <Search className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-bold tracking-wide">Query On-Chain Asset Registry</h3>
@@ -704,7 +704,7 @@ export default function DashboardPage() {
               <button
                 type="submit"
                 disabled={isSearching}
-                className="px-5 py-2.5 bg-primary text-white font-semibold text-sm rounded-xl cursor-pointer"
+                className="px-5 py-2.5 bg-primary hover:bg-orange-600 text-white font-semibold text-sm rounded-xl button-press-effect cursor-pointer transition-colors"
               >
                 {isSearching ? 'Querying...' : 'Search'}
               </button>

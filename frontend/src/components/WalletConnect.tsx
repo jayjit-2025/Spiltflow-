@@ -52,7 +52,7 @@ export default function WalletConnect() {
           {/* Disconnect Button */}
           <button
             onClick={disconnect}
-            className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/20 hover:bg-destructive/20 text-destructive-foreground transition-all duration-200"
+            className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/20 hover:bg-destructive/20 text-destructive-foreground transition-all duration-200 button-press-effect cursor-pointer"
             title="Disconnect Wallet"
           >
             <LogOut className="h-4 w-4" />
@@ -62,7 +62,7 @@ export default function WalletConnect() {
         <button
           onClick={() => setIsOpen(true)}
           disabled={isConnecting}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 text-white font-semibold text-sm rounded-xl shadow-lg transition-all duration-200 orange-glow-btn cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-orange-600 hover:opacity-95 text-white font-semibold text-sm rounded-xl shadow-lg transition-all duration-200 orange-glow-btn button-press-effect cursor-pointer"
         >
           {isConnecting ? (
             <>
@@ -71,7 +71,7 @@ export default function WalletConnect() {
             </>
           ) : (
             <>
-              <Wallet className="h-4 w-4" />
+              <Wallet className="h-4 w-4 text-orange-200" />
               <span>Connect Wallet</span>
             </>
           )}
