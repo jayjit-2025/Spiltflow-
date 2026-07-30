@@ -634,6 +634,15 @@ Review the complete project presentation deck covering architecture, user onboar
 
 📊 **[SplitFlow Level 5 Pitch Deck & Presentation](https://docs.google.com/presentation/d/1-O71V3EasT8KFTj3N0S5FmgUUxwsuMpe/edit?usp=sharing&ouid=113848484361067460938&rtpof=true&sd=true)**
 
+### 💡 User Feedback Summary & Insights
+
+Based on onboarding surveys and structured user feedback responses, user requests and recommendations are categorized into four key operational pillars:
+
+* 📚 **Documentation and Onboarding:** Users consistently request a comprehensive documentation section to clarify platform functionality, including better explainers for technical concepts like basis points (BPS) and walkthroughs for non-technical creators.
+* 💳 **Mainnet and Financial Features:** Feedback highlights the need for a clear mainnet migration path, support for stablecoins (USDC/EURC) or multiple token types, gas/fee estimation previews, and exportable payment histories for accounting.
+* ⚙️ **Platform Functionality and UX:** Suggestions include adding batch or scheduled distributions, improving the flexibility of updating contributor shares, enhancing the mobile wallet connection flow, and refining the overall UI/UX and activity feed.
+* 🛠️ **Technical Stability and UI:** Several respondents pointed to specific needs for bug fixes regarding royalty distribution contract IDs, database integration for real-time blockchain activity, and general responsive design improvements.
+
 ---
 
 ## 📦 Technology Stack
