@@ -1,8 +1,6 @@
 -- ============================================================================
 -- SplitFlow Supabase PostgreSQL Database Schema & Migration Script
 -- ============================================================================
--- Execute this SQL in your Supabase Dashboard -> SQL Editor (or via CLI)
--- ============================================================================
 
 -- 1. Create Assets Table
 CREATE TABLE IF NOT EXISTS public.assets (
@@ -46,13 +44,22 @@ CREATE TABLE IF NOT EXISTS public.user_feedback (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Enable Row Level Security (RLS) & Public Policies
+-- 5. Enable Row Level Security (RLS)
 ALTER TABLE public.assets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contributors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_feedback ENABLE ROW LEVEL SECURITY;
 
+-- 6. RLS Policies
+DROP POLICY IF EXISTS "Allow public read/write on assets" ON public.assets;
 CREATE POLICY "Allow public read/write on assets" ON public.assets FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public read/write on contributors" ON public.contributors;
 CREATE POLICY "Allow public read/write on contributors" ON public.contributors FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public read/write on transactions" ON public.transactions;
 CREATE POLICY "Allow public read/write on transactions" ON public.transactions FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public read/write on user_feedback" ON public.user_feedback;
 CREATE POLICY "Allow public read/write on user_feedback" ON public.user_feedback FOR ALL USING (true) WITH CHECK (true);
+
