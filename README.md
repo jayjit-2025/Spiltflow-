@@ -595,6 +595,7 @@ Based on onboarding surveys and structured user feedback responses, user request
 |-------|-----------|
 | Smart Contracts | Rust + Soroban SDK v21 |
 | Frontend Framework | Next.js 15 (App Router) |
+| Database | Supabase PostgreSQL (`@supabase/supabase-js`) |
 | Language | TypeScript 5 |
 | State Management | Zustand 5 |
 | Data Fetching | TanStack React Query v5 |

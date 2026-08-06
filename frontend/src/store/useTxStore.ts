@@ -45,8 +45,8 @@ export const useTxStore = create<TxState>()(
       },
 
       updateTxStatus: (id, status, hash = null, error = null) => {
-        set((state) => ({
-          transactions: state.transactions.map((tx) =>
+        set((state) => {
+          const updatedTxs = state.transactions.map((tx) =>
             tx.id === id
               ? {
                   ...tx,
@@ -55,8 +55,29 @@ export const useTxStore = create<TxState>()(
                   ...(error !== undefined ? { error } : {}),
                 }
               : tx
-          ),
-        }));
+          );
+
+          const targetTx = updatedTxs.find((tx) => tx.id === id);
+          if (typeof window !== 'undefined' && targetTx && hash && (status === 'CONFIRMED' || status === 'FAILED')) {
+            const apiUrl = `${window.location.origin}/api/transactions`;
+            // Asynchronously sync transaction to Supabase database
+            fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                txHash: hash,
+                assetId: targetTx.txArgs?.assetId || 'splitflow_asset',
+                type: targetTx.txType.includes('REGISTER') ? 'REGISTRATION' : 'DISTRIBUTION',
+                payerAddress: targetTx.txArgs?.senderAddress || 'G_STELLAR_ADDRESS',
+                amountXlm: targetTx.txArgs?.amount || '0',
+                status,
+                timestamp: targetTx.timestamp,
+              }),
+            }).catch((err) => console.warn('Supabase transaction sync warning:', err));
+          }
+
+          return { transactions: updatedTxs };
+        });
       },
 
       incrementRetry: (id) => {

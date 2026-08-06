@@ -20,12 +20,8 @@ export interface ActivityItem {
 
 interface ActivityState {
   activities: ActivityItem[];
-  /**
-   * Add an activity only if its `id` has not already been recorded.
-   * For real on-chain events `id` is the canonical RPC event ID (`{ledger}-{index}`).
-   * For local/simulated events a caller-provided unique string is expected.
-   */
   addActivity: (activity: ActivityItem) => void;
+  fetchDbActivities: () => Promise<void>;
   clearActivities: () => void;
 }
 
@@ -41,6 +37,20 @@ export const useActivityStore = create<ActivityState>()((set, get) => ({
       // Newest first; cap at 200 entries
       activities: [activity, ...state.activities].slice(0, 200),
     }));
+  },
+
+  fetchDbActivities: async () => {
+    try {
+      const res = await fetch('/api/activity');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.activities)) {
+        data.activities.forEach((item: ActivityItem) => {
+          get().addActivity(item);
+        });
+      }
+    } catch (err) {
+      console.warn('Could not fetch Supabase activity feed:', err);
+    }
   },
 
   clearActivities: () => {
