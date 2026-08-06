@@ -121,15 +121,15 @@ SplitFlow solves every core pain point with a high-performance, decentralized re
 
 | Landing Page & Floating Visualizer | On-Chain Console Dashboard |
 |:---:|:---:|
-| <img src="assets/splitflow_dashboard_preview.png" alt="Landing Page" width="100%"/> | <img src="assets/splitflow_analytics_preview.png" alt="Dashboard" width="100%"/> |
+| <img src="assets/splitflow_landing_preview.png" alt="Landing Page" width="100%"/> | <img src="assets/splitflow_dashboard_preview.png" alt="Dashboard" width="100%"/> |
 
-| Real-Time Activity Feed | Live Web Documentation (`/docs`) |
+| Analytics & Insights | Live Web Technical Docs (`/docs`) |
 |:---:|:---:|
-| <img src="assets/ci_cd_passing.png" alt="Activity Feed" width="100%"/> | <img src="assets/test_passing_cargo.png" alt="Live Documentation" width="100%"/> |
+| <img src="assets/splitflow_analytics_preview.png" alt="Analytics" width="100%"/> | <img src="assets/splitflow_docs_preview.png" alt="Documentation Hub" width="100%"/> |
 
 | Mobile Responsive UI | On-Chain Contract Event Logs |
 |:---:|:---:|
-| <img src="assets/splitflow_mobile_ui.png" alt="Mobile UI" width="45%"/> | <img src="assets/splitflow_dashboard_preview.png" alt="Contract Logs" width="100%"/> |
+| <img src="assets/splitflow_mobile_ui.png" alt="Mobile UI" width="45%"/> | <img src="assets/splitflow_activity_feed.png" alt="Contract Logs" width="100%"/> |
 
 ---
 
