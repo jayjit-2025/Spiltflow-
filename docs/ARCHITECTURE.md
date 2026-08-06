@@ -56,6 +56,70 @@ flowchart TD
 
 ---
 
+## 🗄️ Supabase Database & Event Indexing Architecture
+
+```mermaid
+flowchart TD
+    subgraph Frontend ["Next.js Frontend & Client Store"]
+        UI["SplitFlow Web Application"]
+        TxStore["Zustand Tx & Activity Store"]
+        SupaClient["Supabase SDK Client (supabase.ts)"]
+    end
+
+    subgraph ServerlessAPI ["Next.js Serverless API Routes (/api)"]
+        AssetsAPI["/api/assets (GET & POST)"]
+        TxAPI["/api/transactions (GET & POST)"]
+        ActivityAPI["/api/activity (GET)"]
+        FeedbackAPI["/api/feedback (GET & POST)"]
+    end
+
+    subgraph SupabaseDB ["Supabase PostgreSQL Database Cloud"]
+        TblAssets[("public.assets")]
+        TblContribs[("public.contributors")]
+        TblTxs[("public.transactions")]
+        TblFeedback[("public.user_feedback")]
+        RLS["Row Level Security (RLS) Policies"]
+    end
+
+    subgraph Blockchain ["Stellar Soroban Testnet Ledger"]
+        Contracts["RoyaltyManager & RoyaltyDistributor"]
+        SorobanRPC["Soroban RPC Server"]
+        LedgerEvents["On-Chain Ledger Events"]
+    end
+
+    subgraph IndexerService ["Background Event Indexer (indexer.ts)"]
+        PollWorker["Soroban RPC Event Listener"]
+    end
+
+    %% User Interaction Flow
+    UI -->|"User Actions"| TxStore
+    TxStore -->|"POST Confirmed Tx"| TxAPI
+    UI -->|"Submit Feedback"| FeedbackAPI
+    UI -->|"Query Assets & History"| AssetsAPI
+
+    %% API to Database
+    AssetsAPI --> SupaClient
+    TxAPI --> SupaClient
+    ActivityAPI --> SupaClient
+    FeedbackAPI --> SupaClient
+
+    SupaClient --> RLS
+    RLS --> TblAssets
+    RLS --> TblContribs
+    RLS --> TblTxs
+    RLS --> TblFeedback
+
+    %% Blockchain Execution & Indexing
+    UI -->|"Sign & Submit Tx"| SorobanRPC
+    SorobanRPC -->|"Execute Contracts"| Contracts
+    Contracts -->|"Emit Events"| LedgerEvents
+
+    LedgerEvents -->|"getEvents()"| PollWorker
+    PollWorker -->|"Upsert Ledger Logs"| TblTxs
+```
+
+---
+
 ## 🔢 Basis Points (BPS) Math Engine
 
 Royalty shares are represented as integers ranging from $1$ to $10,000$:
