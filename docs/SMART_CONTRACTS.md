@@ -45,6 +45,15 @@ Deactivates an asset to prevent future royalty distributions.
 #### `get_asset(env: Env, asset_id: Symbol) -> Option<AssetInfo>`
 Returns on-chain metadata for an asset.
 
+#### `version(env: Env) -> Symbol`
+Returns contract semver version string (`v2_1_0`).
+
+#### `touch_asset(env: Env, asset_id: Symbol)`
+Extends the persistent TTL of an active asset registration.
+
+#### `batch_get_assets(env: Env, asset_ids: Vec<Symbol>) -> Vec<Option<AssetInfo>>`
+Returns metadata for multiple asset IDs in a single query invocation.
+
 ---
 
 ## 2. `RoyaltyDistributor` Contract
@@ -64,3 +73,7 @@ Initializes distributor state with manager and native token contract references.
 - Validates `is_active == true`.
 - Transfers tokens atomically from `payer` to each contributor's address based on their BPS percentage.
 - Emits Soroban event `royalty_distributed`.
+
+#### `distribute_batch(env: Env, payer: Address, asset_ids: Vec<Symbol>, amounts: Vec<i128>)`
+Executes atomic royalty splitting for a vector of assets and payment amounts in a single Soroban invocation.
+
