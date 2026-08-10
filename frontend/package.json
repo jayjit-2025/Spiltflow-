@@ -1,6 +1,7 @@
 {
   "name": "frontend",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "description": "SplitFlow Web Console UI v0.2.0 - Stellar Soroban Royalty Platform",
   "private": true,
   "scripts": {
     "dev": "next dev",

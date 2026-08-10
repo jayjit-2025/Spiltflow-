@@ -1,18 +1,15 @@
 /**
- * SplitFlow — Deploy RoyaltyDistributor Only
- * -------------------------------------------
- * Deploys and initializes the RoyaltyDistributor contract on Stellar Testnet.
+ * SplitFlow — Deploy RoyaltyDistributor Only v2.1.0
+ * --------------------------------------------------
+ * Deploys and initializes RoyaltyDistributor contract v2.1.0 on Stellar Testnet.
  * Uses a fresh Friendbot-funded keypair — no pre-existing private key required.
  *
  * Prerequisites:
- *   - stellar CLI installed (cargo install --locked stellar-cli --features opt)
- *   - WASM built: cargo build --target wasm32-unknown-unknown --release (from project root)
+ *   - stellar CLI installed
+ *   - WASM built: cargo build --target wasm32-unknown-unknown --release
  *
  * Usage (from project root):
  *   node scripts/deploy-distributor.js
- *
- * Or with an existing manager contract:
- *   MANAGER_CONTRACT_ID=CD2GSKODG... node scripts/deploy-distributor.js
  */
 
 const { execSync, spawnSync } = require('child_process');
@@ -26,9 +23,9 @@ const RPC_URL = 'https://soroban-testnet.stellar.org';
 const HORIZON_URL = 'https://horizon-testnet.stellar.org';
 const XLM_SAC = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
 
-const WASM_DIR = fs.existsSync(path.resolve(__dirname, '../target/wasm32-unknown-unknown/release'))
-  ? path.resolve(__dirname, '../target/wasm32-unknown-unknown/release')
-  : path.resolve(__dirname, '../target/wasm32v1-none/release');
+const WASM_DIR = fs.existsSync(path.resolve(__dirname, '../target/wasm32v1-none/release/royalty_distributor.wasm'))
+  ? path.resolve(__dirname, '../target/wasm32v1-none/release')
+  : path.resolve(__dirname, '../target/wasm32-unknown-unknown/release');
 const DISTRIBUTOR_WASM = path.join(WASM_DIR, 'royalty_distributor.wasm');
 const ENV_FILE = path.resolve(__dirname, '../frontend/.env.local');
 

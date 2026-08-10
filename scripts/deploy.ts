@@ -1,13 +1,13 @@
 /**
- * SplitFlow Deployment Script
- * ----------------------------
- * Deploys RoyaltyManager and RoyaltyDistributor contracts to Stellar Testnet
- * (or Mainnet) and outputs the contract IDs to a `.env.local` file.
+ * SplitFlow Deployment Script v2.1.0
+ * ----------------------------------
+ * Deploys RoyaltyManager and RoyaltyDistributor contracts (v2.1.0) to Stellar Testnet
+ * (or Mainnet) and outputs the contract IDs to `.env.local`.
  *
  * Prerequisites:
- *   - stellar CLI installed:  cargo install --locked stellar-cli --features opt
+ *   - stellar CLI installed
  *   - DEPLOYER_SECRET_KEY set in environment
- *   - Contracts built:        npm run contracts:build
+ *   - Contracts compiled: cargo build --target wasm32-unknown-unknown --release
  *
  * Usage:
  *   DEPLOYER_SECRET_KEY=S... npx ts-node scripts/deploy.ts [--network testnet|mainnet]
@@ -28,7 +28,9 @@ if (!DEPLOYER_SECRET) {
   process.exit(1);
 }
 
-const WASM_DIR = path.resolve(__dirname, '../target/wasm32-unknown-unknown/release');
+const WASM_DIR = fs.existsSync(path.resolve(__dirname, '../target/wasm32v1-none/release/royalty_manager.wasm'))
+  ? path.resolve(__dirname, '../target/wasm32v1-none/release')
+  : path.resolve(__dirname, '../target/wasm32-unknown-unknown/release');
 const MANAGER_WASM = path.join(WASM_DIR, 'royalty_manager.wasm');
 const DISTRIBUTOR_WASM = path.join(WASM_DIR, 'royalty_distributor.wasm');
 const ENV_OUTPUT = path.resolve(__dirname, '../frontend/.env.local');

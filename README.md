@@ -25,7 +25,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/NEXT.JS%2015-black?style=for-the-badge&logo=nextdotjs" alt="Next.js" />
   <img src="https://img.shields.io/badge/STELLAR-ef4444?style=for-the-badge&logo=stellar" alt="Stellar" />
-  <img src="https://img.shields.io/badge/SOROBAN-v21-vibrantgreen?style=for-the-badge" alt="Soroban" />
+  <img src="https://img.shields.io/badge/SOROBAN-v2.1.0-vibrantgreen?style=for-the-badge" alt="Soroban" />
   <img src="https://img.shields.io/badge/FREIGHTER-3b82f6?style=for-the-badge" alt="Freighter" />
   <img src="https://img.shields.io/badge/LICENSE-MIT-22c55e?style=for-the-badge" alt="License" />
 </p>

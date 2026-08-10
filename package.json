@@ -1,9 +1,9 @@
 {
   "name": "splitflow-root",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "commonjs",
-  "description": "SplitFlow — Decentralized Royalty Distribution Platform Built on Stellar Soroban",
+  "description": "SplitFlow — Decentralized Royalty Distribution Platform Built on Stellar Soroban v2.1.0",
   "scripts": {
     "contracts:build": "cargo build --target wasm32-unknown-unknown --release --workspace",
     "contracts:test": "cargo test --workspace",
