@@ -161,3 +161,56 @@ fn test_distribute_inactive_asset() {
     let res = distributor_client.try_distribute_royalty(&payer, &asset_id, &5000);
     assert!(res.is_err());
 }
+
+#[test]
+fn test_distributor_version_and_batch() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let admin = Address::generate(&env);
+    let owner = Address::generate(&env);
+    let payer = Address::generate(&env);
+    let contrib = Address::generate(&env);
+
+    let manager_id = env.register(RoyaltyManager, ());
+    let manager_client = RoyaltyManagerClient::new(&env, &manager_id);
+    manager_client.initialize(&admin);
+
+    let token_admin = Address::generate(&env);
+    let token_id = env.register_stellar_asset_contract_v2(token_admin.clone()).address();
+    let token_admin_client = token::StellarAssetClient::new(&env, &token_id);
+    let token_client = token::Client::new(&env, &token_id);
+
+    let distributor_id = env.register(RoyaltyDistributor, ());
+    let distributor_client = RoyaltyDistributorClient::new(&env, &distributor_id);
+    distributor_client.initialize(&admin, &manager_id, &token_id);
+
+    // Verify Semver Version Query
+    assert_eq!(distributor_client.version(), Symbol::new(&env, "v2_1_0"));
+
+    token_admin_client.mint(&payer, &50000);
+
+    let b1 = Symbol::new(&env, "b1");
+    let b2 = Symbol::new(&env, "b2");
+
+    let contributors = vec![
+        &env,
+        ManagerContributorShare {
+            address: contrib.clone(),
+            share: 10000,
+        },
+    ];
+
+    manager_client.register_asset(&b1, &owner, &contributors);
+    manager_client.register_asset(&b2, &owner, &contributors);
+
+    // Execute Batch Distribution
+    let asset_ids = vec![&env, b1.clone(), b2.clone()];
+    let amounts = vec![&env, 10000i128, 20000i128];
+
+    distributor_client.distribute_batch(&payer, &asset_ids, &amounts);
+
+    assert_eq!(token_client.balance(&contrib), 30000);
+    assert_eq!(token_client.balance(&payer), 20000);
+}
+

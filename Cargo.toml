@@ -1,3 +1,4 @@
+# SplitFlow Soroban Smart Contract Workspace v2.1.0
 [workspace]
 resolver = "2"
 members = [

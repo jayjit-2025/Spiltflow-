@@ -150,3 +150,43 @@ fn test_max_contributors_limit() {
     let res = client.try_register_asset(&asset_id, &owner, &contributors);
     assert!(res.is_err());
 }
+
+#[test]
+fn test_version_and_batch_queries() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let admin = Address::generate(&env);
+    let owner = Address::generate(&env);
+    let contrib = Address::generate(&env);
+
+    let contract_id = env.register(RoyaltyManager, ());
+    let client = RoyaltyManagerClient::new(&env, &contract_id);
+    client.initialize(&admin);
+
+    // Test Semver Version Query
+    assert_eq!(client.version(), Symbol::new(&env, "v2_1_0"));
+
+    let asset1 = Symbol::new(&env, "batch1");
+    let asset2 = Symbol::new(&env, "batch2");
+    let contributors = vec![
+        &env,
+        ContributorShare {
+            address: contrib.clone(),
+            share: 10000,
+        },
+    ];
+
+    client.register_asset(&asset1, &owner, &contributors);
+    client.register_asset(&asset2, &owner, &contributors);
+
+    // Test Touch Asset TTL
+    client.touch_asset(&asset1);
+
+    // Test Batch Get Assets
+    let batch_res = client.batch_get_assets(&vec![&env, asset1.clone(), asset2.clone()]);
+    assert_eq!(batch_res.len(), 2);
+    assert!(batch_res.get(0).unwrap().is_some());
+    assert!(batch_res.get(1).unwrap().is_some());
+}
+

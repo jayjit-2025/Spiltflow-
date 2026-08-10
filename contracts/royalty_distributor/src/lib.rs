@@ -90,7 +90,16 @@ impl RoyaltyDistributor {
         amount: i128,
     ) -> Result<(), Error> {
         payer.require_auth();
+        Self::distribute_royalty_internal(&env, &payer, &asset_id, amount)
+    }
 
+    /// Internal helper for royalty distribution logic.
+    fn distribute_royalty_internal(
+        env: &Env,
+        payer: &Address,
+        asset_id: &Symbol,
+        amount: i128,
+    ) -> Result<(), Error> {
         if amount <= 0 {
             return Err(Error::InsufficientAmount);
         }
@@ -102,27 +111,25 @@ impl RoyaltyDistributor {
             .get(&DataKey::Manager)
             .ok_or(Error::NotInitialized)?;
 
-        // Fetch asset metadata from the manager contract
-        let manager = ManagerClient::new(&manager_address);
-        let asset_info: AssetInfo = manager
-            .get_asset(&env, &asset_id)
-            .ok_or(Error::AssetDoesNotExist)?;
-
-        if !asset_info.is_active {
-            return Err(Error::AssetInactive);
-        }
-
-        // Retrieve token address
         let token_address: Address = env
             .storage()
             .instance()
             .get(&DataKey::Token)
             .ok_or(Error::NotInitialized)?;
 
-        let token_client = token::Client::new(&env, &token_address);
+        let manager_client = ManagerClient::new(&manager_address);
+        let asset_info = manager_client
+            .get_asset(env, asset_id)
+            .ok_or(Error::AssetDoesNotExist)?;
+
+        if !asset_info.is_active {
+            return Err(Error::AssetInactive);
+        }
+
+        let token_client = token::Client::new(env, &token_address);
 
         // Pull payment amount from payer to the distributor contract
-        token_client.transfer(&payer, &env.current_contract_address(), &amount);
+        token_client.transfer(payer, &env.current_contract_address(), &amount);
 
         // Split amount and transfer to contributors
         let mut distributed_sum: i128 = 0;
@@ -163,12 +170,39 @@ impl RoyaltyDistributor {
         // Emit RoyaltyDistributed Event
         env.events().publish(
             (
-                Symbol::new(&env, "royalty_distributed"),
-                asset_id,
+                Symbol::new(env, "royalty_distributed"),
+                asset_id.clone(),
                 payer.clone(),
             ),
             (amount, remainder),
         );
+
+        Ok(())
+    }
+
+    /// Returns the smart contract semver version string.
+    pub fn version(env: Env) -> Symbol {
+        Symbol::new(&env, "v2_1_0")
+    }
+
+    /// Executes royalty distribution for multiple assets in a single batch invocation.
+    pub fn distribute_batch(
+        env: Env,
+        payer: Address,
+        asset_ids: Vec<Symbol>,
+        amounts: Vec<i128>,
+    ) -> Result<(), Error> {
+        payer.require_auth();
+
+        if asset_ids.len() != amounts.len() {
+            return Err(Error::CalculationError);
+        }
+
+        for i in 0..asset_ids.len() {
+            let asset_id = asset_ids.get(i).unwrap();
+            let amount = amounts.get(i).unwrap();
+            Self::distribute_royalty_internal(&env, &payer, &asset_id, amount)?;
+        }
 
         Ok(())
     }

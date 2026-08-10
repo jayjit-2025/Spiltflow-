@@ -170,6 +170,31 @@ impl RoyaltyManager {
         }
     }
 
+    /// Returns the smart contract semver version string.
+    pub fn version(env: Env) -> Symbol {
+        Symbol::new(&env, "v2_1_0")
+    }
+
+    /// Extends the persistent TTL of an existing asset registration.
+    pub fn touch_asset(env: Env, asset_id: Symbol) -> Result<(), Error> {
+        let key = DataKey::Asset(asset_id);
+        if env.storage().persistent().has(&key) {
+            env.storage().persistent().extend_ttl(&key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+            Ok(())
+        } else {
+            Err(Error::AssetDoesNotExist)
+        }
+    }
+
+    /// Queries asset details for multiple asset IDs in a single call.
+    pub fn batch_get_assets(env: Env, asset_ids: Vec<Symbol>) -> Vec<Option<AssetInfo>> {
+        let mut results = Vec::new(&env);
+        for asset_id in asset_ids.iter() {
+            results.push_back(Self::get_asset(env.clone(), asset_id));
+        }
+        results
+    }
+
     /// Upgrades the contract WASM code. Only admin can upgrade.
     pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>) -> Result<(), Error> {
         let admin: Address = env

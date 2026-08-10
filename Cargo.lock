@@ -1016,7 +1016,7 @@ dependencies = [
 
 [[package]]
 name = "royalty_distributor"
-version = "0.1.0"
+version = "2.1.0"
 dependencies = [
  "royalty_manager",
  "soroban-sdk",
@@ -1024,7 +1024,7 @@ dependencies = [
 
 [[package]]
 name = "royalty_manager"
-version = "0.1.0"
+version = "2.1.0"
 dependencies = [
  "soroban-sdk",
 ]
