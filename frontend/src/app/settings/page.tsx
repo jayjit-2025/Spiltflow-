@@ -6,8 +6,8 @@ import { useWalletStore } from '@/store/useWalletStore';
 import { Settings, ShieldCheck, Database, Server, Key, AlertTriangle, ExternalLink } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { isConnected, address, walletType } = useWalletStore();
-  const { managerContractId, distributorContractId } = getContractSettings();
+  const { isConnected, address, activeWallet } = useWalletStore();
+  const { managerId: managerContractId, distributorId: distributorContractId } = getContractSettings();
   const rpcUrl = getRpcUrl();
   const networkPassphrase = getNetworkPassphrase();
 
@@ -106,7 +106,7 @@ export default function SettingsPage() {
             <div className="p-4 bg-[#050505] border border-[rgba(255,255,255,0.06)] space-y-1.5">
               <div className="flex justify-between items-center text-[11px]">
                 <span className="text-[#7D8794]">CONNECTED WALLET:</span>
-                <span className="text-[#F97316] uppercase">{walletType || 'NONE'}</span>
+                <span className="text-[#F97316] uppercase">{activeWallet || 'NONE'}</span>
               </div>
               <div className="text-[#F5F7FA] break-all font-bold">
                 {isConnected && address ? address : 'NOT CONNECTED'}

@@ -12,10 +12,11 @@ export default function ActivityPage() {
 
   const filteredActivities = activities.filter((act) => {
     const matchesType = filterType === 'ALL' || act.type === filterType;
+    const txRef = act.hash || act.txHash || '';
     const matchesSearch =
       !searchQuery ||
       act.assetId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (act.txHash && act.txHash.toLowerCase().includes(searchQuery.toLowerCase()));
+      txRef.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
   });
 
@@ -114,12 +115,12 @@ export default function ActivityPage() {
                     </span>
                     <span
                       className={`text-[10px] mono-font font-bold px-2 py-0.5 border ${
-                        act.status === 'SUCCESS'
+                        (act.status ?? 'SUCCESS') === 'SUCCESS'
                           ? 'bg-[#4ade80]/10 text-[#4ade80] border-[#4ade80]/30'
                           : 'bg-amber-400/10 text-amber-400 border-amber-400/30'
                       }`}
                     >
-                      {act.status}
+                      {act.status ?? 'SUCCESS'}
                     </span>
                   </div>
 
@@ -132,14 +133,14 @@ export default function ActivityPage() {
               </div>
 
               {/* Explorer / Tx Link Right */}
-              {act.txHash && (
+              {(act.hash || act.txHash) && (
                 <a
-                  href={`https://stellar.expert/explorer/testnet/tx/${act.txHash}`}
+                  href={`https://stellar.expert/explorer/testnet/tx/${act.hash || act.txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#050505] border border-[rgba(255,255,255,0.1)] hover:border-[#F97316] text-[#B8C0CC] hover:text-[#F97316] text-xs mono-font transition-colors shrink-0"
                 >
-                  <span>[{act.txHash.slice(0, 8)}...]</span>
+                  <span>[{(act.hash || act.txHash)!.slice(0, 8)}...]</span>
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </a>
               )}

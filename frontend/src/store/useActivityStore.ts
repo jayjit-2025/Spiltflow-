@@ -10,6 +10,9 @@ export interface ActivityItem {
   amount?: string;
   payer?: string;
   hash?: string;
+  /** Alias kept for backward compatibility with older store pushes */
+  txHash?: string;
+  status?: 'SUCCESS' | 'FAILED' | 'PENDING';
   /**
    * 'REAL'      — event fetched from an on-chain Soroban RPC response
    * 'SIMULATED' — locally generated mock event (never from the ledger)

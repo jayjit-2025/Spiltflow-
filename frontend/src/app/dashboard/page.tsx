@@ -211,7 +211,7 @@ export default function DashboardPage() {
     });
 
     try {
-      const { managerContractId } = getContractSettings();
+      const { managerId: managerContractId } = getContractSettings();
       const targetManagerId = managerContractId || FALLBACK_MANAGER_ID;
 
       const scValContributors = contributors.map((c) => {
@@ -277,14 +277,17 @@ export default function DashboardPage() {
           id: `act-${Date.now()}`,
           type: 'REGISTRATION',
           assetId,
+          title: 'Asset Registered',
+          description: `Asset ${assetId} registered on Soroban.`,
           amount: 'N/A',
           timestamp: Date.now(),
-          txHash,
+          hash: txHash,
           status: 'SUCCESS',
+          source: 'LOCAL',
         });
         setRegisteredAssetId(assetId);
       } else {
-        throw new Error(statusResult.error || 'Transaction simulation or ledger execution failed.');
+        throw new Error((statusResult as any).error || 'Transaction simulation or ledger execution failed.');
       }
     } catch (err: any) {
       console.error('Registration failed:', err);
@@ -310,7 +313,7 @@ export default function DashboardPage() {
     });
 
     try {
-      const { distributorContractId } = getContractSettings();
+      const { distributorId: distributorContractId } = getContractSettings();
       const targetDistributorId = distributorContractId || FALLBACK_DISTRIBUTOR_ID;
       const stroopsAmount = BigInt(Math.round(parseFloat(distAmount) * 10_000_000));
 
@@ -361,15 +364,18 @@ export default function DashboardPage() {
           id: `act-${Date.now()}`,
           type: 'DISTRIBUTION',
           assetId: distAssetId,
+          title: 'Royalty Distributed',
+          description: `Distributed ${distAmount} XLM for asset ${distAssetId}.`,
           amount: `${distAmount} XLM`,
           timestamp: Date.now(),
-          txHash,
+          hash: txHash,
           status: 'SUCCESS',
+          source: 'LOCAL',
         });
         setDistAssetId('');
         setDistAmount('');
       } else {
-        throw new Error(statusResult.error || 'Royalty distribution failed on ledger.');
+        throw new Error((statusResult as any).error || 'Royalty distribution failed on ledger.');
       }
     } catch (err: any) {
       console.error('Distribution failed:', err);
