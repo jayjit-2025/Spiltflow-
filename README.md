@@ -660,6 +660,7 @@ SplitFlow provides extensive documentation available both in the codebase reposi
 * ⚡ **[Frontend & Stellar SDK Reference](docs/FRONTEND_INTEGRATION.md)** — Direct reference for `@stellar/stellar-sdk` RPC server calls, `StellarWalletsKit` wallet integration, transaction simulation, and state stores.
 * 🛠️ **[Deployment & CI/CD Guide](docs/DEPLOYMENT_GUIDE.md)** — Step-by-step local setup, Rust/WASM compilation, Stellar Testnet contract deployment scripts, and GitHub Actions workflow.
 * 🎨 **[Brand Assets & Design Identity](docs/BRANDING.md)** — Vector SVG logo mark, primary horizontal logo, dark banner, color palette tokens, and Michroma/JetBrains typography specs.
+* 📜 **[Release Changelog](CHANGELOG.md)** — Complete v2.1.0 release history, features, and 100th commit milestone summary.
 * 👤 **[User & Onboarding Guide](docs/USER_GUIDE.md)** — End-to-end walkthrough for creators and payees covering wallet connection, asset registration, executing payouts, and tracking history.
 
 ---
