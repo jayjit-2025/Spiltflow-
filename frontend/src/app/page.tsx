@@ -1,197 +1,366 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useWalletStore } from '@/store/useWalletStore';
-import { ArrowRight, Compass, Shield, Zap, Sparkles, Coins, CheckCircle2, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, Database, Zap, Cpu, Layers, ShieldCheck, Activity, LineChart } from 'lucide-react';
+import HeroTokenMesh from '@/components/HeroTokenMesh';
 
 export default function LandingPage() {
   const { isConnected } = useWalletStore();
+  const [activeStep, setActiveStep] = useState<number | null>(null);
 
   return (
-    <div className="flex flex-col gap-20 py-10">
-      {/* Hero Section */}
-      <section className="relative flex flex-col items-center text-center max-w-4xl mx-auto gap-8 pt-8 md:pt-12">
-        {/* Animated Background Orbs */}
-        <div className="absolute top-0 -z-10 h-[350px] w-[350px] rounded-full bg-primary/15 blur-[110px] animate-pulse-subtle" />
-        <div className="absolute bottom-0 -z-10 h-[280px] w-[280px] rounded-full bg-orange-600/10 blur-[90px] animate-float-reverse" />
-
-        {/* Badge */}
-        <div className="animate-fade-up inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold tracking-wider uppercase shadow-lg backdrop-blur-md">
-          <Sparkles className="h-3.5 w-3.5 text-orange-400 animate-spin" style={{ animationDuration: '8s' }} />
-          <span>Automated Trustless Splits</span>
+    <div className="flex flex-col gap-24 md:gap-36 py-6 md:py-12">
+      {/* ─── 1. Hero Section (Clean Architectural Layout & Interactive Token Mesh) ─── */}
+      <section className="relative w-full max-w-6xl mx-auto flex flex-col items-start text-left gap-8 pt-4 md:pt-12">
+        {/* Eyebrow Status Badge */}
+        <div className="inline-flex items-center gap-2.5 px-3 py-1.5 bg-[#0C0D10] border border-[rgba(255,255,255,0.12)] text-[11px] mono-font animate-fade-in-up">
+          <span className="w-2 h-2 rounded-full bg-[#4ade80] animate-pulse" />
+          <span className="text-[#F97316]">SOROBAN PROTOCOL V2.0</span>
+          <span className="text-[#7D8794]">|</span>
+          <span className="text-[#B8C0CC]">AUTOMATED ROYALTY SPLITS</span>
         </div>
 
-        {/* Headline */}
-        <h1 className="animate-fade-up text-5xl md:text-7xl font-black tracking-tight leading-[1.1]" style={{ animationDelay: '150ms' }}>
-          Decentralized Royalties,{' '}
-          <span className="orange-gradient-text">Distributed Instantly.</span>
+        {/* Enormous Full-Width Display Headline (Spans across top with zero text collision) */}
+        <h1 className="text-hero-giant font-michroma text-[#F5F7FA] w-full animate-fade-in-up animate-delay-1 leading-[1.02] tracking-tight">
+          DECENTRALIZED <br />
+          ROYALTIES, <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F97316] via-[#CFAE6E] to-[#9ED8FF]">
+            DISTRIBUTED
+          </span> <br />
+          INSTANTLY.
         </h1>
 
-        {/* Subtitle */}
-        <p className="animate-fade-up text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed" style={{ animationDelay: '250ms' }}>
-          SplitFlow is a next-generation revenue-sharing platform built on the Stellar network. 
-          Register digital assets, specify contributors, and distribute royalties instantly at the protocol level—no middleman, no delays, and total transparency.
-        </p>
+        {/* Bottom Hero Split Row: Description + CTAs (Left) and Interactive 3D Token Mesh (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full pt-4">
+          
+          {/* Left Column: Subtitle Paragraph & Buttons */}
+          <div className="lg:col-span-7 flex flex-col items-start gap-6 animate-fade-in-up animate-delay-2">
+            <p className="text-sm md:text-base text-[#B8C0CC] max-w-xl leading-relaxed font-sans font-light">
+              Register digital assets, define contributor shares in basis points, and distribute royalties atomically directly through Stellar Soroban smart contracts — without intermediaries or opaque payout delays.
+            </p>
 
-        {/* CTA Buttons */}
-        <div className="animate-fade-up flex flex-col sm:flex-row items-center gap-4 mt-2" style={{ animationDelay: '350ms' }}>
-          {isConnected ? (
-            <Link
-              href="/dashboard"
-              className="group flex items-center gap-2.5 px-8 py-3.5 bg-gradient-to-r from-primary to-orange-600 text-white font-bold rounded-xl shadow-xl orange-glow-btn button-press-effect cursor-pointer"
-            >
-              <span>Go to Dashboard</span>
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
-            </Link>
-          ) : (
-            <Link
-              href="/dashboard"
-              className="group flex items-center gap-2.5 px-8 py-3.5 bg-gradient-to-r from-primary to-orange-600 text-white font-bold rounded-xl shadow-xl orange-glow-btn button-press-effect cursor-pointer"
-            >
-              <span>Launch App</span>
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
-            </Link>
-          )}
-          <a
-            href="#features"
-            className="px-8 py-3.5 bg-secondary/80 hover:bg-secondary border border-border font-bold text-foreground rounded-xl transition-all duration-300 button-press-effect hover:border-primary/40"
-          >
-            Learn More
-          </a>
-        </div>
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-4 px-8 py-4 bg-[#0C0D10] hover:bg-[#171A1F] border border-[#F97316] text-[#F5F7FA] hover:text-[#F97316] font-mono text-xs tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(249,115,22,0.15)] group"
+              >
+                <span>■ LAUNCH APP</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-2 text-[#F97316]" />
+              </Link>
 
-        {/* Floating Interactive Token Split Visualizer Preview Card */}
-        <div className="animate-fade-up animate-float-slow w-full max-w-2xl mt-6 p-6 rounded-2xl glass-panel border border-primary/20 shadow-2xl space-y-4" style={{ animationDelay: '450ms' }}>
-          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-mono font-bold text-foreground">Asset #album_split_001</span>
+              <Link
+                href="/transactions"
+                className="inline-flex items-center gap-2 px-6 py-4 bg-transparent hover:bg-[#0C0D10] border border-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.3)] text-[#B8C0CC] hover:text-[#F5F7FA] font-mono text-xs tracking-widest uppercase transition-all"
+              >
+                <Activity className="h-3.5 w-3.5 text-[#9ED8FF]" />
+                <span>LEDGER TELEMETRY</span>
+              </Link>
             </div>
-            <span className="text-[11px] font-mono text-muted-foreground bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
-              Live Soroban Execution
-            </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 text-left">
-            <div className="p-3 rounded-xl bg-secondary/50 border border-border/50 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground">Producer (50%)</div>
-              <div className="text-sm font-extrabold text-foreground">50.00 XLM</div>
-              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full bg-primary rounded-full w-1/2" />
-              </div>
-            </div>
-            <div className="p-3 rounded-xl bg-secondary/50 border border-border/50 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground">Vocalist (30%)</div>
-              <div className="text-sm font-extrabold text-foreground">30.00 XLM</div>
-              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full bg-orange-400 rounded-full w-[30%]" />
-              </div>
-            </div>
-            <div className="p-3 rounded-xl bg-secondary/50 border border-border/50 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground">Designer (20%)</div>
-              <div className="text-sm font-extrabold text-foreground">20.00 XLM</div>
-              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                <div className="h-full bg-amber-500 rounded-full w-[20%]" />
-              </div>
-            </div>
+          {/* Right Column: Interactive 3D/SVG Token Orbit Mesh Component */}
+          <div className="lg:col-span-5 w-full flex items-center justify-center animate-fade-in-up animate-delay-3">
+            <HeroTokenMesh />
           </div>
+
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto w-full">
-        {[
-          { label: 'Total Volume Split', value: '1.2M XLM' },
-          { label: 'Registered Assets', value: '14,820+' },
-          { label: 'Instant Payees', value: '45,210' },
-          { label: 'Average Split Fee', value: '< 0.0001 XLM' },
-        ].map((stat, i) => (
-          <div key={i} className="p-6 rounded-2xl glass-panel border border-border text-center glass-card-glow card-hover-lift cursor-default">
-            <div className="text-3xl font-extrabold text-foreground tracking-tight">{stat.value}</div>
-            <div className="text-xs text-muted-foreground mt-2 uppercase tracking-wider font-semibold">
-              {stat.label}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="flex flex-col gap-12 max-w-6xl mx-auto w-full">
-        <div className="text-center max-w-xl mx-auto flex flex-col gap-3">
-          <h2 className="text-3xl font-black tracking-tight">Built for the Creator Economy</h2>
-          <p className="text-sm text-muted-foreground">
-            Eliminate traditional royalty accounting bottlenecks with automated, ledger-enforced splits.
+      {/* ─── 2. HOW IT WORKS — Animated SVG Central Rail & Asymmetric Workflow ──── */}
+      <section className="relative max-w-5xl mx-auto w-full space-y-20 pt-8">
+        <div className="text-center space-y-4 animate-fade-in-up">
+          <h2 className="text-section-title font-michroma text-[#F5F7FA]">
+            HOW IT WORKS
+          </h2>
+          <p className="font-michroma text-xs text-[#9ED8FF] tracking-widest uppercase">
+            A SELF-SUSTAINING VALUE DISTRIBUTION SYSTEM
+          </p>
+          <p className="text-xs text-[#B8C0CC] max-w-md mx-auto leading-relaxed">
+            Four steps forming an automated, on-chain value loop — settled natively on Stellar Soroban ledger.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4 card-hover-lift">
-            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <Zap className="h-6 w-6" />
-            </div>
-            <h3 className="text-lg font-bold text-foreground">Instant Distributions</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Royalty payments are processed on-chain in real-time. As soon as a transaction hits the distributor, contributors receive their split instantly.
-            </p>
+        {/* Central Rail Container */}
+        <div className="relative flex flex-col gap-24 md:gap-32">
+          {/* SVG Animated Data Flow Line Running Continuously Down the Rail */}
+          <div className="hidden md:block absolute left-1/2 top-6 bottom-6 w-[2px] -translate-x-1/2 pointer-events-none">
+            <svg className="w-full h-full" preserveAspectRatio="none">
+              <line
+                x1="1"
+                y1="0"
+                x2="1"
+                y2="100%"
+                stroke="#9ED8FF"
+                strokeWidth="1.5"
+                className="svg-flow-path"
+              />
+            </svg>
           </div>
 
-          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4 card-hover-lift">
-            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <Shield className="h-6 w-6" />
+          {/* STEP 01: Left Text, Right Visual */}
+          <div 
+            className="relative grid grid-cols-1 md:grid-cols-2 gap-10 items-center animate-fade-in-up"
+            onMouseEnter={() => setActiveStep(1)}
+            onMouseLeave={() => setActiveStep(null)}
+          >
+            {/* Central Node Dot */}
+            <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 items-center justify-center">
+              <div className={activeStep === 1 ? "glowing-node-amber" : "w-3 h-3 rounded-full bg-[#171A1F] border border-[#7D8794] transition-all"} />
             </div>
-            <h3 className="text-lg font-bold text-foreground">Tamper-Proof Metadata</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Asset configurations, contributors, and percentages are locked in the `royalty_manager` smart contract, ensuring immutable revenue terms.
-            </p>
+
+            {/* Left Content */}
+            <div className="space-y-3 text-left md:pr-12">
+              <span className="inline-block px-2.5 py-0.5 border border-[rgba(255,255,255,0.12)] text-[10px] mono-font text-[#F97316]">
+                STEP 01
+              </span>
+              <h3 className="font-michroma text-lg text-[#F5F7FA]">
+                REAL ASSETS REGISTERED
+              </h3>
+              <p className="text-xs text-[#B8C0CC] leading-relaxed">
+                Creators and IP owners submit asset allocations directly to the Soroban RoyaltyManager contract, anchoring permanent ownership on Stellar.
+              </p>
+            </div>
+
+            {/* Right Diagram Module Box */}
+            <div className="architectural-panel p-6 md:ml-6 space-y-3">
+              <div className="flex items-center justify-between text-[10px] mono-font text-[#7D8794] border-b border-[rgba(255,255,255,0.06)] pb-2">
+                <span>[ REGISTRY_MODULE ]</span>
+                <span className="text-[#F97316]">ON-CHAIN</span>
+              </div>
+              <div className="h-32 flex items-center justify-center bg-[#050505] border border-[rgba(255,255,255,0.04)] relative overflow-hidden">
+                <div className="flex items-center gap-3 text-xs mono-font visual-module-img">
+                  <Database className="h-5 w-5 text-[#F97316]" />
+                  <span className="text-[#F5F7FA]">ASSET_ID // album_split_001</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="p-8 rounded-2xl bg-secondary/30 border border-border flex flex-col gap-4 card-hover-lift">
-            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <Coins className="h-6 w-6" />
+          {/* STEP 02: Left Visual, Right Text */}
+          <div 
+            className="relative grid grid-cols-1 md:grid-cols-2 gap-10 items-center animate-fade-in-up"
+            onMouseEnter={() => setActiveStep(2)}
+            onMouseLeave={() => setActiveStep(null)}
+          >
+            {/* Central Node Dot */}
+            <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 items-center justify-center">
+              <div className={activeStep === 2 ? "glowing-node-amber" : "w-3 h-3 rounded-full bg-[#171A1F] border border-[#7D8794] transition-all"} />
             </div>
-            <h3 className="text-lg font-bold text-foreground">Dust-Free Division</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Our advanced division algorithms calculate exact fractions using basis points, routing any loose stroops/remainders back to the asset creator.
-            </p>
+
+            {/* Left Diagram Module Box */}
+            <div className="architectural-panel p-6 md:mr-6 space-y-3 md:order-1 order-2">
+              <div className="flex items-center justify-between text-[10px] mono-font text-[#7D8794] border-b border-[rgba(255,255,255,0.06)] pb-2">
+                <span>[ BPS_ALLOCATION ]</span>
+                <span className="text-[#9ED8FF]">10,000 BPS</span>
+              </div>
+              <div className="h-32 flex items-center justify-center bg-[#050505] border border-[rgba(255,255,255,0.04)] p-4">
+                <div className="w-full space-y-2 text-[10px] mono-font visual-module-img">
+                  <div className="flex justify-between text-[#B8C0CC]">
+                    <span>PRODUCER</span>
+                    <span className="text-[#F5F7FA]">4,500 BPS (45%)</span>
+                  </div>
+                  <div className="w-full h-1 bg-[#171A1F]"><div className="h-full bg-[#F97316] w-[45%]" /></div>
+                  <div className="flex justify-between text-[#B8C0CC]">
+                    <span>VOCALIST</span>
+                    <span className="text-[#F5F7FA]">3,500 BPS (35%)</span>
+                  </div>
+                  <div className="w-full h-1 bg-[#171A1F]"><div className="h-full bg-[#9ED8FF] w-[35%]" /></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Content */}
+            <div className="space-y-3 text-left md:pl-12 md:order-2 order-1">
+              <span className="inline-block px-2.5 py-0.5 border border-[rgba(255,255,255,0.12)] text-[10px] mono-font text-[#9ED8FF]">
+                STEP 02
+              </span>
+              <h3 className="font-michroma text-lg text-[#F5F7FA]">
+                CONTRIBUTORS CONNECTED
+              </h3>
+              <p className="text-xs text-[#B8C0CC] leading-relaxed">
+                Define exact basis-point splits (10,000 bps = 100.00%) across producers, artists, and rights holders with zero mathematical dust leakage.
+              </p>
+            </div>
+          </div>
+
+          {/* STEP 03: Left Text, Right Visual */}
+          <div 
+            className="relative grid grid-cols-1 md:grid-cols-2 gap-10 items-center animate-fade-in-up"
+            onMouseEnter={() => setActiveStep(3)}
+            onMouseLeave={() => setActiveStep(null)}
+          >
+            {/* Central Node Dot */}
+            <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 items-center justify-center">
+              <div className={activeStep === 3 ? "glowing-node-blue" : "w-3 h-3 rounded-full bg-[#171A1F] border border-[#7D8794] transition-all"} />
+            </div>
+
+            {/* Left Content */}
+            <div className="space-y-3 text-left md:pr-12">
+              <span className="inline-block px-2.5 py-0.5 border border-[rgba(255,255,255,0.12)] text-[10px] mono-font text-[#9ED8FF]">
+                STEP 03
+              </span>
+              <h3 className="font-michroma text-lg text-[#F5F7FA]">
+                ROYALTY POOL EXPANDS
+              </h3>
+              <p className="text-xs text-[#B8C0CC] leading-relaxed">
+                Streaming platforms, buyers, and consumers initiate payment deposits in XLM directly to the RoyaltyDistributor smart contract pipeline.
+              </p>
+            </div>
+
+            {/* Right Diagram Module Box */}
+            <div className="architectural-panel p-6 md:ml-6 space-y-3">
+              <div className="flex items-center justify-between text-[10px] mono-font text-[#7D8794] border-b border-[rgba(255,255,255,0.06)] pb-2">
+                <span>[ INFLOW_TELEMETRY ]</span>
+                <span className="text-[#9ED8FF]">XLM_SETTLEMENT</span>
+              </div>
+              <div className="h-32 flex items-center justify-center bg-[#050505] border border-[rgba(255,255,255,0.04)] relative">
+                <div className="flex items-center gap-2 text-xs mono-font text-[#4ade80] visual-module-img">
+                  <Zap className="h-4 w-4" />
+                  <span>PAYMENT_INFLOW: 100.00 XLM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 04: Left Visual, Right Text */}
+          <div 
+            className="relative grid grid-cols-1 md:grid-cols-2 gap-10 items-center animate-fade-in-up"
+            onMouseEnter={() => setActiveStep(4)}
+            onMouseLeave={() => setActiveStep(null)}
+          >
+            {/* Central Node Dot */}
+            <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 items-center justify-center">
+              <div className={activeStep === 4 ? "glowing-node-green" : "w-3 h-3 rounded-full bg-[#171A1F] border border-[#7D8794] transition-all"} />
+            </div>
+
+            {/* Left Diagram Module Box */}
+            <div className="architectural-panel p-6 md:mr-6 space-y-3 md:order-1 order-2">
+              <div className="flex items-center justify-between text-[10px] mono-font text-[#7D8794] border-b border-[rgba(255,255,255,0.06)] pb-2">
+                <span>[ ATOMIC_DISPATCH ]</span>
+                <span className="text-[#4ade80]">SETTLED</span>
+              </div>
+              <div className="h-32 flex items-center justify-center bg-[#050505] border border-[rgba(255,255,255,0.04)] p-4 text-[10px] mono-font text-[#B8C0CC] space-y-1 visual-module-img">
+                <div>PAYEE 1: 45.00 XLM ✓</div>
+                <div>PAYEE 2: 35.00 XLM ✓</div>
+                <div>PAYEE 3: 20.00 XLM ✓</div>
+              </div>
+            </div>
+
+            {/* Right Content */}
+            <div className="space-y-3 text-left md:pl-12 md:order-2 order-1">
+              <span className="inline-block px-2.5 py-0.5 border border-[rgba(255,255,255,0.12)] text-[10px] mono-font text-[#4ade80]">
+                STEP 04
+              </span>
+              <h3 className="font-michroma text-lg text-[#F5F7FA]">
+                AUTOMATED ATOMIC DISTRIBUTION
+              </h3>
+              <p className="text-xs text-[#B8C0CC] leading-relaxed">
+                Funds are routed atomically to all payee wallets in a single transaction invocation, eliminating manual payouts and escrow risk.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How it Works */}
-      <section className="flex flex-col md:flex-row items-center gap-12 max-w-5xl mx-auto w-full p-8 rounded-3xl bg-gradient-to-br from-secondary/40 to-background border border-border relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 -z-10 h-[150px] w-[150px] rounded-full bg-primary/5 blur-[60px]" />
-        <div className="flex-1 flex flex-col gap-6">
-          <h2 className="text-3xl font-black tracking-tight">How it Works</h2>
-          <div className="flex flex-col gap-4">
-            {[
-              { step: '1', title: 'Register Asset', desc: 'Specify an asset ID, owner, and up to 10 contributor addresses and their shares.' },
-              { step: '2', title: 'Route Payments', desc: 'Direct your product checkout or streaming service payouts to our Royalty Distributor contract.' },
-              { step: '3', title: 'Split Instantly', desc: 'Our distributor pulls the asset configurations and splits incoming funds directly into payees\' wallets.' }
-            ].map((item, i) => (
-              <div key={i} className="flex gap-4 group">
-                <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold shrink-0 text-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                  {item.step}
-                </div>
-                <div>
-                  <h4 className="font-bold text-foreground text-sm">{item.title}</h4>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* ─── 3. CONSTRUCTED ENVIRONMENTS — Protocol Architecture Bento Grid ─────── */}
+      <section className="max-w-5xl mx-auto w-full space-y-10 pt-8 animate-fade-in-up">
+        <div className="text-left space-y-3 border-b border-[rgba(255,255,255,0.08)] pb-6">
+          <h2 className="text-section-title font-michroma text-[#F5F7FA]">
+            CONSTRUCTED ENVIRONMENTS
+          </h2>
+          <p className="text-xs text-[#B8C0CC] max-w-xl">
+            A premium digital protocol architecture that translates across formats, contracts, and ledger contexts without losing coherence.
+          </p>
         </div>
-        <div className="w-full md:w-[350px] aspect-square rounded-2xl bg-secondary/50 border border-border flex items-center justify-center p-6 text-center relative overflow-hidden shrink-0 card-hover-lift">
-          <div className="flex flex-col gap-3 items-center">
-            <Compass className="h-12 w-12 text-primary animate-spin" style={{ animationDuration: '20s' }} />
-            <div className="font-extrabold text-sm text-foreground">Soroban Engine Online</div>
-            <div className="text-xs text-muted-foreground max-w-[200px] leading-relaxed">
-              SplitFlow is powered by high-performance Rust smart contracts on the Stellar Network.
+
+        {/* Asymmetric Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Main Feature Module */}
+          <div className="md:col-span-2 architectural-panel p-8 flex flex-col justify-between space-y-6 min-h-[340px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] mono-font text-[#F97316] border border-[rgba(255,255,255,0.12)] px-2.5 py-0.5">
+                ENV.01
+              </span>
+              <span className="text-xs mono-font text-[#7D8794]">SOROBAN_REGISTRY</span>
+            </div>
+
+            <div className="space-y-3 visual-module-img">
+              <h3 className="font-michroma text-xl text-[#F5F7FA]">
+                GOLD-ANCHORED REGISTRY FOUNDATION
+              </h3>
+              <p className="text-xs text-[#B8C0CC] leading-relaxed max-w-lg">
+                High-throughput persistent data storage on Stellar Soroban. Immutable ownership records, dynamic share adjustments, and role-based permissions directly on ledger.
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] text-[10px] mono-font text-[#CFAE6E]">
+              QUOTE: REAL ASSETS. REAL BACKING. NOT A PROMISE.
             </div>
           </div>
+
+          {/* Stacked Right Modules */}
+          <div className="flex flex-col gap-6">
+            {/* Module 2 */}
+            <div className="architectural-panel p-6 space-y-3 flex-1">
+              <div className="flex items-center justify-between">
+                <h4 className="font-michroma text-xs text-[#F5F7FA]">ATOMIC SPLITS</h4>
+                <span className="text-[10px] mono-font text-[#7D8794]">ENV.02</span>
+              </div>
+              <p className="text-[11px] text-[#B8C0CC] leading-relaxed visual-module-img">
+                Instant multi-payee transfers executing in a single atomic transaction block.
+              </p>
+            </div>
+
+            {/* Module 3 */}
+            <div className="architectural-panel p-6 space-y-3 flex-1">
+              <div className="flex items-center justify-between">
+                <h4 className="font-michroma text-xs text-[#F5F7FA]">ON-CHAIN PROOF</h4>
+                <span className="text-[10px] mono-font text-[#7D8794]">ENV.03</span>
+              </div>
+              <p className="text-[11px] text-[#B8C0CC] leading-relaxed visual-module-img">
+                Cryptographic transaction signatures and ledger event telemetry stream verification.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4. Ecosystem Integrations Marquee Ticker ───────────────────────── */}
+      <section className="max-w-5xl mx-auto w-full text-center space-y-6 border-t border-[rgba(255,255,255,0.08)] pt-12 animate-fade-in-up">
+        <div className="font-michroma text-xs text-[#7D8794] tracking-widest">
+          ECOSYSTEM INTEGRATIONS
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 text-xs mono-font text-[#B8C0CC] opacity-70">
+          <span>STELLAR_NETWORK</span>
+          <span>SOROBAN_WASM</span>
+          <span>FREIGHTER</span>
+          <span>ALBEDO</span>
+          <span>XBULL</span>
+        </div>
+      </section>
+
+      {/* ─── 5. Footer CTA Banner ──────────────────────────────────────────────── */}
+      <section className="max-w-5xl mx-auto w-full py-12 border-t border-[rgba(255,255,255,0.08)] text-left space-y-6 animate-fade-in-up">
+        <div className="text-[10px] mono-font text-[#7D8794]">Let's create together</div>
+        <h2 className="text-section-title font-michroma text-[#F5F7FA]">
+          READY TO START YOUR PROJECT?
+        </h2>
+        <p className="text-xs text-[#B8C0CC]">
+          Automate royalties and revenue splits transparently on Stellar.
+        </p>
+
+        <div className="pt-2">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-3 px-8 py-3.5 bg-[#0C0D10] hover:bg-[#171A1F] border border-[rgba(255,255,255,0.2)] hover:border-[#F97316] text-[#F5F7FA] hover:text-[#F97316] font-mono text-xs tracking-widest uppercase transition-all group"
+          >
+            <span>■ LAUNCH CONSOLE APP</span>
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5 text-[#F97316]" />
+          </Link>
         </div>
       </section>
     </div>
   );
 }
-
