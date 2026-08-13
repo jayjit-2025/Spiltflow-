@@ -1,4 +1,8 @@
-<h1 align="center">SplitFlow</h1>
+<p align="center">
+  <a href="https://spiltflow.vercel.app" target="_blank">
+    <img src="assets/brand/splitflow_logo_banner.svg" alt="SplitFlow Protocol Brand Logo Banner" width="100%" />
+  </a>
+</p>
 
 <p align="center">
   <strong>A Production-Ready Decentralized Royalty Distribution Platform Built on Stellar Soroban</strong>
@@ -655,6 +659,7 @@ SplitFlow provides extensive documentation available both in the codebase reposi
 * 🔐 **[Smart Contracts Specification](docs/SMART_CONTRACTS.md)** — Technical specification for `RoyaltyManager` and `RoyaltyDistributor` Soroban Rust contracts (functions, structs, events, storage keys).
 * ⚡ **[Frontend & Stellar SDK Reference](docs/FRONTEND_INTEGRATION.md)** — Direct reference for `@stellar/stellar-sdk` RPC server calls, `StellarWalletsKit` wallet integration, transaction simulation, and state stores.
 * 🛠️ **[Deployment & CI/CD Guide](docs/DEPLOYMENT_GUIDE.md)** — Step-by-step local setup, Rust/WASM compilation, Stellar Testnet contract deployment scripts, and GitHub Actions workflow.
+* 🎨 **[Brand Assets & Design Identity](docs/BRANDING.md)** — Vector SVG logo mark, primary horizontal logo, dark banner, color palette tokens, and Michroma/JetBrains typography specs.
 * 👤 **[User & Onboarding Guide](docs/USER_GUIDE.md)** — End-to-end walkthrough for creators and payees covering wallet connection, asset registration, executing payouts, and tracking history.
 
 ---
