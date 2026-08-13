@@ -10,6 +10,19 @@ SplitFlow is a decentralized, trustless royalty distribution platform built on t
 2. **Basis-Point Precision**: Stores contributor split shares in basis points ($1 \text{ bp} = 0.01\%$) with a strict $10,000\text{ bp} = 100.00\%$ validation rule.
 3. **Atomic Execution**: Payment splitting occurs within a single Soroban invocation; funds are transferred directly to contributor wallets on-chain.
 4. **Transparent Auditability**: Every asset registration and payment emits standard Soroban events logged permanently on the Stellar ledger.
+5. **Cryptographic Access Control**: Smart contract administrative controls enforce strict owner-level authorization on all mutation entrypoints.
+
+---
+
+## 🛡️ C4 Container & Security Boundary Specifications
+
+| Container Layer | Sub-System | Security Boundary & Enforcement |
+|:---|:---|:---|
+| **Web UI Console** | Next.js App Router | Client-side input sanitization, BPS 10,000 total validation, Freighter wallet signature delegation |
+| **State & Store** | Zustand + Supabase SDK | Transient client transaction state, idempotent activity log indexing, optimistic UI updates |
+| **Soroban RPC Layer** | `@stellar/stellar-sdk` | RPC simulation pre-execution, resource footprint estimation, XDR transaction envelope construction |
+| **Asset Manager Contract** | `RoyaltyManager` | Immutable asset ownership binding, BPS sum enforcement ($= 10,000$), owner `require_auth()` |
+| **Payment Splitting Contract**| `RoyaltyDistributor` | Single-ledger atomic payouts via Soroban SAC, zero dust retention, payer `require_auth()` |
 
 ---
 
