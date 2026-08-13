@@ -52,6 +52,8 @@ jobs:
   frontend:
     name: Frontend — Test & Build
     runs-on: ubuntu-latest
+    env:
+      CI: true
 
     steps:
       - name: Checkout repository
@@ -61,19 +63,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps --no-fund --no-audit
         working-directory: ./frontend
 
-      - name: Run tests
-        run: npm test
+      - name: Run Vitest unit tests
+        run: npm run test
         working-directory: ./frontend
+        env:
+          CI: true
 
       - name: Build production bundle
         run: npm run build
         working-directory: ./frontend
         env:
+          CI: true
           NEXT_PUBLIC_SOROBAN_RPC_URL: https://soroban-testnet.stellar.org
           NEXT_PUBLIC_NETWORK_PASSPHRASE: "Test SDF Network ; September 2015"
           NEXT_PUBLIC_MANAGER_CONTRACT_ID: CD2GSKODG4YI7CCHFKJTTR2BMZIJMQZRYU7JH666T2Z2WQC5HOVAVFW4
