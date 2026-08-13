@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { StellarWalletsKit, Networks } from '@creit.tech/stellar-wallets-kit';
-import { AlbedoModule, ALBEDO_ID } from '@creit.tech/stellar-wallets-kit/modules/albedo';
+import { AlbedoModule } from '@creit.tech/stellar-wallets-kit/modules/albedo';
 import { FreighterModule, FREIGHTER_ID } from '@creit.tech/stellar-wallets-kit/modules/freighter';
-import { xBullModule, XBULL_ID } from '@creit.tech/stellar-wallets-kit/modules/xbull';
+import { xBullModule } from '@creit.tech/stellar-wallets-kit/modules/xbull';
 
 type NetworkType = 'TESTNET' | 'PUBLIC' | 'STANDALONE';
 
@@ -14,12 +14,14 @@ interface WalletState {
   network: NetworkType;
   isConnecting: boolean;
   error: string | null;
+  kit: typeof StellarWalletsKit;
 
   setNetwork: (network: NetworkType) => void;
   initializeKit: () => void;
   connect: (walletId: string) => Promise<void>;
   disconnect: () => void;
   setError: (error: string | null) => void;
+  signTransaction: (xdr: string, opts?: any) => Promise<any>;
 }
 
 export const useWalletStore = create<WalletState>()(
@@ -31,6 +33,7 @@ export const useWalletStore = create<WalletState>()(
       network: 'TESTNET' as NetworkType,
       isConnecting: false,
       error: null,
+      kit: StellarWalletsKit,
 
       initializeKit: () => {
         const net = get().network;
@@ -72,7 +75,7 @@ export const useWalletStore = create<WalletState>()(
         } catch (err: any) {
           console.error("Wallet connection error:", err);
           set({
-            error: err.message || "Failed to connect wallet",
+            error: err?.message || (typeof err === 'string' ? err : "Failed to connect wallet"),
             isConnecting: false,
             isConnected: false,
             address: null,
@@ -93,6 +96,13 @@ export const useWalletStore = create<WalletState>()(
         });
       },
 
+      signTransaction: async (xdr: string, opts?: any) => {
+        get().initializeKit();
+        const walletId = get().activeWallet || FREIGHTER_ID;
+        StellarWalletsKit.setWallet(walletId);
+        return StellarWalletsKit.signTransaction(xdr, opts);
+      },
+
       setError: (error) => set({ error }),
     }),
     {
@@ -107,4 +117,3 @@ export const useWalletStore = create<WalletState>()(
     }
   )
 );
-

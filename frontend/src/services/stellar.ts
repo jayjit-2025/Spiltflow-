@@ -10,7 +10,7 @@ import {
   Account,
 } from '@stellar/stellar-sdk';
 
-type NetworkType = 'TESTNET' | 'PUBLIC' | 'STANDALONE';
+export type NetworkType = 'TESTNET' | 'PUBLIC' | 'STANDALONE';
 
 // Default RPC server URLs
 export const TESTNET_RPC_URL = 'https://soroban-testnet.stellar.org';
@@ -59,7 +59,7 @@ export interface AssetDetails {
 /**
  * Gets the correct RPC URL based on the active network.
  */
-export function getRpcUrl(network: NetworkType): string {
+export function getRpcUrl(network: NetworkType = 'TESTNET'): string {
   return network === 'PUBLIC'
     ? 'https://soroban-mainnet.stellar.org'
     : network === 'TESTNET'
@@ -70,7 +70,7 @@ export function getRpcUrl(network: NetworkType): string {
 /**
  * Gets the network passphrase based on the active network.
  */
-export function getNetworkPassphrase(network: NetworkType): string {
+export function getNetworkPassphrase(network: NetworkType = 'TESTNET'): string {
   return network === 'PUBLIC'
     ? Networks.PUBLIC
     : network === 'TESTNET'
@@ -80,14 +80,31 @@ export function getNetworkPassphrase(network: NetworkType): string {
 
 /**
  * Fetches asset details from the Royalty Manager contract.
+ * Flexible signature supporting both:
+ *   fetchAssetDetails(assetId)
+ *   fetchAssetDetails(network, managerId, assetId)
  */
 export async function fetchAssetDetails(
-  network: NetworkType,
-  managerId: string,
-  assetId: string
+  arg1: NetworkType | string,
+  arg2?: string,
+  arg3?: string
 ): Promise<AssetDetails | null> {
+  let network: NetworkType = 'TESTNET';
+  let managerId = getContractSettings().managerId;
+  let assetId: string | undefined;
+
+  if (['TESTNET', 'PUBLIC', 'STANDALONE'].includes(arg1)) {
+    network = arg1 as NetworkType;
+    managerId = arg2 || managerId;
+    assetId = arg3;
+  } else {
+    assetId = arg1 as string;
+  }
+
+  if (!assetId) return null;
+
   const rpcUrl = getRpcUrl(network);
-  const server = new rpc.Server(rpcUrl);
+  const server = new rpc.Server(rpcUrl, { allowHttp: true });
   const contract = new Contract(managerId);
 
   // Prepare arguments for get_asset(asset_id: Symbol)
@@ -131,17 +148,39 @@ export async function fetchAssetDetails(
 
 /**
  * Prepares, simulates, and signs a Soroban transaction.
+ * Flexible signature supporting both:
+ *   buildAndSimulateTx(senderAddress, contractId, functionName, args)
+ *   buildAndSimulateTx(network, senderAddress, contractId, functionName, args)
  */
 export async function buildAndSimulateTx(
-  network: NetworkType,
-  senderAddress: string,
-  contractId: string,
-  functionName: string,
-  args: any[]
+  arg1: any,
+  arg2: any,
+  arg3: any,
+  arg4?: any,
+  arg5?: any
 ): Promise<any> {
+  let network: NetworkType = 'TESTNET';
+  let senderAddress: string;
+  let contractId: string;
+  let functionName: string;
+  let args: any[];
+
+  if (['TESTNET', 'PUBLIC', 'STANDALONE'].includes(arg1)) {
+    network = arg1;
+    senderAddress = arg2;
+    contractId = arg3;
+    functionName = arg4;
+    args = arg5;
+  } else {
+    senderAddress = arg1;
+    contractId = arg2;
+    functionName = arg3;
+    args = arg4;
+  }
+
   const rpcUrl = getRpcUrl(network);
   const passphrase = getNetworkPassphrase(network);
-  const server = new rpc.Server(rpcUrl);
+  const server = new rpc.Server(rpcUrl, { allowHttp: true });
   const contract = new Contract(contractId);
 
   // 1. Fetch account details to get the current sequence number
@@ -170,15 +209,28 @@ export async function buildAndSimulateTx(
 
 /**
  * Polls the Soroban RPC server to check transaction status until confirmed or failed.
+ * Flexible signature supporting both:
+ *   pollTxStatus(txHash)
+ *   pollTxStatus(network, txHash)
  */
 export async function pollTxStatus(
-  network: NetworkType,
-  txHash: string,
+  arg1: any,
+  arg2?: any,
   maxAttempts = 30,
   delayMs = 1500
 ): Promise<rpc.Api.GetTransactionResponse> {
+  let network: NetworkType = 'TESTNET';
+  let txHash: string;
+
+  if (['TESTNET', 'PUBLIC', 'STANDALONE'].includes(arg1)) {
+    network = arg1;
+    txHash = arg2;
+  } else {
+    txHash = arg1;
+  }
+
   const rpcUrl = getRpcUrl(network);
-  const server = new rpc.Server(rpcUrl);
+  const server = new rpc.Server(rpcUrl, { allowHttp: true });
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const txResponse = await server.getTransaction(txHash);
@@ -195,4 +247,3 @@ export async function pollTxStatus(
 
   throw new Error('Transaction polling timed out');
 }
-

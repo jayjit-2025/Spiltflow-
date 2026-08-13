@@ -24,7 +24,7 @@ export async function fetchContractEvents(
   startLedger: number
 ): Promise<{ events: ParsedEvent[]; latestLedger: number }> {
   const rpcUrl = getRpcUrl(network);
-  const server = new rpc.Server(rpcUrl);
+  const server = new rpc.Server(rpcUrl, { allowHttp: true });
 
   try {
     // 1. Fetch the current network tip
