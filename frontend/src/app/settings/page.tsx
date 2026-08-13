@@ -1,240 +1,119 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { getContractSettings, getNetworkPassphrase, getRpcUrl, FALLBACK_MANAGER_ID, FALLBACK_DISTRIBUTOR_ID } from '@/services/stellar';
 import { useWalletStore } from '@/store/useWalletStore';
-import { useTxStore } from '@/store/useTxStore';
-import { useActivityStore } from '@/store/useActivityStore';
-import { FALLBACK_MANAGER_ID, FALLBACK_DISTRIBUTOR_ID, XLM_SAC_ID, TESTNET_RPC_URL } from '@/services/stellar';
-import { Settings, Save, RotateCcw, Shield, Server, Wallet, Database } from 'lucide-react';
+import { Settings, ShieldCheck, Database, Server, Key, AlertTriangle, ExternalLink } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { network, setNetwork } = useWalletStore();
-  const { clearHistory } = useTxStore();
-  const { clearActivities } = useActivityStore();
-
-  const [managerId, setManagerId] = useState(FALLBACK_MANAGER_ID);
-  const [distributorId, setDistributorId] = useState(FALLBACK_DISTRIBUTOR_ID);
-  const [tokenId, setTokenId] = useState(XLM_SAC_ID);
-  const [rpcUrl, setRpcUrl] = useState(TESTNET_RPC_URL);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedManager = localStorage.getItem('splitflow:manager_id') || FALLBACK_MANAGER_ID;
-      let storedDistributor = localStorage.getItem('splitflow:distributor_id');
-      const storedToken = localStorage.getItem('splitflow:token_id') || XLM_SAC_ID;
-      const storedRpc = localStorage.getItem('splitflow:rpc_url') || TESTNET_RPC_URL;
-
-      // Auto-heal: If saved distributor ID is empty, equals manager ID, or matches the old distributor ID, replace with fallback distributor ID
-      if (
-        (!storedDistributor ||
-          storedDistributor === storedManager ||
-          storedDistributor === 'CBDSNV5OLO7OR5BH3AQOEEWXGDBBZCVT6FDJT7MCOHHH53MPVRKZV27K') &&
-        FALLBACK_DISTRIBUTOR_ID &&
-        FALLBACK_DISTRIBUTOR_ID !== storedManager
-      ) {
-        storedDistributor = FALLBACK_DISTRIBUTOR_ID;
-        localStorage.setItem('splitflow:distributor_id', FALLBACK_DISTRIBUTOR_ID);
-      }
-
-      setManagerId(storedManager);
-      if (storedDistributor) setDistributorId(storedDistributor);
-      setTokenId(storedToken);
-      setRpcUrl(storedRpc);
-    }
-  }, []);
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a full implementation, these would be persisted to a separate Zustand slice
-    // or written into a local config store consumed by the services layer
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('splitflow:manager_id', managerId);
-      localStorage.setItem('splitflow:distributor_id', distributorId);
-      localStorage.setItem('splitflow:token_id', tokenId);
-      localStorage.setItem('splitflow:rpc_url', rpcUrl);
-    }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
-
-  const handleReset = () => {
-    setManagerId(FALLBACK_MANAGER_ID);
-    setDistributorId(FALLBACK_DISTRIBUTOR_ID);
-    setTokenId(XLM_SAC_ID);
-    setRpcUrl(TESTNET_RPC_URL);
-    setSaved(false);
-  };
-
-  const handleClearAll = () => {
-    if (typeof window !== 'undefined' && window.confirm('Are you sure? This will clear all transaction history and activity logs.')) {
-      clearHistory();
-      clearActivities();
-    }
-  };
+  const { isConnected, address, walletType } = useWalletStore();
+  const { managerContractId, distributorContractId } = getContractSettings();
+  const rpcUrl = getRpcUrl();
+  const networkPassphrase = getNetworkPassphrase();
 
   return (
-    <div className="flex flex-col gap-8 max-w-3xl mx-auto w-full">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <h2 className="text-3xl font-black tracking-tight flex items-center gap-2">
-            <Settings className="h-7 w-7 text-primary" />
-            <span>Settings</span>
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Configure contract addresses, RPC endpoints, and network preferences.
+    <div className="flex flex-col gap-8 pb-12">
+      {/* Header Banner */}
+      <div className="architectural-panel p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="text-[10px] mono-font text-[#F97316]">SOROBAN_PROTOCOL_CONFIGURATION</div>
+          <h1 className="text-xl md:text-2xl font-michroma text-[#F5F7FA]">SETTINGS & NETWORK CONTEXT</h1>
+          <p className="text-xs text-[#B8C0CC]">
+            Active Soroban smart contract addresses, RPC telemetry endpoint, and wallet signer configurations.
           </p>
         </div>
+
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] mono-font text-xs">
+          <span className="w-2 h-2 rounded-full bg-[#4ade80]" />
+          <span className="text-[#B8C0CC]">NETWORK:</span>
+          <span className="text-[#F5F7FA] font-bold">STELLAR_TESTNET</span>
+        </div>
       </div>
 
-      <form onSubmit={handleSave} className="flex flex-col gap-6">
-        {/* Network Configuration */}
-        <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-5">
-          <div className="flex items-center gap-2 border-b border-border pb-4">
-            <Server className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Network & RPC</h3>
+      {/* Contract Configuration Modules */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Module 1: Smart Contract Registry Configuration */}
+        <div className="architectural-panel p-6 md:p-8 space-y-6">
+          <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] pb-4">
+            <div className="flex items-center gap-2.5">
+              <Database className="h-4 w-4 text-[#F97316]" />
+              <h2 className="font-michroma text-xs text-[#F5F7FA] uppercase tracking-wider">
+                SOROBAN SMART CONTRACTS
+              </h2>
+            </div>
+            <span className="text-[10px] mono-font text-[#F97316]">CONTRACT_ADDRESSES</span>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Active Network</label>
-              <select
-                value={network}
-                onChange={(e: any) => setNetwork(e.target.value)}
-                className="bg-accent border border-border text-foreground px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="TESTNET">Testnet</option>
-                <option value="PUBLIC">Mainnet (Public)</option>
-                <option value="STANDALONE">Localhost / Futurenet</option>
-              </select>
+          <div className="space-y-4 font-mono text-xs">
+            {/* Royalty Manager Contract */}
+            <div className="p-4 bg-[#050505] border border-[rgba(255,255,255,0.06)] space-y-2">
+              <div className="flex justify-between items-center text-[11px]">
+                <span className="text-[#7D8794]">ROYALTY_MANAGER_CONTRACT:</span>
+                {managerContractId ? (
+                  <span className="text-[#4ade80] text-[10px] px-2 py-0.5 border border-[#4ade80]/30 bg-[#4ade80]/10">ENV_CONFIGURED</span>
+                ) : (
+                  <span className="text-amber-400 text-[10px] px-2 py-0.5 border border-amber-400/30 bg-amber-400/10">USING_FALLBACK</span>
+                )}
+              </div>
+              <div className="text-[#F5F7FA] break-all select-all font-bold">
+                {managerContractId || FALLBACK_MANAGER_ID}
+              </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">RPC Server URL</label>
-              <input
-                type="url"
-                value={rpcUrl}
-                onChange={(e) => setRpcUrl(e.target.value)}
-                className="bg-accent border border-border text-foreground px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Contract Addresses */}
-        <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-5">
-          <div className="flex items-center gap-2 border-b border-border pb-4">
-            <Database className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Contract Addresses</h3>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                Royalty Manager Contract ID
-              </label>
-              <input
-                type="text"
-                value={managerId}
-                onChange={(e) => setManagerId(e.target.value)}
-                placeholder="C..."
-                className="bg-accent border border-border text-foreground px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                Royalty Distributor Contract ID
-              </label>
-              <input
-                type="text"
-                value={distributorId}
-                onChange={(e) => setDistributorId(e.target.value)}
-                placeholder="C..."
-                className="bg-accent border border-border text-foreground px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                Payment Token Contract ID (SAC)
-              </label>
-              <input
-                type="text"
-                value={tokenId}
-                onChange={(e) => setTokenId(e.target.value)}
-                placeholder="C... (e.g. native XLM SAC)"
-                className="bg-accent border border-border text-foreground px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono"
-              />
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
-                The token contract implementing the SEP-0041 interface. Default is the native XLM Stellar Asset Contract.
-              </p>
+            {/* Royalty Distributor Contract */}
+            <div className="p-4 bg-[#050505] border border-[rgba(255,255,255,0.06)] space-y-2">
+              <div className="flex justify-between items-center text-[11px]">
+                <span className="text-[#7D8794]">ROYALTY_DISTRIBUTOR_CONTRACT:</span>
+                {distributorContractId ? (
+                  <span className="text-[#4ade80] text-[10px] px-2 py-0.5 border border-[#4ade80]/30 bg-[#4ade80]/10">ENV_CONFIGURED</span>
+                ) : (
+                  <span className="text-amber-400 text-[10px] px-2 py-0.5 border border-amber-400/30 bg-amber-400/10">USING_FALLBACK</span>
+                )}
+              </div>
+              <div className="text-[#F5F7FA] break-all select-all font-bold">
+                {distributorContractId || FALLBACK_DISTRIBUTOR_ID}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="submit"
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-orange-600 text-white font-bold text-sm rounded-xl orange-glow-btn cursor-pointer"
-          >
-            <Save className="h-4 w-4" />
-            <span>{saved ? 'Saved Successfully!' : 'Save Configuration'}</span>
-          </button>
+        {/* Module 2: Network & Wallet Context */}
+        <div className="architectural-panel p-6 md:p-8 space-y-6">
+          <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] pb-4">
+            <div className="flex items-center gap-2.5">
+              <Server className="h-4 w-4 text-[#9ED8FF]" />
+              <h2 className="font-michroma text-xs text-[#F5F7FA] uppercase tracking-wider">
+                NETWORK & SIGNER CONTEXT
+              </h2>
+            </div>
+            <span className="text-[10px] mono-font text-[#9ED8FF]">RPC_TELEMETRY</span>
+          </div>
 
-          <button
-            type="button"
-            onClick={handleReset}
-            className="flex items-center gap-2 px-6 py-3 bg-secondary border border-border hover:bg-secondary/80 text-foreground font-bold text-sm rounded-xl cursor-pointer"
-          >
-            <RotateCcw className="h-4 w-4" />
-            <span>Reset to Defaults</span>
-          </button>
-        </div>
-      </form>
+          <div className="space-y-4 font-mono text-xs">
+            {/* RPC Endpoint */}
+            <div className="p-4 bg-[#050505] border border-[rgba(255,255,255,0.06)] space-y-1.5">
+              <div className="text-[11px] text-[#7D8794]">STELLAR RPC ENDPOINT:</div>
+              <div className="text-[#9ED8FF] break-all select-all font-bold">{rpcUrl}</div>
+            </div>
 
-      {/* Security / Data Management */}
-      <div className="p-6 rounded-2xl border border-destructive/25 bg-destructive/5 flex flex-col gap-5">
-        <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-destructive" />
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Data Management</h3>
-        </div>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          This action will permanently clear all locally stored transaction history and activity logs from your browser.
-          On-chain data on the Stellar ledger is immutable and will not be affected.
-        </p>
-        <button
-          type="button"
-          onClick={handleClearAll}
-          className="w-fit flex items-center gap-2 px-5 py-2.5 bg-destructive/15 border border-destructive/30 hover:bg-destructive/25 text-destructive-foreground font-bold text-sm rounded-xl cursor-pointer transition-colors"
-        >
-          Clear All Local Data
-        </button>
-      </div>
+            {/* Network Passphrase */}
+            <div className="p-4 bg-[#050505] border border-[rgba(255,255,255,0.06)] space-y-1.5">
+              <div className="text-[11px] text-[#7D8794]">NETWORK PASSPHRASE:</div>
+              <div className="text-[#F5F7FA] break-all select-all font-bold">{networkPassphrase}</div>
+            </div>
 
-      {/* Security Audit Notes */}
-      <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-5">
-        <div className="flex items-center gap-2 border-b border-border pb-4">
-          <Shield className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Security Notes</h3>
+            {/* Wallet Signer Context */}
+            <div className="p-4 bg-[#050505] border border-[rgba(255,255,255,0.06)] space-y-1.5">
+              <div className="flex justify-between items-center text-[11px]">
+                <span className="text-[#7D8794]">CONNECTED WALLET:</span>
+                <span className="text-[#F97316] uppercase">{walletType || 'NONE'}</span>
+              </div>
+              <div className="text-[#F5F7FA] break-all font-bold">
+                {isConnected && address ? address : 'NOT CONNECTED'}
+              </div>
+            </div>
+          </div>
         </div>
-        <ul className="flex flex-col gap-3 text-xs text-muted-foreground leading-relaxed">
-          {[
-            'Private keys are never stored by SplitFlow. All signing happens inside your wallet extension.',
-            'Contract interactions are simulated first to calculate exact fees before broadcasting.',
-            'Smart contracts use require_auth() to prevent unauthorized state modifications.',
-            'All contributor share sums are validated on-chain to equal exactly 10,000 basis points (100.00%).',
-            'Asset owners can deactivate their assets immediately to halt further distribution.',
-            'The Royalty Manager and Distributor use Persistent storage with TTL extension to prevent state expiration.',
-          ].map((note, i) => (
-            <li key={i} className="flex items-start gap-2">
-              <span className="text-primary mt-0.5 shrink-0">•</span>
-              <span>{note}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

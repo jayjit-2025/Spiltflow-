@@ -1,16 +1,32 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Michroma, Inter, Space_Mono } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
 import WalletConnect from '@/components/WalletConnect';
+import InteractiveBackground from '@/components/InteractiveBackground';
 import Link from 'next/link';
-import { Activity, LayoutDashboard, Settings, TrendingUp, Compass, History, Menu, BookOpen } from 'lucide-react';
 
-const inter = Inter({ subsets: ['latin'] });
+const michroma = Michroma({
+  subsets: ['latin'],
+  variable: '--font-michroma',
+  weight: ['400'],
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  weight: ['300', '400', '500', '600', '700'],
+});
+
+const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  variable: '--font-space-mono',
+  weight: ['400', '700'],
+});
 
 export const metadata: Metadata = {
-  title: 'SplitFlow - Decentralized Royalty Distribution System',
-  description: 'Automate revenue sharing and royalties transparently and trustlessly on the Stellar network.',
+  title: 'SPLITFLOW — Decentralized Royalty Infrastructure Protocol',
+  description: 'Automated revenue-sharing and royalty splits directly on Stellar Soroban smart contracts.',
 };
 
 export default function RootLayout({
@@ -19,128 +35,103 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full dark">
-      <body className={`${inter.className} min-h-full flex flex-col bg-background text-foreground antialiased pb-16 md:pb-0`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`h-full dark ${michroma.variable} ${inter.variable} ${spaceMono.variable}`}
+    >
+      <body className="min-h-full flex flex-col bg-[#050505] text-[#F5F7FA] antialiased relative font-sans">
         <Providers>
-          {/* Top Header */}
-          <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+          {/* Layered Interactive Atmosphere & Moving Light Beams Background */}
+          <InteractiveBackground />
+
+          {/* Minimal Architectural Navigation Header */}
+          <header className="sticky top-0 z-50 w-full border-b border-[rgba(255,255,255,0.08)] bg-[#050505]/90 backdrop-blur-md">
             <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-              {/* Brand Logo */}
+              {/* Brand Logo Left */}
               <Link href="/" className="flex items-center gap-2 group">
-                <Compass className="h-6 w-6 text-primary group-hover:rotate-45 transition-transform duration-300" />
-                <span className="text-xl font-bold tracking-wider bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  SPLIT<span className="text-primary">FLOW</span>
-                </span>
+                <div className="w-5 h-5 border border-[rgba(255,255,255,0.3)] flex items-center justify-center rotate-45 group-hover:border-[#F97316] transition-colors">
+                  <div className="w-2 h-2 bg-[#F97316]" />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-michroma text-sm tracking-wider text-[#F5F7FA]">
+                    SPLITFLOW
+                  </span>
+                  <span className="text-[10px] text-[#B8C0CC] mono-font hidden sm:inline">
+                    II PROTOCOL
+                  </span>
+                </div>
               </Link>
 
-              {/* Desktop Navigation Links */}
-              <nav className="hidden md:flex items-center gap-6">
+              {/* Centered Rectangular Navigation Box */}
+              <nav className="hidden lg:flex items-center bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] px-1 py-1 rounded-none">
+                <Link
+                  href="/"
+                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
+                >
+                  HOME
+                </Link>
+                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
                 >
-                  <LayoutDashboard className="h-4 w-4 text-primary/80" />
-                  <span>Dashboard</span>
+                  DASHBOARD
                 </Link>
+                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
                 <Link
                   href="/activity"
-                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
                 >
-                  <Activity className="h-4 w-4 text-primary/80" />
-                  <span>Activity Feed</span>
+                  EVENTS
                 </Link>
+                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
                 <Link
                   href="/transactions"
-                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
                 >
-                  <History className="h-4 w-4 text-primary/80" />
-                  <span>Tx Center</span>
+                  LEDGER
                 </Link>
+                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
                 <Link
                   href="/analytics"
-                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
                 >
-                  <TrendingUp className="h-4 w-4 text-primary/80" />
-                  <span>Analytics</span>
+                  ANALYTICS
                 </Link>
+                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
                 <Link
                   href="/docs"
-                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
                 >
-                  <BookOpen className="h-4 w-4 text-primary/80" />
-                  <span>Docs</span>
-                </Link>
-                <Link
-                  href="/settings"
-                  className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Settings className="h-4 w-4 text-primary/80" />
-                  <span>Settings</span>
+                  DOCS
                 </Link>
               </nav>
 
-              {/* Wallet Connection */}
-              <div className="flex items-center gap-2 md:gap-4">
+              {/* Right Action / Wallet Signer Button */}
+              <div className="flex items-center gap-3">
                 <WalletConnect />
               </div>
             </div>
           </header>
 
           {/* Main Content Area */}
-          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 flex flex-col">
+          <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col z-10">
             {children}
           </main>
 
-          {/* Mobile Bottom Navigation Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-45 md:hidden h-16 bg-background/95 border-t border-border flex items-center justify-around px-2 backdrop-blur-lg">
-            <Link
-              href="/dashboard"
-              className="flex flex-col items-center justify-center flex-1 text-center py-1 text-muted-foreground hover:text-primary active:text-primary transition-colors"
-            >
-              <LayoutDashboard className="h-5 w-5" />
-              <span className="text-[10px] mt-1 font-medium">Dashboard</span>
-            </Link>
-            <Link
-              href="/activity"
-              className="flex flex-col items-center justify-center flex-1 text-center py-1 text-muted-foreground hover:text-primary active:text-primary transition-colors"
-            >
-              <Activity className="h-5 w-5" />
-              <span className="text-[10px] mt-1 font-medium">Activity</span>
-            </Link>
-            <Link
-              href="/transactions"
-              className="flex flex-col items-center justify-center flex-1 text-center py-1 text-muted-foreground hover:text-primary active:text-primary transition-colors"
-            >
-              <History className="h-5 w-5" />
-              <span className="text-[10px] mt-1 font-medium">History</span>
-            </Link>
-            <Link
-              href="/analytics"
-              className="flex flex-col items-center justify-center flex-1 text-center py-1 text-muted-foreground hover:text-primary active:text-primary transition-colors"
-            >
-              <TrendingUp className="h-5 w-5" />
-              <span className="text-[10px] mt-1 font-medium">Analytics</span>
-            </Link>
-            <Link
-              href="/docs"
-              className="flex flex-col items-center justify-center flex-1 text-center py-1 text-muted-foreground hover:text-primary active:text-primary transition-colors"
-            >
-              <BookOpen className="h-5 w-5" />
-              <span className="text-[10px] mt-1 font-medium">Docs</span>
-            </Link>
-            <Link
-              href="/settings"
-              className="flex flex-col items-center justify-center flex-1 text-center py-1 text-muted-foreground hover:text-primary active:text-primary transition-colors"
-            >
-              <Settings className="h-5 w-5" />
-              <span className="text-[10px] mt-1 font-medium">Settings</span>
-            </Link>
-          </div>
-
-          {/* Footer */}
-          <footer className="w-full border-t border-border bg-background py-6 text-center text-xs text-muted-foreground mb-16 md:mb-0">
-            <div className="max-w-7xl mx-auto px-4">
-              <p>&copy; {new Date().getFullYear()} SplitFlow. Built on the Stellar Network. Production-grade Orange Belt Protocol.</p>
+          {/* Minimalist Architectural Footer */}
+          <footer className="w-full border-t border-[rgba(255,255,255,0.08)] bg-[#050505] py-10 z-10 font-sans">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-1 text-center md:text-left">
+                <div className="font-michroma text-xs text-[#F5F7FA] tracking-widest">SPLITFLOW PROTOCOL</div>
+                <p className="text-xs text-[#B8C0CC]">
+                  Automated trustless revenue sharing built on Stellar Soroban smart contracts.
+                </p>
+              </div>
+              <div className="text-xs mono-font text-[#B8C0CC] text-center md:text-right">
+                &copy; {new Date().getFullYear()} SPLITFLOW. ALL RIGHTS RESERVED.
+              </div>
             </div>
           </footer>
         </Providers>

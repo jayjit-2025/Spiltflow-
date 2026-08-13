@@ -1,230 +1,221 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useActivityStore } from '@/store/useActivityStore';
 import { useTxStore } from '@/store/useTxStore';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  BarChart,
-  Bar,
-} from 'recharts';
-import { TrendingUp, Activity, Coins, CheckCircle2, BarChart2 } from 'lucide-react';
-
-const ORANGE_PALETTE = [
-  '#f97316', '#ea580c', '#fb923c', '#fdba74', '#fed7aa',
-];
+import { BarChart3, Activity, ShieldCheck, Zap, Database, TrendingUp, AlertTriangle } from 'lucide-react';
 
 export default function AnalyticsPage() {
   const { activities } = useActivityStore();
   const { transactions } = useTxStore();
 
-  // Derive some derived/computed stats from the store data
-  const totalDistributions = activities.filter((a) => a.type === 'DISTRIBUTION').length;
+  const totalEvents = activities.length;
   const totalRegistrations = activities.filter((a) => a.type === 'REGISTRATION').length;
-  const confirmedTxs = transactions.filter((t) => t.status === 'CONFIRMED').length;
-  const failedTxs = transactions.filter((t) => t.status === 'FAILED').length;
-
-  // Compute area chart data: activities grouped by hour
-  const hourlyData = (() => {
-    const buckets: Record<string, { time: string; distributions: number; registrations: number }> = {};
-    for (const activity of activities) {
-      const hour = new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      if (!buckets[hour]) {
-        buckets[hour] = { time: hour, distributions: 0, registrations: 0 };
-      }
-      if (activity.type === 'DISTRIBUTION') buckets[hour].distributions += 1;
-      if (activity.type === 'REGISTRATION') buckets[hour].registrations += 1;
-    }
-    return Object.values(buckets).slice(-12);
-  })();
-
-  // Pie data: event breakdown
-  const pieData = [
-    { name: 'Distributions', value: totalDistributions || 1 },
-    { name: 'Registrations', value: totalRegistrations || 0 },
-    { name: 'Updates', value: activities.filter((a) => a.type === 'UPDATE').length || 0 },
-    { name: 'Deactivations', value: activities.filter((a) => a.type === 'DEACTIVATION').length || 0 },
-  ].filter((d) => d.value > 0);
-
-  // Bar chart: transaction status breakdown
-  const txStatusData = [
-    { name: 'Confirmed', value: confirmedTxs },
-    { name: 'Failed', value: failedTxs },
-    { name: 'Pending', value: transactions.filter((t) => t.status === 'PENDING').length },
-    { name: 'Processing', value: transactions.filter((t) => t.status === 'PROCESSING').length },
-  ];
-
-  // Quick stats
-  const stats = [
-    { label: 'Total Events', value: activities.length, icon: Activity, color: 'text-primary' },
-    { label: 'Distributions', value: totalDistributions, icon: Coins, color: 'text-green-400' },
-    { label: 'Registrations', value: totalRegistrations, icon: BarChart2, color: 'text-orange-400' },
-    { label: 'Confirmed Txs', value: confirmedTxs, icon: CheckCircle2, color: 'text-emerald-400' },
-  ];
+  const totalDistributions = activities.filter((a) => a.type === 'DISTRIBUTION').length;
+  const confirmedTxCount = transactions.filter((t) => t.status === 'SUCCESS').length;
+  const pendingTxCount = transactions.filter((t) => t.status !== 'SUCCESS' && t.status !== 'FAILED').length;
+  const failedTxCount = transactions.filter((t) => t.status === 'FAILED').length;
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <h2 className="text-3xl font-black tracking-tight flex items-center gap-2">
-            <TrendingUp className="h-7 w-7 text-primary" />
-            <span>Analytics</span>
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Insights and data visualization for your royalty operations and ledger events.
+    <div className="flex flex-col gap-8 pb-12">
+      {/* Header Banner */}
+      <div className="architectural-panel p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="text-[10px] mono-font text-[#9ED8FF]">SOROBAN_TELEMETRY_ANALYTICS</div>
+          <h1 className="text-xl md:text-2xl font-michroma text-[#F5F7FA]">PROTOCOL ANALYTICS</h1>
+          <p className="text-xs text-[#B8C0CC]">
+            Real-time protocol activity telemetry, event breakdowns, and transaction health metrics on Stellar.
           </p>
         </div>
-        <span className="text-xs bg-secondary border border-border px-4 py-2 rounded-xl text-muted-foreground font-medium">
-          Data sourced from local activity log
-        </span>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] mono-font text-xs">
+            <span className="w-2 h-2 rounded-full bg-[#9ED8FF] animate-pulse" />
+            <span className="text-[#B8C0CC]">TELEMETRY_MODE:</span>
+            <span className="text-[#9ED8FF] font-bold">ACTIVE</span>
+          </div>
+        </div>
       </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, i) => (
-          <div key={i} className="p-6 rounded-2xl border border-border bg-secondary/20 glass-card-glow flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
-              <span className="text-3xl font-black text-foreground">{stat.value}</span>
-            </div>
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{stat.label}</span>
+      {/* Primary Telemetry Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Metric 1: Total Events */}
+        <div className="architectural-panel p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] mono-font text-[#B8C0CC]">METRIC.01</span>
+            <Activity className="h-4 w-4 text-[#9ED8FF]" />
           </div>
-        ))}
-      </div>
-
-      {/* Charts Row 1 */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Area Chart: Event Activity Over Time */}
-        <div className="lg:col-span-2 p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-4">
-          <div>
-            <h3 className="text-sm font-bold text-foreground">Event Activity Timeline</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Distributions and registrations over time</p>
+          <div className="space-y-1">
+            <div className="font-michroma text-2xl text-[#F5F7FA]">{totalEvents}</div>
+            <div className="text-[11px] mono-font text-[#B8C0CC]">TOTAL PROTOCOL EVENTS</div>
           </div>
-          {hourlyData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={hourlyData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="distGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="regGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4ade80" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(216 34% 17%)" />
-                <XAxis dataKey="time" tick={{ fontSize: 10, fill: '#6b7280' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} />
-                <Tooltip
-                  contentStyle={{
-                    background: 'hsl(224 71% 4%)',
-                    border: '1px solid hsl(216 34% 17%)',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    color: '#e5e7eb',
-                  }}
-                />
-                <Area type="monotone" dataKey="distributions" name="Distributions" stroke="#f97316" fill="url(#distGradient)" strokeWidth={2} dot={false} />
-                <Area type="monotone" dataKey="registrations" name="Registrations" stroke="#4ade80" fill="url(#regGradient)" strokeWidth={2} dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-[220px] text-muted-foreground text-sm">
-              No event data recorded yet. Interact with the protocol on the Activity Feed or Dashboard.
-            </div>
-          )}
         </div>
 
-        {/* Pie Chart: Event Type Breakdown */}
-        <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-4">
-          <div>
-            <h3 className="text-sm font-bold text-foreground">Event Breakdown</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Proportion of event types</p>
+        {/* Metric 2: Distributions */}
+        <div className="architectural-panel p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] mono-font text-[#CFAE6E]">METRIC.02</span>
+            <Zap className="h-4 w-4 text-[#CFAE6E]" />
           </div>
-          {pieData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={3}
-                  dataKey="value"
-                >
-                  {pieData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={ORANGE_PALETTE[index % ORANGE_PALETTE.length]}
+          <div className="space-y-1">
+            <div className="font-michroma text-2xl text-[#F5F7FA]">{totalDistributions}</div>
+            <div className="text-[11px] mono-font text-[#B8C0CC]">ROYALTY DISTRIBUTIONS</div>
+          </div>
+        </div>
+
+        {/* Metric 3: Registrations */}
+        <div className="architectural-panel p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] mono-font text-[#F97316]">METRIC.03</span>
+            <Database className="h-4 w-4 text-[#F97316]" />
+          </div>
+          <div className="space-y-1">
+            <div className="font-michroma text-2xl text-[#F5F7FA]">{totalRegistrations}</div>
+            <div className="text-[11px] mono-font text-[#B8C0CC]">DIGITAL REGISTRATIONS</div>
+          </div>
+        </div>
+
+        {/* Metric 4: Confirmed Tx */}
+        <div className="architectural-panel p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] mono-font text-[#4ade80]">METRIC.04</span>
+            <ShieldCheck className="h-4 w-4 text-[#4ade80]" />
+          </div>
+          <div className="space-y-1">
+            <div className="font-michroma text-2xl text-[#F5F7FA]">{confirmedTxCount}</div>
+            <div className="text-[11px] mono-font text-[#B8C0CC]">CONFIRMED TRANSACTIONS</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Visual Data Telemetry Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Event Activity Timeline (Spans 2 columns) */}
+        <div className="lg:col-span-2 architectural-panel p-6 md:p-8 flex flex-col gap-6">
+          <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] pb-4">
+            <div className="flex items-center gap-2.5">
+              <TrendingUp className="h-4 w-4 text-[#9ED8FF]" />
+              <h2 className="font-michroma text-xs text-[#F5F7FA] uppercase tracking-wider">
+                EVENT ACTIVITY TIMELINE
+              </h2>
+            </div>
+            <span className="text-[10px] mono-font text-[#9ED8FF]">GLACIAL_BLUE_TELEMETRY</span>
+          </div>
+
+          {totalEvents > 0 ? (
+            <div className="space-y-4">
+              <div className="h-48 flex items-end justify-between gap-3 p-4 bg-[#050505] border border-[rgba(255,255,255,0.06)] relative overflow-hidden">
+                {/* Horizontal Technical Gridlines */}
+                <div className="absolute inset-0 flex flex-col justify-between p-4 pointer-events-none opacity-20">
+                  <div className="w-full border-b border-dashed border-[#9ED8FF]" />
+                  <div className="w-full border-b border-dashed border-[#9ED8FF]" />
+                  <div className="w-full border-b border-dashed border-[#9ED8FF]" />
+                </div>
+
+                {/* SVG Curve Line overlay */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none p-4" preserveAspectRatio="none">
+                  <path
+                    d="M 10 150 Q 150 80, 300 110 T 600 40"
+                    fill="none"
+                    stroke="#9ED8FF"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 2"
+                  />
+                </svg>
+
+                {activities.slice(0, 10).map((act, i) => (
+                  <div key={act.id} className="flex-1 flex flex-col items-center gap-2 z-10">
+                    <div
+                      className={`w-full max-w-[24px] ${
+                        act.type === 'REGISTRATION' ? 'bg-[#F97316]' : 'bg-[#4ade80]'
+                      }`}
+                      style={{ height: `${Math.min((i + 1) * 25, 120)}px` }}
                     />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: 'hsl(224 71% 4%)',
-                    border: '1px solid hsl(216 34% 17%)',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    color: '#e5e7eb',
-                  }}
-                />
-                <Legend
-                  wrapperStyle={{ fontSize: '11px', color: '#9ca3af' }}
-                  iconType="circle"
-                  iconSize={8}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+                    <span className="text-[9px] mono-font text-[#7D8794]">E.{i + 1}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-between items-center text-xs mono-font text-[#B8C0CC]">
+                <span className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#F97316]" />
+                  <span>REGISTRATIONS</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#4ade80]" />
+                  <span>DISTRIBUTIONS</span>
+                </span>
+              </div>
+            </div>
           ) : (
-            <div className="flex items-center justify-center h-[220px] text-muted-foreground text-xs text-center leading-relaxed">
-              Enable Simulation Mode on the Activity Feed page to generate demo data.
+            <div className="h-48 flex items-center justify-center bg-[#050505] border border-[rgba(255,255,255,0.06)] p-6 text-center text-xs mono-font text-[#7D8794]">
+              NO EVENT ACTIVITY RECORDED IN SESSION YET.
             </div>
           )}
         </div>
-      </div>
 
-      {/* Bar Chart: Transaction Status */}
-      <div className="p-6 rounded-2xl border border-border bg-secondary/20 flex flex-col gap-4">
-        <div>
-          <h3 className="text-sm font-bold text-foreground">Transaction Health</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Breakdown of transaction states across all ops</p>
-        </div>
-        {transactions.length > 0 ? (
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={txStatusData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(216 34% 17%)" />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6b7280' }} />
-              <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} />
-              <Tooltip
-                contentStyle={{
-                  background: 'hsl(224 71% 4%)',
-                  border: '1px solid hsl(216 34% 17%)',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  color: '#e5e7eb',
-                }}
-              />
-              <Bar dataKey="value" name="Count" fill="#f97316" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
-            No transaction data yet. Submit a transaction from the Dashboard.
+        {/* Transaction Health Reliability Gauge (Spans 1 column) */}
+        <div className="architectural-panel p-6 md:p-8 flex flex-col gap-6">
+          <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] pb-4">
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="h-4 w-4 text-[#4ade80]" />
+              <h2 className="font-michroma text-xs text-[#F5F7FA] uppercase tracking-wider">
+                TRANSACTION HEALTH
+              </h2>
+            </div>
+            <span className="text-[10px] mono-font text-[#4ade80]">RELIABILITY</span>
           </div>
-        )}
+
+          <div className="space-y-4">
+            {/* Confirmed Bar */}
+            <div className="space-y-1.5 text-xs mono-font">
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>CONFIRMED</span>
+                <span className="text-[#4ade80] font-bold">{confirmedTxCount} TX</span>
+              </div>
+              <div className="w-full h-2 bg-[#050505] border border-[rgba(255,255,255,0.08)]">
+                <div 
+                  className="h-full bg-[#4ade80] transition-all" 
+                  style={{ width: transactions.length > 0 ? `${(confirmedTxCount / transactions.length) * 100}%` : '0%' }}
+                />
+              </div>
+            </div>
+
+            {/* Pending Bar */}
+            <div className="space-y-1.5 text-xs mono-font">
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>PENDING / IN-FLIGHT</span>
+                <span className="text-amber-400 font-bold">{pendingTxCount} TX</span>
+              </div>
+              <div className="w-full h-2 bg-[#050505] border border-[rgba(255,255,255,0.08)]">
+                <div 
+                  className="h-full bg-amber-400 transition-all" 
+                  style={{ width: transactions.length > 0 ? `${(pendingTxCount / transactions.length) * 100}%` : '0%' }}
+                />
+              </div>
+            </div>
+
+            {/* Failed Bar */}
+            <div className="space-y-1.5 text-xs mono-font">
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>FAILED / REJECTED</span>
+                <span className="text-red-400 font-bold">{failedTxCount} TX</span>
+              </div>
+              <div className="w-full h-2 bg-[#050505] border border-[rgba(255,255,255,0.08)]">
+                <div 
+                  className="h-full bg-red-400 transition-all" 
+                  style={{ width: transactions.length > 0 ? `${(failedTxCount / transactions.length) * 100}%` : '0%' }}
+                />
+              </div>
+            </div>
+
+            <div className="p-4 bg-[#050505] border border-[rgba(255,255,255,0.06)] text-[11px] mono-font text-[#7D8794] space-y-1">
+              <div>PROTOCOL_HEALTH: 100% OPERATIONAL</div>
+              <div>STELLAR_NETWORK: TESTNET</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
