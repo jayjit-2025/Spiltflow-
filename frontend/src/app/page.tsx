@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useWalletStore } from '@/store/useWalletStore';
-import { ArrowRight, Database, Zap, Cpu, Layers, ShieldCheck, Activity, LineChart } from 'lucide-react';
+import { ArrowRight, Database, Zap, Cpu, Layers, ShieldCheck, Activity, LineChart, Disc, Check } from 'lucide-react';
 import HeroTokenMesh from '@/components/HeroTokenMesh';
+import RoyaltySimulator from '@/components/RoyaltySimulator';
 
 export default function LandingPage() {
   const { isConnected } = useWalletStore();
@@ -65,6 +66,125 @@ export default function LandingPage() {
             <HeroTokenMesh />
           </div>
 
+        </div>
+
+        {/* Live Protocol Telemetry & Performance Stats Ribbon */}
+        <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] p-4 md:p-6 mt-4">
+          <div className="space-y-1">
+            <div className="text-[10px] mono-font text-[#7D8794]">AVG SETTLEMENT TIME</div>
+            <div className="font-michroma text-lg text-[#4ade80]">&lt; 3.8s ATOMIC</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-[10px] mono-font text-[#7D8794]">MATH PRECISION</div>
+            <div className="font-michroma text-lg text-[#F97316]">10,000 BPS</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-[10px] mono-font text-[#7D8794]">RUNTIME ENVIRONMENT</div>
+            <div className="font-michroma text-lg text-[#9ED8FF]">SOROBAN WASM</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-[10px] mono-font text-[#7D8794]">STELLAR NETWORK</div>
+            <div className="font-michroma text-lg text-[#CFAE6E]">TESTNET V21</div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── INTERACTIVE ROYALTY SPLIT SIMULATOR ──────────────────────────── */}
+      <section className="max-w-5xl mx-auto w-full space-y-8 animate-fade-in-up">
+        <div className="text-center space-y-3">
+          <h2 className="text-section-title font-michroma text-[#F5F7FA]">
+            INTERACTIVE ROYALTY PLAYGROUND
+          </h2>
+          <p className="text-xs text-[#B8C0CC] max-w-xl mx-auto leading-relaxed">
+            Test and simulate atomic royalty splitting in real time. Adjust contributor basis points and deposit amounts to preview instantaneous on-chain payouts.
+          </p>
+        </div>
+
+        <RoyaltySimulator />
+      </section>
+
+      {/* ─── FEATURED REGISTERED ASSET SHOWCASE ────────────────────────── */}
+      <section className="max-w-5xl mx-auto w-full space-y-8 animate-fade-in-up">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 border-b border-[rgba(255,255,255,0.08)] pb-4">
+          <div>
+            <span className="text-[10px] mono-font text-[#F97316] uppercase tracking-widest">ON-CHAIN REGISTRY PREVIEW</span>
+            <h2 className="text-xl font-michroma text-[#F5F7FA]">FEATURED DIGITAL ASSETS</h2>
+          </div>
+          <Link href="/dashboard" className="text-xs mono-font text-[#9ED8FF] hover:underline flex items-center gap-1">
+            EXPLORE CONSOLE DASHBOARD →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Asset Card 1 */}
+          <div className="architectural-panel p-5 space-y-4 hover:border-[#F97316]/50 transition-all group">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Disc className="w-4 h-4 text-[#F97316] group-hover:rotate-180 transition-transform duration-500" />
+                <span className="font-michroma text-xs text-[#F5F7FA]">album_split_001</span>
+              </div>
+              <span className="text-[9px] mono-font text-[#4ade80] bg-[#4ade80]/10 border border-[#4ade80]/30 px-1.5 py-0.5">ACTIVE</span>
+            </div>
+            <p className="text-xs text-[#B8C0CC]">Synthwave Cyberpunk OST (10 Track Bundle)</p>
+            <div className="space-y-1.5 pt-2 border-t border-[rgba(255,255,255,0.05)] text-[11px] mono-font">
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>Producer (GDFL...)</span>
+                <span className="text-[#F97316]">5,000 BPS (50%)</span>
+              </div>
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>Vocalist (GBPE...)</span>
+                <span className="text-[#9ED8FF]">3,000 BPS (30%)</span>
+              </div>
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>Label (GDFSD...)</span>
+                <span className="text-[#CFAE6E]">2,000 BPS (20%)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Asset Card 2 */}
+          <div className="architectural-panel p-5 space-y-4 hover:border-[#9ED8FF]/50 transition-all group">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Disc className="w-4 h-4 text-[#9ED8FF] group-hover:rotate-180 transition-transform duration-500" />
+                <span className="font-michroma text-xs text-[#F5F7FA]">retro_beats_2026</span>
+              </div>
+              <span className="text-[9px] mono-font text-[#4ade80] bg-[#4ade80]/10 border border-[#4ade80]/30 px-1.5 py-0.5">ACTIVE</span>
+            </div>
+            <p className="text-xs text-[#B8C0CC]">Lo-Fi Chill Hop Royalty Rights Agreement</p>
+            <div className="space-y-1.5 pt-2 border-t border-[rgba(255,255,255,0.05)] text-[11px] mono-font">
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>Beatmaker (GAKR...)</span>
+                <span className="text-[#F97316]">6,000 BPS (60%)</span>
+              </div>
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>Audio Eng (GC4E...)</span>
+                <span className="text-[#9ED8FF]">4,000 BPS (40%)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Asset Card 3 */}
+          <div className="architectural-panel p-5 space-y-4 hover:border-[#CFAE6E]/50 transition-all group">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Disc className="w-4 h-4 text-[#CFAE6E] group-hover:rotate-180 transition-transform duration-500" />
+                <span className="font-michroma text-xs text-[#F5F7FA]">ai_model_lic_402</span>
+              </div>
+              <span className="text-[9px] mono-font text-[#4ade80] bg-[#4ade80]/10 border border-[#4ade80]/30 px-1.5 py-0.5">ACTIVE</span>
+            </div>
+            <p className="text-xs text-[#B8C0CC]">Autonomous AI Agent License Revenue Split</p>
+            <div className="space-y-1.5 pt-2 border-t border-[rgba(255,255,255,0.05)] text-[11px] mono-font">
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>AI Developer (GAVN...)</span>
+                <span className="text-[#F97316]">7,500 BPS (75%)</span>
+              </div>
+              <div className="flex justify-between text-[#B8C0CC]">
+                <span>Dataset Owner (GDS3...)</span>
+                <span className="text-[#CFAE6E]">2,500 BPS (25%)</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

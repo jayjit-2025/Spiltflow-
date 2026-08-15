@@ -167,6 +167,28 @@ export default function DashboardPage() {
     setContributors(updated);
   };
 
+  const applyPresetSplit = (preset: '50_50' | '70_20_10' | 'trio') => {
+    const ownerAddr = isConnected && address ? address : 'GDFLHVAXB37QVIPV7LWLEIAPHQ7TYXG36LXX3CHMBFEQA67GDB44QLPI';
+    if (preset === '50_50') {
+      setContributors([
+        { address: ownerAddr, share: 50 },
+        { address: 'GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV', share: 50 },
+      ]);
+    } else if (preset === '70_20_10') {
+      setContributors([
+        { address: ownerAddr, share: 70 },
+        { address: 'GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV', share: 20 },
+        { address: 'GDFSDPEEBZYQVG5JPPTJUOH4FID4M5XV45BKTWCIEIRYMCWJ6DQADBMB', share: 10 },
+      ]);
+    } else if (preset === 'trio') {
+      setContributors([
+        { address: ownerAddr, share: 33.34 },
+        { address: 'GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV', share: 33.33 },
+        { address: 'GDFSDPEEBZYQVG5JPPTJUOH4FID4M5XV45BKTWCIEIRYMCWJ6DQADBMB', share: 33.33 },
+      ]);
+    }
+  };
+
   // Calculate Total Percentage Split
   const totalPercentage = contributors.reduce((acc, curr) => acc + (curr.share || 0), 0);
 
@@ -479,16 +501,41 @@ export default function DashboardPage() {
 
             {/* Contributor Allocation Section */}
             <div className="flex flex-col gap-3">
-              <div className="flex justify-between items-center border-b border-[rgba(255,255,255,0.06)] pb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[rgba(255,255,255,0.06)] pb-2 gap-2">
                 <label className="text-xs mono-font text-[#9CA3AF]">CONTRIBUTOR ALLOCATION</label>
-                <button
-                  type="button"
-                  onClick={addContributorField}
-                  className="text-xs text-[#F97316] mono-font hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Plus className="h-3 w-3" />
-                  <span>+ ADD PAYEE</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  {/* Preset Template Chips */}
+                  <span className="text-[10px] mono-font text-[#7D8794]">PRESETS:</span>
+                  <button
+                    type="button"
+                    onClick={() => applyPresetSplit('50_50')}
+                    className="text-[10px] mono-font text-[#9ED8FF] bg-[#9ED8FF]/10 hover:bg-[#9ED8FF]/20 border border-[#9ED8FF]/30 px-1.5 py-0.5"
+                  >
+                    50/50
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyPresetSplit('70_20_10')}
+                    className="text-[10px] mono-font text-[#F97316] bg-[#F97316]/10 hover:bg-[#F97316]/20 border border-[#F97316]/30 px-1.5 py-0.5"
+                  >
+                    70/20/10
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyPresetSplit('trio')}
+                    className="text-[10px] mono-font text-[#CFAE6E] bg-[#CFAE6E]/10 hover:bg-[#CFAE6E]/20 border border-[#CFAE6E]/30 px-1.5 py-0.5"
+                  >
+                    TRIO
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addContributorField}
+                    className="text-xs text-[#F97316] mono-font hover:underline flex items-center gap-1 cursor-pointer ml-1"
+                  >
+                    <Plus className="h-3 w-3" />
+                    <span>+ ADD</span>
+                  </button>
+                </div>
               </div>
 
               {/* Basis Points Allocation Visualizer */}

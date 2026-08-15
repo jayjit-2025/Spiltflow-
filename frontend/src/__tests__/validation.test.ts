@@ -63,11 +63,12 @@ describe('SplitFlow Protocol Validation Rules', () => {
 
   describe('Stroop Currency Conversions', () => {
     it('should convert 1 XLM to 10,000,000 Stroops', () => {
-      expect(xlToStroops(1)).toBe(10000000n);
+      expect(xlToStroops(1)).toBe(BigInt('10000000'));
     });
 
     it('should convert 100.5 XLM to 1,005,000,000 Stroops', () => {
-      expect(xlToStroops(100.5)).toBe(1005000000n);
+      expect(xlToStroops(100.5)).toBe(BigInt('1005000000'));
     });
   });
+
 });

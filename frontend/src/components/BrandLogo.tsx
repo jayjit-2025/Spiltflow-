@@ -1,0 +1,69 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+
+interface BrandLogoProps {
+  variant?: 'full' | 'icon' | 'hero';
+  className?: string;
+}
+
+export default function BrandLogo({ variant = 'full', className = '' }: BrandLogoProps) {
+  if (variant === 'icon') {
+    return (
+      <div className={`relative flex items-center justify-center ${className}`}>
+        <div className="w-8 h-8 relative flex items-center justify-center">
+          <div className="absolute inset-0 border border-[rgba(255,255,255,0.2)] bg-[#0C0D10] rotate-45 transition-colors group-hover:border-[#F97316]" />
+          <div className="absolute inset-1 border border-[#F97316] border-dashed rotate-45 opacity-60" />
+          <div className="w-3 h-3 bg-gradient-to-br from-[#F97316] to-[#EA580C] rotate-45 shadow-[0_0_10px_rgba(249,115,22,0.6)]" />
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === 'hero') {
+    return (
+      <div className={`flex items-center gap-4 ${className}`}>
+        <div className="w-12 h-12 relative flex items-center justify-center">
+          <div className="absolute inset-0 border-2 border-[rgba(255,255,255,0.25)] bg-[#0C0D10] rotate-45" />
+          <div className="absolute inset-1.5 border-2 border-[#F97316] stroke-dasharray-4 rotate-45 opacity-80" />
+          <div className="w-4 h-4 bg-gradient-to-br from-[#F97316] to-[#EA580C] rotate-45 shadow-[0_0_16px_rgba(249,115,22,0.8)] animate-pulse" />
+        </div>
+        <div className="flex flex-col">
+          <span className="font-michroma text-xl font-bold tracking-wider text-[#F5F7FA]">
+            SPLITFLOW
+          </span>
+          <span className="text-[11px] font-mono tracking-widest text-[#F97316]">
+            STELLAR SOROBAN V2.0
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Link href="/" className={`flex items-center gap-3 group ${className}`}>
+      {/* Rotated Dual Geometric Diamond Mark */}
+      <div className="w-7 h-7 relative flex items-center justify-center shrink-0">
+        <div className="absolute inset-0 border border-[rgba(255,255,255,0.25)] bg-[#0C0D10] rotate-45 transition-colors duration-300 group-hover:border-[#F97316] group-hover:bg-[#12141a]" />
+        <div className="absolute inset-1 border border-[#F97316] border-dashed rotate-45 opacity-70" />
+        <div className="w-2.5 h-2.5 bg-gradient-to-br from-[#F97316] to-[#EA580C] rotate-45 shadow-[0_0_10px_rgba(249,115,22,0.7)] group-hover:scale-110 transition-transform" />
+      </div>
+
+      {/* Typography Wordmark */}
+      <div className="flex flex-col">
+        <div className="flex items-center gap-1.5 leading-none">
+          <span className="font-michroma text-sm font-bold tracking-wider text-[#F5F7FA] group-hover:text-[#F97316] transition-colors">
+            SPLITFLOW
+          </span>
+          <span className="text-[9px] font-mono font-bold text-[#F97316] bg-[#0C0D10] border border-[rgba(249,115,22,0.3)] px-1 py-0.5 rounded-none">
+            II
+          </span>
+        </div>
+        <span className="text-[9px] text-[#7D8794] font-mono tracking-widest uppercase mt-0.5">
+          PROTOCOL
+        </span>
+      </div>
+    </Link>
+  );
+}

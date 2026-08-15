@@ -4,6 +4,7 @@ import './globals.css';
 import Providers from '@/components/Providers';
 import WalletConnect from '@/components/WalletConnect';
 import InteractiveBackground from '@/components/InteractiveBackground';
+import BrandLogo from '@/components/BrandLogo';
 import Link from 'next/link';
 
 const michroma = Michroma({
@@ -27,6 +28,11 @@ const spaceMono = Space_Mono({
 export const metadata: Metadata = {
   title: 'SPLITFLOW — Decentralized Royalty Infrastructure Protocol',
   description: 'Automated revenue-sharing and royalty splits directly on Stellar Soroban smart contracts.',
+  icons: {
+    icon: '/logo-mark.svg',
+    shortcut: '/logo-mark.svg',
+    apple: '/logo-mark.svg',
+  },
 };
 
 export default function RootLayout({
@@ -49,19 +55,7 @@ export default function RootLayout({
           <header className="sticky top-0 z-50 w-full border-b border-[rgba(255,255,255,0.08)] bg-[#050505]/90 backdrop-blur-md">
             <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
               {/* Brand Logo Left */}
-              <Link href="/" className="flex items-center gap-2 group">
-                <div className="w-5 h-5 border border-[rgba(255,255,255,0.3)] flex items-center justify-center rotate-45 group-hover:border-[#F97316] transition-colors">
-                  <div className="w-2 h-2 bg-[#F97316]" />
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-michroma text-sm tracking-wider text-[#F5F7FA]">
-                    SPLITFLOW
-                  </span>
-                  <span className="text-[10px] text-[#B8C0CC] mono-font hidden sm:inline">
-                    II PROTOCOL
-                  </span>
-                </div>
-              </Link>
+              <BrandLogo variant="full" />
 
               {/* Centered Rectangular Navigation Box */}
               <nav className="hidden lg:flex items-center bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] px-1 py-1 rounded-none">
@@ -123,9 +117,9 @@ export default function RootLayout({
           {/* Minimalist Architectural Footer */}
           <footer className="w-full border-t border-[rgba(255,255,255,0.08)] bg-[#050505] py-10 z-10 font-sans">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="space-y-1 text-center md:text-left">
-                <div className="font-michroma text-xs text-[#F5F7FA] tracking-widest">SPLITFLOW PROTOCOL</div>
-                <p className="text-xs text-[#B8C0CC]">
+              <div className="space-y-2 text-center md:text-left">
+                <BrandLogo variant="full" />
+                <p className="text-xs text-[#B8C0CC] max-w-md">
                   Automated trustless revenue sharing built on Stellar Soroban smart contracts.
                 </p>
               </div>
