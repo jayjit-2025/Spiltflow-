@@ -46,11 +46,11 @@ export default function HeroTokenMesh() {
         </div>
       </div>
 
-      {/* 7. Satellite Payee Node 2: Vocalist (35%) - Right 3 o'clock (Far Right) */}
+      {/* 7. Satellite Payee Node 2: Vocalist (35%) - Far Right Outside Orbit */}
       <div
         onMouseEnter={() => setHoveredNode('vocalist')}
         onMouseLeave={() => setHoveredNode(null)}
-        className="absolute top-1/2 -right-16 sm:-right-24 -translate-y-1/2 z-30 px-2.5 py-1.5 bg-[#0C0D10] border border-[#9ED8FF] rounded-none shadow-[0_0_15px_rgba(158,216,255,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2"
+        className="absolute top-1/2 left-[calc(100%+12px)] sm:left-[calc(100%+24px)] -translate-y-1/2 z-30 px-2.5 py-1.5 bg-[#0C0D10] border border-[#9ED8FF] rounded-none shadow-[0_0_15px_rgba(158,216,255,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2 whitespace-nowrap"
       >
         <span className="w-1.5 h-1.5 bg-[#9ED8FF] rounded-full" />
         <div className="text-[10px] mono-font">
@@ -63,7 +63,7 @@ export default function HeroTokenMesh() {
       <div
         onMouseEnter={() => setHoveredNode('label')}
         onMouseLeave={() => setHoveredNode(null)}
-        className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-30 px-2.5 py-1.5 bg-[#0C0D10] border border-[#CFAE6E] rounded-none shadow-[0_0_15px_rgba(207,174,110,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2"
+        className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-30 px-2.5 py-1.5 bg-[#0C0D10] border border-[#CFAE6E] rounded-none shadow-[0_0_15px_rgba(207,174,110,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2 whitespace-nowrap"
       >
         <span className="w-1.5 h-1.5 bg-[#CFAE6E] rounded-full" />
         <div className="text-[10px] mono-font">
@@ -72,11 +72,12 @@ export default function HeroTokenMesh() {
         </div>
       </div>
 
-      {/* 9. Floating Telemetry Badge - Left 9 o'clock (Far Left) */}
-      <div className="absolute top-1/2 -left-16 sm:-left-24 -translate-y-1/2 z-30 hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-[#050505] border border-[rgba(255,255,255,0.1)] text-[9px] mono-font text-[#B8C0CC]">
+      {/* 9. Floating Telemetry Badge - Far Left Outside Orbit */}
+      <div className="absolute top-1/2 right-[calc(100%+12px)] sm:right-[calc(100%+24px)] -translate-y-1/2 z-30 hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-[#050505] border border-[rgba(255,255,255,0.1)] text-[9px] mono-font text-[#B8C0CC] whitespace-nowrap">
         <Zap className="h-3 w-3 text-[#4ade80]" />
         <span>ATOMIC_PAYOUT: 0.00s</span>
       </div>
+
 
 
 
