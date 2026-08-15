@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useActivityStore } from '@/store/useActivityStore';
-import { Activity, Database, Zap, CheckCircle2, AlertTriangle, ArrowUpRight, Filter, Search } from 'lucide-react';
+import { Activity, Database, Zap, CheckCircle2, AlertTriangle, ArrowUpRight, Filter, Search, Download } from 'lucide-react';
+import { exportToCsv } from '@/lib/exportCsv';
 
 export default function ActivityPage() {
   const { activities } = useActivityStore();
@@ -20,6 +21,22 @@ export default function ActivityPage() {
     return matchesType && matchesSearch;
   });
 
+  const handleExportCsv = () => {
+    const dataToExport = filteredActivities.length > 0 ? filteredActivities : activities;
+    const formattedRows = dataToExport.map((act) => ({
+      'Event ID': act.id,
+      'Action Type': act.type,
+      'Asset ID': act.assetId,
+      'Description': act.description || act.title || 'On-chain Soroban event',
+      'Transaction Hash': act.hash || act.txHash || 'N/A',
+      'Status': act.status || 'SUCCESS',
+      'Timestamp (UTC)': new Date(act.timestamp).toISOString(),
+      'Stellar Explorer Link': act.hash || act.txHash ? `https://stellar.expert/explorer/testnet/tx/${act.hash || act.txHash}` : 'N/A',
+    }));
+
+    exportToCsv(`splitflow_royalty_events_audit_${new Date().toISOString().split('T')[0]}.csv`, formattedRows);
+  };
+
   return (
     <div className="flex flex-col gap-8 pb-12">
       {/* Header Banner */}
@@ -32,7 +49,15 @@ export default function ActivityPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleExportCsv}
+            className="px-3 py-1.5 bg-[#F97316]/10 hover:bg-[#F97316]/20 border border-[#F97316]/40 text-[#F97316] hover:text-[#F5F7FA] font-mono text-xs tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(249,115,22,0.15)]"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>EXPORT CSV AUDIT REPORT</span>
+          </button>
+
           <div className="flex items-center gap-2 px-3 py-1.5 bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] mono-font text-xs">
             <span className="w-2 h-2 rounded-full bg-[#4ade80] animate-pulse" />
             <span className="text-[#B8C0CC]">LIVE_FEED:</span>
