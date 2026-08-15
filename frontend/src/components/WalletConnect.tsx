@@ -29,12 +29,12 @@ export default function WalletConnect() {
   return (
     <div className="relative">
       {isConnected && address ? (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Network Selector */}
           <select
             value={network}
             onChange={(e: any) => setNetwork(e.target.value)}
-            className="text-xs bg-[#080808] border border-[rgba(232,237,242,0.12)] text-[#8A8F96] hover:text-[#E8EDF2] px-2 py-1.5 rounded-sm mono-font focus:outline-none focus:border-[#F97316] cursor-pointer"
+            className="hidden sm:inline-block text-xs bg-[#080808] border border-[rgba(232,237,242,0.12)] text-[#8A8F96] hover:text-[#E8EDF2] px-2 py-1.5 rounded-sm mono-font focus:outline-none focus:border-[#F97316] cursor-pointer"
           >
             <option value="TESTNET">TESTNET</option>
             <option value="PUBLIC">MAINNET</option>
@@ -42,9 +42,9 @@ export default function WalletConnect() {
           </select>
 
           {/* Wallet Address Display */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[#080808] border border-[rgba(232,237,242,0.12)] tech-border">
+          <div className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-sm bg-[#080808] border border-[rgba(232,237,242,0.12)] tech-border">
             <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
-            <span className="text-xs mono-font text-[#E8EDF2]">
+            <span className="text-[10px] sm:text-xs mono-font text-[#E8EDF2]">
               [{truncateAddress(address)}]
             </span>
           </div>
@@ -52,31 +52,33 @@ export default function WalletConnect() {
           {/* Disconnect Button */}
           <button
             onClick={disconnect}
-            className="p-1.5 rounded-sm bg-[#080808] border border-[rgba(232,237,242,0.12)] hover:border-red-500/50 hover:bg-red-950/20 text-[#8A8F96] hover:text-red-400 transition-all cursor-pointer"
+            className="p-1 sm:p-1.5 rounded-sm bg-[#080808] border border-[rgba(232,237,242,0.12)] hover:border-red-500/50 hover:bg-red-950/20 text-[#8A8F96] hover:text-red-400 transition-all cursor-pointer"
             title="Disconnect Wallet"
           >
-            <LogOut className="h-3.5 w-3.5" />
+            <LogOut className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </button>
         </div>
       ) : (
         <button
           onClick={() => setIsOpen(true)}
           disabled={isConnecting}
-          className="flex items-center gap-2 px-4 py-1.5 bg-[#080808] hover:bg-[#0A0A0A] border border-[rgba(232,237,242,0.15)] hover:border-[#F97316] text-[#E8EDF2] hover:text-[#F97316] text-xs font-mono rounded-sm transition-all tech-border cursor-pointer"
+          className="flex items-center gap-1.5 px-2 py-1 sm:px-4 sm:py-1.5 bg-[#080808] hover:bg-[#0A0A0A] border border-[rgba(232,237,242,0.15)] hover:border-[#F97316] text-[#E8EDF2] hover:text-[#F97316] text-[10px] sm:text-xs font-mono rounded-sm transition-all tech-border cursor-pointer shrink-0"
         >
           {isConnecting ? (
             <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-[#F97316]" />
-              <span className="mono-font">[ INITIALIZING... ]</span>
+              <Loader2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 animate-spin text-[#F97316]" />
+              <span className="mono-font">[ INIT... ]</span>
             </>
           ) : (
             <>
-              <ShieldCheck className="h-3.5 w-3.5 text-[#22C55E]" />
-              <span className="mono-font">[ CONNECT_WALLET ]</span>
+              <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#22C55E]" />
+              <span className="mono-font sm:hidden">[ CONNECT ]</span>
+              <span className="mono-font hidden sm:inline">[ CONNECT_WALLET ]</span>
             </>
           )}
         </button>
       )}
+
 
       {/* Wallet Selector Modal via Portal */}
       {isOpen && mounted && createPortal(

@@ -7,7 +7,7 @@ export default function HeroTokenMesh() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
   return (
-    <div className="relative w-full aspect-square max-w-[420px] mx-auto flex items-center justify-center select-none group">
+    <div className="relative w-full aspect-square max-w-[320px] sm:max-w-[420px] mx-auto flex items-center justify-center select-none group scale-85 sm:scale-100 transition-transform overflow-visible">
       
       {/* 1. Atmospheric Glowing Backdrop Circles */}
       <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#F97316]/10 via-[#CFAE6E]/5 to-[#9ED8FF]/10 blur-3xl animate-pulse" />

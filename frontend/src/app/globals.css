@@ -34,11 +34,15 @@
   --font-mono: var(--font-space-mono), monospace;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), sans-serif;
-  overflow-x: hidden;
   position: relative;
 }
 
@@ -73,10 +77,11 @@ body::before {
 /* Editorial Display Headlines */
 .text-hero-giant {
   font-family: var(--font-michroma), sans-serif;
-  font-size: clamp(2.25rem, 4.5vw, 4.25rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.35rem, 6.2vw, 4.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
+  word-break: break-word;
 }
 
 .text-section-title {

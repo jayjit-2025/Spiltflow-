@@ -42,28 +42,29 @@ export default function BrandLogo({ variant = 'full', className = '' }: BrandLog
   }
 
   return (
-    <Link href="/" className={`flex items-center gap-3 group ${className}`}>
+    <Link href="/" className={`flex items-center gap-2 sm:gap-3 group shrink-0 ${className}`}>
       {/* Rotated Dual Geometric Diamond Mark */}
-      <div className="w-7 h-7 relative flex items-center justify-center shrink-0">
+      <div className="w-6 h-6 sm:w-7 sm:h-7 relative flex items-center justify-center shrink-0">
         <div className="absolute inset-0 border border-[rgba(255,255,255,0.25)] bg-[#0C0D10] rotate-45 transition-colors duration-300 group-hover:border-[#F97316] group-hover:bg-[#12141a]" />
         <div className="absolute inset-1 border border-[#F97316] border-dashed rotate-45 opacity-70" />
-        <div className="w-2.5 h-2.5 bg-gradient-to-br from-[#F97316] to-[#EA580C] rotate-45 shadow-[0_0_10px_rgba(249,115,22,0.7)] group-hover:scale-110 transition-transform" />
+        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-gradient-to-br from-[#F97316] to-[#EA580C] rotate-45 shadow-[0_0_10px_rgba(249,115,22,0.7)] group-hover:scale-110 transition-transform" />
       </div>
 
       {/* Typography Wordmark */}
       <div className="flex flex-col">
-        <div className="flex items-center gap-1.5 leading-none">
-          <span className="font-michroma text-sm font-bold tracking-wider text-[#F5F7FA] group-hover:text-[#F97316] transition-colors">
+        <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
+          <span className="font-michroma text-xs sm:text-sm font-bold tracking-wider text-[#F5F7FA] group-hover:text-[#F97316] transition-colors">
             SPLITFLOW
           </span>
-          <span className="text-[9px] font-mono font-bold text-[#F97316] bg-[#0C0D10] border border-[rgba(249,115,22,0.3)] px-1 py-0.5 rounded-none">
+          <span className="text-[8px] sm:text-[9px] font-mono font-bold text-[#F97316] bg-[#0C0D10] border border-[rgba(249,115,22,0.3)] px-1 py-0.5 rounded-none">
             II
           </span>
         </div>
-        <span className="text-[9px] text-[#7D8794] font-mono tracking-widest uppercase mt-0.5">
+        <span className="hidden sm:block text-[9px] text-[#7D8794] font-mono tracking-widest uppercase mt-0.5">
           PROTOCOL
         </span>
       </div>
     </Link>
   );
+
 }
