@@ -174,19 +174,19 @@ export default function DashboardPage() {
     if (preset === '50_50') {
       setContributors([
         { address: ownerAddr, share: 50 },
-        { address: 'GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV', share: 50 },
+        { address: 'GAKRKYDMLFMXDYJAD3VYKDFYZGPACZZ4GDCAG5DWQSLQ5WQIZK6KZ4AD', share: 50 },
       ]);
     } else if (preset === '70_20_10') {
       setContributors([
         { address: ownerAddr, share: 70 },
-        { address: 'GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV', share: 20 },
-        { address: 'GDFSDPEEBZYQVG5JPPTJUOH4FID4M5XV45BKTWCIEIRYMCWJ6DQADBMB', share: 10 },
+        { address: 'GAKRKYDMLFMXDYJAD3VYKDFYZGPACZZ4GDCAG5DWQSLQ5WQIZK6KZ4AD', share: 20 },
+        { address: 'GC4EM2BMU7D4RKK2D5F6OF2B3JUGYRAGIVSFD2Z6EKVXLS4D7CGFQ5D5', share: 10 },
       ]);
     } else if (preset === 'trio') {
       setContributors([
         { address: ownerAddr, share: 33.34 },
-        { address: 'GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV', share: 33.33 },
-        { address: 'GDFSDPEEBZYQVG5JPPTJUOH4FID4M5XV45BKTWCIEIRYMCWJ6DQADBMB', share: 33.33 },
+        { address: 'GAKRKYDMLFMXDYJAD3VYKDFYZGPACZZ4GDCAG5DWQSLQ5WQIZK6KZ4AD', share: 33.33 },
+        { address: 'GC4EM2BMU7D4RKK2D5F6OF2B3JUGYRAGIVSFD2Z6EKVXLS4D7CGFQ5D5', share: 33.33 },
       ]);
     }
   };
@@ -198,8 +198,8 @@ export default function DashboardPage() {
     setValidationError('');
     setContributors([
       { address: ownerAddr, share: 50 },
-      { address: 'GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV', share: 30 },
-      { address: 'GDFSDPEEBZYQVG5JPPTJUOH4FID4M5XV45BKTWCIEIRYMCWJ6DQADBMB', share: 20 },
+      { address: 'GAKRKYDMLFMXDYJAD3VYKDFYZGPACZZ4GDCAG5DWQSLQ5WQIZK6KZ4AD', share: 30 },
+      { address: 'GC4EM2BMU7D4RKK2D5F6OF2B3JUGYRAGIVSFD2Z6EKVXLS4D7CGFQ5D5', share: 20 },
     ]);
     setDistAssetId('cyberpunk_ost_2026');
     setDistAmount('500');
@@ -226,8 +226,13 @@ export default function DashboardPage() {
 
     let totalShares = 0;
     for (const c of contributors) {
-      if (!c.address.trim()) {
+      const cleanAddr = c.address.trim();
+      if (!cleanAddr) {
         setRegisterError('All contributor addresses must be populated.');
+        return;
+      }
+      if (!/^G[A-Z2-7]{55}$/.test(cleanAddr)) {
+        setRegisterError(`Invalid Stellar wallet address format: "${cleanAddr.slice(0, 10)}...". Addresses must start with "G" and be exactly 56 characters.`);
         return;
       }
       totalShares += c.share;
