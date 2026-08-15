@@ -133,7 +133,7 @@ export default function RoyaltySimulator() {
       </div>
 
       {/* Real-Time Calculated Split Breakdown Grid */}
-      <div className="grid grid-cols-3 gap-2 bg-[#050505] p-3 border border-[rgba(255,255,255,0.06)] mb-6 text-center">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-[#050505] p-3 border border-[rgba(255,255,255,0.06)] mb-6 text-center">
         <div>
           <div className="text-[10px] mono-font text-[#7D8794]">PRODUCER</div>
           <div className="text-xs font-bold font-mono text-[#F97316]">

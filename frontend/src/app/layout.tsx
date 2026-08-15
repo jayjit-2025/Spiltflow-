@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { Michroma, Inter, Space_Mono } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
-import WalletConnect from '@/components/WalletConnect';
 import InteractiveBackground from '@/components/InteractiveBackground';
 import BrandLogo from '@/components/BrandLogo';
+import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 
 const michroma = Michroma({
@@ -52,62 +52,7 @@ export default function RootLayout({
           <InteractiveBackground />
 
           {/* Minimal Architectural Navigation Header */}
-          <header className="sticky top-0 z-50 w-full border-b border-[rgba(255,255,255,0.08)] bg-[#050505]/90 backdrop-blur-md">
-            <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-              {/* Brand Logo Left */}
-              <BrandLogo variant="full" />
-
-              {/* Centered Rectangular Navigation Box */}
-              <nav className="hidden lg:flex items-center bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] px-1 py-1 rounded-none">
-                <Link
-                  href="/"
-                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
-                >
-                  HOME
-                </Link>
-                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
-                <Link
-                  href="/dashboard"
-                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
-                >
-                  DASHBOARD
-                </Link>
-                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
-                <Link
-                  href="/activity"
-                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
-                >
-                  EVENTS
-                </Link>
-                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
-                <Link
-                  href="/transactions"
-                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
-                >
-                  LEDGER
-                </Link>
-                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
-                <Link
-                  href="/analytics"
-                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
-                >
-                  ANALYTICS
-                </Link>
-                <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
-                <Link
-                  href="/docs"
-                  className="px-4 py-1 text-xs mono-font text-[#B8C0CC] hover:text-[#F5F7FA] transition-colors"
-                >
-                  DOCS
-                </Link>
-              </nav>
-
-              {/* Right Action / Wallet Signer Button */}
-              <div className="flex items-center gap-3">
-                <WalletConnect />
-              </div>
-            </div>
-          </header>
+          <Navbar />
 
           {/* Main Content Area */}
           <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col z-10">
