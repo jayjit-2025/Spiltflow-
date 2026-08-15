@@ -34,7 +34,9 @@ import {
   ShieldCheck,
   Check,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react';
+
 import { nativeToScVal, xdr, rpc, TransactionBuilder } from '@stellar/stellar-sdk';
 import { StellarWalletsKit } from '@creit.tech/stellar-wallets-kit';
 
@@ -187,6 +189,20 @@ export default function DashboardPage() {
         { address: 'GDFSDPEEBZYQVG5JPPTJUOH4FID4M5XV45BKTWCIEIRYMCWJ6DQADBMB', share: 33.33 },
       ]);
     }
+  };
+
+  const handleLoadDemoDataset = () => {
+    const ownerAddr = isConnected && address ? address : 'GDFLHVAXB37QVIPV7LWLEIAPHQ7TYXG36LXX3CHMBFEQA67GDB44QLPI';
+    setAssetId('cyberpunk_ost_2026');
+    setValidationStatus('VALID');
+    setValidationError('');
+    setContributors([
+      { address: ownerAddr, share: 50 },
+      { address: 'GBPE3IY44M4ZLYSCKXVXMZPYRA770KVWDOKIFKCLV4KX5GU7ZI6ZP2SV', share: 30 },
+      { address: 'GDFSDPEEBZYQVG5JPPTJUOH4FID4M5XV45BKTWCIEIRYMCWJ6DQADBMB', share: 20 },
+    ]);
+    setDistAssetId('cyberpunk_ost_2026');
+    setDistAmount('500');
   };
 
   // Calculate Total Percentage Split
@@ -451,17 +467,28 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {isConnected && address ? (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#050505] border border-[rgba(255,255,255,0.1)] mono-font text-xs">
-            <span className="text-[#9CA3AF]">CONNECTED:</span>
-            <span className="text-[#F3F4F6] font-bold">[{address.slice(0, 6)}...{address.slice(-4)}]</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-950/20 border border-amber-800/30 text-amber-400 mono-font text-xs">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            <span>AUTHENTICATION_REQUIRED</span>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleLoadDemoDataset}
+            className="px-3 py-1.5 bg-[#F97316]/10 hover:bg-[#F97316]/20 border border-[#F97316]/40 text-[#F97316] hover:text-[#F5F7FA] font-mono text-xs tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(249,115,22,0.15)]"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>⚡ LOAD DEMO DATASET</span>
+          </button>
+
+          {isConnected && address ? (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-[#050505] border border-[rgba(255,255,255,0.1)] mono-font text-xs">
+              <span className="text-[#9CA3AF]">CONNECTED:</span>
+              <span className="text-[#F3F4F6] font-bold">[{address.slice(0, 6)}...{address.slice(-4)}]</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-950/20 border border-amber-800/30 text-amber-400 mono-font text-xs">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              <span>AUTHENTICATION_REQUIRED</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Architectural Console Modules */}
