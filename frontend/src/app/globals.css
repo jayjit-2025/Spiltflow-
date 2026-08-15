@@ -70,12 +70,12 @@ body::before {
   text-transform: uppercase;
 }
 
-/* Enormous Editorial Display Headlines */
+/* Editorial Display Headlines */
 .text-hero-giant {
   font-family: var(--font-michroma), sans-serif;
-  font-size: clamp(3rem, 7.5vw, 8rem);
-  line-height: 0.98;
-  letter-spacing: -0.05em;
+  font-size: clamp(2.25rem, 4.5vw, 4.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   text-transform: uppercase;
 }
 
