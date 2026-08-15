@@ -33,11 +33,11 @@ export default function HeroTokenMesh() {
         </span>
       </div>
 
-      {/* 6. Satellite Payee Node 1: Producer (45%) */}
+      {/* 6. Satellite Payee Node 1: Producer (45%) - Top 12 o'clock */}
       <div
         onMouseEnter={() => setHoveredNode('producer')}
         onMouseLeave={() => setHoveredNode(null)}
-        className="absolute -top-2 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 bg-[#0C0D10] border border-[#F97316] rounded-none shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2"
+        className="absolute -top-3 left-1/2 -translate-x-1/2 z-30 px-2.5 py-1.5 bg-[#0C0D10] border border-[#F97316] rounded-none shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2"
       >
         <span className="w-1.5 h-1.5 bg-[#F97316] rounded-full" />
         <div className="text-[10px] mono-font">
@@ -46,11 +46,11 @@ export default function HeroTokenMesh() {
         </div>
       </div>
 
-      {/* 7. Satellite Payee Node 2: Vocalist (35%) */}
+      {/* 7. Satellite Payee Node 2: Vocalist (35%) - Right 3 o'clock */}
       <div
         onMouseEnter={() => setHoveredNode('vocalist')}
         onMouseLeave={() => setHoveredNode(null)}
-        className="absolute bottom-6 right-0 z-30 px-3 py-1.5 bg-[#0C0D10] border border-[#9ED8FF] rounded-none shadow-[0_0_15px_rgba(158,216,255,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2"
+        className="absolute top-1/2 -right-3 sm:-right-6 -translate-y-1/2 z-30 px-2.5 py-1.5 bg-[#0C0D10] border border-[#9ED8FF] rounded-none shadow-[0_0_15px_rgba(158,216,255,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2"
       >
         <span className="w-1.5 h-1.5 bg-[#9ED8FF] rounded-full" />
         <div className="text-[10px] mono-font">
@@ -59,11 +59,11 @@ export default function HeroTokenMesh() {
         </div>
       </div>
 
-      {/* 8. Satellite Payee Node 3: Label (20%) */}
+      {/* 8. Satellite Payee Node 3: Label (20%) - Bottom 6 o'clock */}
       <div
         onMouseEnter={() => setHoveredNode('label')}
         onMouseLeave={() => setHoveredNode(null)}
-        className="absolute bottom-6 left-0 z-30 px-3 py-1.5 bg-[#0C0D10] border border-[#CFAE6E] rounded-none shadow-[0_0_15px_rgba(207,174,110,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2"
+        className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-30 px-2.5 py-1.5 bg-[#0C0D10] border border-[#CFAE6E] rounded-none shadow-[0_0_15px_rgba(207,174,110,0.3)] transition-all duration-300 hover:scale-110 cursor-pointer flex items-center gap-2"
       >
         <span className="w-1.5 h-1.5 bg-[#CFAE6E] rounded-full" />
         <div className="text-[10px] mono-font">
@@ -72,11 +72,12 @@ export default function HeroTokenMesh() {
         </div>
       </div>
 
-      {/* 9. Floating Telemetry Badge */}
-      <div className="absolute top-1/3 -right-6 z-30 hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-[#050505] border border-[rgba(255,255,255,0.1)] text-[9px] mono-font text-[#B8C0CC]">
+      {/* 9. Floating Telemetry Badge - Left 9 o'clock */}
+      <div className="absolute top-1/2 -left-4 sm:-left-8 -translate-y-1/2 z-30 hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-[#050505] border border-[rgba(255,255,255,0.1)] text-[9px] mono-font text-[#B8C0CC]">
         <Zap className="h-3 w-3 text-[#4ade80]" />
         <span>ATOMIC_PAYOUT: 0.00s</span>
       </div>
+
 
       {/* 10. Corner Crosshairs */}
       <div className="absolute top-0 left-0 text-[10px] mono-font text-[#7D8794]">+</div>
