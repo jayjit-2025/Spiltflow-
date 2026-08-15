@@ -5,6 +5,7 @@ import Providers from '@/components/Providers';
 import InteractiveBackground from '@/components/InteractiveBackground';
 import BrandLogo from '@/components/BrandLogo';
 import Navbar from '@/components/Navbar';
+import StellarTelemetryBadge from '@/components/StellarTelemetryBadge';
 import Link from 'next/link';
 
 const michroma = Michroma({
@@ -68,8 +69,11 @@ export default function RootLayout({
                   Automated trustless revenue sharing built on Stellar Soroban smart contracts.
                 </p>
               </div>
-              <div className="text-xs mono-font text-[#B8C0CC] text-center md:text-right">
-                &copy; {new Date().getFullYear()} SPLITFLOW. ALL RIGHTS RESERVED.
+              <div className="flex flex-col items-center md:items-end gap-3">
+                <StellarTelemetryBadge />
+                <div className="text-xs mono-font text-[#B8C0CC] text-center md:text-right">
+                  &copy; {new Date().getFullYear()} SPLITFLOW. ALL RIGHTS RESERVED.
+                </div>
               </div>
             </div>
           </footer>

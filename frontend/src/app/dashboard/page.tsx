@@ -35,7 +35,9 @@ import {
   Check,
   ExternalLink,
   Sparkles,
+  Code2,
 } from 'lucide-react';
+import XdrInspectorModal from '@/components/XdrInspectorModal';
 
 import { nativeToScVal, xdr, rpc, TransactionBuilder } from '@stellar/stellar-sdk';
 import { StellarWalletsKit } from '@creit.tech/stellar-wallets-kit';
@@ -101,6 +103,7 @@ export default function DashboardPage() {
   const { addActivity } = useActivityStore();
 
   const [registeredAssetId, setRegisteredAssetId] = useState<string | null>(null);
+  const [isXdrModalOpen, setIsXdrModalOpen] = useState(false);
 
   // Registration Form State
   const [assetId, setAssetId] = useState('');
@@ -451,6 +454,14 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8 pb-12">
+      {/* Soroban XDR Inspector Modal */}
+      <XdrInspectorModal
+        isOpen={isXdrModalOpen}
+        onClose={() => setIsXdrModalOpen(false)}
+        assetId={assetId}
+        operationType="register_asset"
+      />
+
       {/* Registration Success Modal */}
       {registeredAssetId && (
         <RegistrationSuccessModal
@@ -473,6 +484,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsXdrModalOpen(true)}
+            className="px-3 py-1.5 bg-[#9ED8FF]/10 hover:bg-[#9ED8FF]/20 border border-[#9ED8FF]/40 text-[#9ED8FF] hover:text-[#F5F7FA] font-mono text-xs tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(158,216,255,0.15)]"
+          >
+            <Code2 className="h-3.5 w-3.5" />
+            <span>🔍 INSPECT SOROBAN XDR</span>
+          </button>
+
           <button
             type="button"
             onClick={handleLoadDemoDataset}
