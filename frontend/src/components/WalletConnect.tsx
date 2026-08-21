@@ -34,7 +34,8 @@ export default function WalletConnect() {
           <select
             value={network}
             onChange={(e: any) => setNetwork(e.target.value)}
-            className="hidden sm:inline-block text-xs bg-[#080808] border border-[rgba(232,237,242,0.12)] text-[#8A8F96] hover:text-[#E8EDF2] px-2 py-1.5 rounded-sm mono-font focus:outline-none focus:border-[#F97316] cursor-pointer"
+            aria-label="Select Stellar Network"
+            className="hidden sm:inline-block text-xs bg-[#0C0D10] border border-[rgba(255,255,255,0.12)] text-[#B8C0CC] hover:text-[#F5F7FA] hover:border-[#F97316]/50 px-2.5 py-1.5 rounded-none mono-font focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#F97316] cursor-pointer transition-colors"
           >
             <option value="TESTNET">TESTNET</option>
             <option value="PUBLIC">MAINNET</option>
@@ -42,9 +43,9 @@ export default function WalletConnect() {
           </select>
 
           {/* Wallet Address Display */}
-          <div className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-sm bg-[#080808] border border-[rgba(232,237,242,0.12)] tech-border">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
-            <span className="text-[10px] sm:text-xs mono-font text-[#E8EDF2]">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-none bg-[#0C0D10] border border-[rgba(255,255,255,0.15)] hover:border-[#9ED8FF]/40 transition-colors">
+            <span className="w-2 h-2 rounded-full bg-[#4ade80] shadow-[0_0_8px_#4ade80]" />
+            <span className="text-[10px] sm:text-xs mono-font text-[#F5F7FA] font-bold">
               [{truncateAddress(address)}]
             </span>
           </div>
@@ -52,26 +53,28 @@ export default function WalletConnect() {
           {/* Disconnect Button */}
           <button
             onClick={disconnect}
-            className="p-1 sm:p-1.5 rounded-sm bg-[#080808] border border-[rgba(232,237,242,0.12)] hover:border-red-500/50 hover:bg-red-950/20 text-[#8A8F96] hover:text-red-400 transition-all cursor-pointer"
+            className="p-1.5 rounded-none bg-[#0C0D10] border border-[rgba(255,255,255,0.12)] hover:border-red-500/60 hover:bg-red-950/30 text-[#7D8794] hover:text-red-400 transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#F97316] cursor-pointer"
             title="Disconnect Wallet"
+            aria-label="Disconnect Wallet"
           >
-            <LogOut className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <LogOut className="h-3.5 w-3.5" />
           </button>
         </div>
       ) : (
         <button
           onClick={() => setIsOpen(true)}
           disabled={isConnecting}
-          className="flex items-center gap-1.5 px-2 py-1 sm:px-4 sm:py-1.5 bg-[#080808] hover:bg-[#0A0A0A] border border-[rgba(232,237,242,0.15)] hover:border-[#F97316] text-[#E8EDF2] hover:text-[#F97316] text-[10px] sm:text-xs font-mono rounded-sm transition-all tech-border cursor-pointer shrink-0"
+          aria-label="Connect Stellar Wallet"
+          className="btn-primary flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-1.5 text-[10px] sm:text-xs font-mono rounded-none transition-all cursor-pointer shrink-0 border-[#F97316] shadow-[0_0_18px_rgba(249,115,22,0.25)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#F97316]"
         >
           {isConnecting ? (
             <>
-              <Loader2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 animate-spin text-[#F97316]" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-[#F97316]" />
               <span className="mono-font">[ INIT... ]</span>
             </>
           ) : (
             <>
-              <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#22C55E]" />
+              <ShieldCheck className="h-3.5 w-3.5 text-[#4ade80]" />
               <span className="mono-font sm:hidden">[ CONNECT ]</span>
               <span className="mono-font hidden sm:inline">[ CONNECT_WALLET ]</span>
             </>
@@ -79,104 +82,104 @@ export default function WalletConnect() {
         </button>
       )}
 
-
       {/* Wallet Selector Modal via Portal */}
       {isOpen && mounted && createPortal(
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-[#040404]/80 backdrop-blur-md"
+            className="absolute inset-0 bg-[#050505]/85 backdrop-blur-md"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Modal Content */}
-          <div className="relative w-full max-w-md p-6 rounded-sm bg-[#080808] border border-[rgba(232,237,242,0.15)] shadow-2xl tech-border">
-            <div className="flex justify-between items-start mb-6">
+          <div className="relative w-full max-w-md p-6 bg-[#0C0D10] border border-[rgba(255,255,255,0.15)] shadow-[0_0_50px_rgba(0,0,0,0.9)] border-t-2 border-t-[#F97316]">
+            <div className="flex justify-between items-start mb-6 border-b border-[rgba(255,255,255,0.08)] pb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-[#22C55E] rounded-full" />
-                  <h3 className="text-sm font-mono text-[#E8EDF2] tracking-wider uppercase">
-                    AUTHENTICATE WALLET
+                  <span className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse" />
+                  <h3 className="text-xs font-mono text-[#F5F7FA] tracking-wider uppercase font-bold">
+                    AUTHENTICATE SOROBAN SIGNER
                   </h3>
                 </div>
-                <p className="text-xs text-[#8A8F96] mono-font mt-1">
-                  Select a supported Soroban wallet signer to proceed.
+                <p className="text-[11px] text-[#7D8794] mono-font mt-1">
+                  Select a supported Stellar wallet keypair to interact with SplitFlow.
                 </p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 rounded text-[#8A8F96] hover:text-[#E8EDF2] hover:bg-[#0A0A0A] transition-colors"
+                className="p-1 text-[#7D8794] hover:text-[#F5F7FA] hover:bg-[#171A1F] transition-colors"
+                aria-label="Close modal"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 rounded bg-red-950/30 border border-red-800/40 flex items-center gap-2 text-xs text-red-300 mono-font">
+              <div className="mb-4 p-3 bg-red-950/30 border border-red-800/40 flex items-center gap-2 text-xs text-red-300 mono-font">
                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
                 <span>{error}</span>
               </div>
             )}
 
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               <button
                 onClick={() => handleConnect(FREIGHTER_ID)}
-                className="w-full flex items-center justify-between p-3.5 rounded bg-[#0A0A0A] border border-[rgba(232,237,242,0.08)] hover:border-[#F97316]/60 hover:bg-[#080808] transition-all group cursor-pointer text-left"
+                className="w-full flex items-center justify-between p-3.5 bg-[#171A1F] border border-[rgba(255,255,255,0.08)] hover:border-[#F97316] hover:bg-[#1c2027] transition-all group cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded bg-[#111] flex items-center justify-center border border-[rgba(232,237,242,0.1)] text-[#E8EDF2]">
+                  <div className="w-8 h-8 bg-[#0C0D10] flex items-center justify-center border border-[rgba(255,255,255,0.1)] text-[#F5F7FA]">
                     <Wallet className="h-4 w-4 text-[#F97316]" />
                   </div>
                   <div>
-                    <div className="text-xs font-mono font-bold text-[#E8EDF2] group-hover:text-[#F97316]">
+                    <div className="text-xs font-mono font-bold text-[#F5F7FA] group-hover:text-[#F97316]">
                       FREIGHTER WALLET
                     </div>
-                    <div className="text-[10px] text-[#8A8F96] mono-font">
+                    <div className="text-[10px] text-[#7D8794] mono-font">
                       Official Stellar Browser Extension
                     </div>
                   </div>
                 </div>
-                <span className="text-xs text-[#8A8F96] group-hover:text-[#E8EDF2] mono-font">[ SELECT ]</span>
+                <span className="text-xs text-[#7D8794] group-hover:text-[#F5F7FA] mono-font">[ SELECT ]</span>
               </button>
 
               <button
                 onClick={() => handleConnect(ALBEDO_ID)}
-                className="w-full flex items-center justify-between p-3.5 rounded bg-[#0A0A0A] border border-[rgba(232,237,242,0.08)] hover:border-[#F97316]/60 hover:bg-[#080808] transition-all group cursor-pointer text-left"
+                className="w-full flex items-center justify-between p-3.5 bg-[#171A1F] border border-[rgba(255,255,255,0.08)] hover:border-[#F97316] hover:bg-[#1c2027] transition-all group cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded bg-[#111] flex items-center justify-center border border-[rgba(232,237,242,0.1)] text-[#E8EDF2]">
-                    <Wallet className="h-4 w-4 text-purple-400" />
+                  <div className="w-8 h-8 bg-[#0C0D10] flex items-center justify-center border border-[rgba(255,255,255,0.1)] text-[#F5F7FA]">
+                    <Wallet className="h-4 w-4 text-[#9ED8FF]" />
                   </div>
                   <div>
-                    <div className="text-xs font-mono font-bold text-[#E8EDF2] group-hover:text-[#F97316]">
+                    <div className="text-xs font-mono font-bold text-[#F5F7FA] group-hover:text-[#F97316]">
                       ALBEDO LINK
                     </div>
-                    <div className="text-[10px] text-[#8A8F96] mono-font">
+                    <div className="text-[10px] text-[#7D8794] mono-font">
                       Web-Based Passwordless Key Signer
                     </div>
                   </div>
                 </div>
-                <span className="text-xs text-[#8A8F96] group-hover:text-[#E8EDF2] mono-font">[ SELECT ]</span>
+                <span className="text-xs text-[#7D8794] group-hover:text-[#F5F7FA] mono-font">[ SELECT ]</span>
               </button>
 
               <button
                 onClick={() => handleConnect(XBULL_ID)}
-                className="w-full flex items-center justify-between p-3.5 rounded bg-[#0A0A0A] border border-[rgba(232,237,242,0.08)] hover:border-[#F97316]/60 hover:bg-[#080808] transition-all group cursor-pointer text-left"
+                className="w-full flex items-center justify-between p-3.5 bg-[#171A1F] border border-[rgba(255,255,255,0.08)] hover:border-[#F97316] hover:bg-[#1c2027] transition-all group cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded bg-[#111] flex items-center justify-center border border-[rgba(232,237,242,0.1)] text-[#E8EDF2]">
-                    <Wallet className="h-4 w-4 text-blue-400" />
+                  <div className="w-8 h-8 bg-[#0C0D10] flex items-center justify-center border border-[rgba(255,255,255,0.1)] text-[#F5F7FA]">
+                    <Wallet className="h-4 w-4 text-[#CFAE6E]" />
                   </div>
                   <div>
-                    <div className="text-xs font-mono font-bold text-[#E8EDF2] group-hover:text-[#F97316]">
+                    <div className="text-xs font-mono font-bold text-[#F5F7FA] group-hover:text-[#F97316]">
                       XBULL WALLET
                     </div>
-                    <div className="text-[10px] text-[#8A8F96] mono-font">
+                    <div className="text-[10px] text-[#7D8794] mono-font">
                       Advanced Multi-Account Wallet
                     </div>
                   </div>
                 </div>
-                <span className="text-xs text-[#8A8F96] group-hover:text-[#E8EDF2] mono-font">[ SELECT ]</span>
+                <span className="text-xs text-[#7D8794] group-hover:text-[#F5F7FA] mono-font">[ SELECT ]</span>
               </button>
             </div>
           </div>

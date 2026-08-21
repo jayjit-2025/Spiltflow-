@@ -22,9 +22,9 @@ export default function UtcClock() {
   if (!timeStr) return null;
 
   return (
-    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#080808] border border-[rgba(232,237,242,0.06)] text-[11px] mono-font text-[#8A8F96]">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#E8EDF2] animate-pulse" />
-      <span className="text-[#E8EDF2] doto-font text-xs">{timeStr}</span>
+    <div className="flex items-center gap-2 px-3 py-1 bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] text-[11px] mono-font text-[#B8C0CC]">
+      <span className="w-1.5 h-1.5 rounded-full bg-[#9ED8FF] animate-pulse" />
+      <span className="text-[#F5F7FA] font-mono text-xs">{timeStr}</span>
     </div>
   );
 }

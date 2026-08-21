@@ -30,22 +30,22 @@ export default function StellarTelemetryBadge() {
   }, []);
 
   return (
-    <div className="inline-flex flex-wrap items-center gap-3 bg-[#0C0D10] border border-[rgba(255,255,255,0.1)] px-3 py-1.5 mono-font text-[11px]">
+    <div className="inline-flex flex-wrap items-center gap-3 bg-[#0C0D10] border border-[rgba(255,255,255,0.08)] px-3 py-1.5 mono-font text-[11px]">
       {/* Network Online Pulse */}
       <div className="flex items-center gap-1.5">
         <span className="w-2 h-2 rounded-full bg-[#4ade80] animate-pulse" />
         <span className="text-[#F5F7FA] font-bold">TESTNET</span>
       </div>
 
-      <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.15)]" />
+      <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)]" />
 
       {/* Live Ledger Sequence */}
       <div className="flex items-center gap-1 text-[#B8C0CC]">
         <Activity className="w-3 h-3 text-[#F97316]" />
-        <span>LEDGER #{telemetry.ledgerSequence.toLocaleString()}</span>
+        <span>LEDGER #{telemetry.ledgerSequence.toLocaleString('en-US')}</span>
       </div>
 
-      <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.15)] hidden sm:block" />
+      <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)] hidden sm:block" />
 
       {/* Block Time */}
       <div className="hidden sm:flex items-center gap-1 text-[#B8C0CC]">
@@ -53,7 +53,7 @@ export default function StellarTelemetryBadge() {
         <span>BLOCK</span>
       </div>
 
-      <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.15)] hidden md:block" />
+      <div className="w-[1px] h-3 bg-[rgba(255,255,255,0.1)] hidden md:block" />
 
       {/* Gas Fee */}
       <div className="hidden md:flex items-center gap-1 text-[#B8C0CC]">

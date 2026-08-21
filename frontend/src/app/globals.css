@@ -1,33 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
-  --surface: #0C0D10;
-  --surface-elevated: #171A1F;
-  --foreground: #F5F7FA;
-  --secondary: #B8C0CC;
-  --muted: #7D8794;
+  /* Surface Colors */
+  --bg-base: #050505;
+  --bg-surface: #0C0D10;
+  --bg-elevated: #171A1F;
+  --bg-input: #050505;
+
+  /* Brand Accent Colors */
+  --accent-orange: #F97316;
+  --accent-glacial: #9ED8FF;
+  --accent-gold: #CFAE6E;
+
+  /* Text Colors */
+  --text-primary: #F5F7FA;
+  --text-secondary: #B8C0CC;
+  --text-muted: #7D8794;
+
+  /* Status Colors */
+  --status-success: #4ade80;
+  --status-warning: #F59E0B;
+  --status-danger: #ef4444;
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.22);
+  --border-active: #F97316;
+
+  /* Backward Compatibility Theme Variables */
+  --background: var(--bg-base);
+  --surface: var(--bg-surface);
+  --surface-elevated: var(--bg-elevated);
+  --foreground: var(--text-primary);
+  --secondary: var(--text-secondary);
+  --muted: var(--text-muted);
   --accent: #FFFFFF;
-  --status-online: #4ade80;
-  --border: rgba(255, 255, 255, 0.08);
+  --status-online: var(--status-success);
+  --border: var(--border-subtle);
   
-  --glacial-blue: #9ED8FF;
-  --gold-ore: #CFAE6E;
-  --primary: 24 95% 53%; /* SplitFlow Orange Accent */
+  --glacial-blue: var(--accent-glacial);
+  --gold-ore: var(--accent-gold);
+  --primary: 24 95% 53%;
   --primary-foreground: 210 40% 98%;
   --radius: 0.125rem;
 }
 
 @theme {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-elevated: var(--surface-elevated);
-  --color-foreground: var(--foreground);
-  --color-secondary: var(--secondary);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-status-online: var(--status-online);
-  --color-border: var(--border);
+  --color-background: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-elevated);
+  --color-foreground: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent-orange);
+  --color-glacial: var(--accent-glacial);
+  --color-gold: var(--accent-gold);
+  --color-status-online: var(--status-success);
+  --color-border: var(--border-subtle);
   
   --font-display: var(--font-michroma), sans-serif;
   --font-body: var(--font-inter), sans-serif;
@@ -40,8 +69,8 @@ html, body {
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
   font-family: var(--font-inter), sans-serif;
   position: relative;
 }
@@ -61,7 +90,7 @@ body::before {
   z-index: 0;
 }
 
-/* Typography Classes */
+/* Typography Utility Classes */
 .font-michroma {
   font-family: var(--font-michroma), sans-serif;
   text-transform: uppercase;
@@ -92,29 +121,132 @@ body::before {
   text-transform: uppercase;
 }
 
-/* Architectural Protocol Cards with Restrained Hover Elevation */
+/* Architectural Protocol Cards & Panel Surfaces */
 .architectural-panel {
   position: relative;
-  background: rgba(12, 13, 16, 0.9);
+  background: rgba(12, 13, 16, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .architectural-panel:hover {
+  border-color: rgba(158, 216, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(158, 216, 255, 0.06);
+}
+
+/* Reusable Button System Primitives */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: #0C0D10;
+  border: 1px solid #F97316;
+  color: #F5F7FA;
+  font-family: var(--font-space-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.15);
+  cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #171A1F;
+  color: #F97316;
+  border-color: #F97316;
+  box-shadow: 0 0 22px rgba(249, 115, 22, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #B8C0CC;
+  font-family: var(--font-space-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #0C0D10;
+  color: #F5F7FA;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Reusable Status Badge Utilities */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-space-mono), monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.badge-status-success {
+  background-color: rgba(74, 222, 128, 0.1);
+  border-color: rgba(74, 222, 128, 0.3);
+  color: #4ade80;
+}
+
+.badge-status-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #F59E0B;
+}
+
+.badge-status-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.badge-status-info {
+  background-color: rgba(158, 216, 255, 0.1);
   border-color: rgba(158, 216, 255, 0.3);
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 0 32px rgba(158, 216, 255, 0.08);
+  color: #9ED8FF;
+}
+
+/* Accessibility Focus Ring Styles */
+:focus-visible {
+  outline: 2px solid #F97316;
+  outline-offset: 2px;
 }
 
 /* Image / Visual Module Grayscale-to-Color Hover Effect */
 .visual-module-img {
   filter: grayscale(70%) opacity(0.85);
-  transition: filter 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: filter 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .architectural-panel:hover .visual-module-img {
   filter: grayscale(0%) opacity(1);
-  transform: scale(1.02);
+  transform: scale(1.01);
 }
 
 /* Moving Light Beams Along Grid Lines */
@@ -123,7 +255,7 @@ body::before {
   width: 1px;
   height: 140px;
   background: linear-gradient(to bottom, transparent, #9ED8FF, transparent);
-  opacity: 0.4;
+  opacity: 0.35;
   pointer-events: none;
   animation: beamTravel 12s infinite linear;
 }
@@ -134,10 +266,10 @@ body::before {
     opacity: 0;
   }
   20% {
-    opacity: 0.6;
+    opacity: 0.5;
   }
   80% {
-    opacity: 0.6;
+    opacity: 0.5;
   }
   100% {
     top: 100%;
