@@ -864,3 +864,83 @@ fn test_50_contributor_claim_and_decoupled_lookups() {
     assert_eq!(token_client.balance(&first_payee_new_wallet), 200);
     assert_eq!(token_client.balance(&first_payee), 0);
 }
+
+#[test]
+fn test_phase5_protocol_hardening_and_batch_limits() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let admin = Address::generate(&env);
+    let owner = Address::generate(&env);
+    let payer = Address::generate(&env);
+    let alice = Address::generate(&env);
+
+    let manager_id = env.register(RoyaltyManager, ());
+    let manager_client = RoyaltyManagerClient::new(&env, &manager_id);
+    manager_client.initialize(&admin);
+
+    let token_admin = Address::generate(&env);
+    let token_id = env
+        .register_stellar_asset_contract_v2(token_admin.clone())
+        .address();
+
+    let distributor_id = env.register(RoyaltyDistributor, ());
+    let distributor_client = RoyaltyDistributorClient::new(&env, &distributor_id);
+    distributor_client.initialize(&admin, &manager_id, &token_id);
+
+    let asset_a = Symbol::new(&env, "asset_a");
+    let shares = vec![
+        &env,
+        ManagerContributorShare {
+            address: alice.clone(),
+            share: 10000,
+        },
+    ];
+    manager_client.register_asset(&asset_a, &owner, &shares);
+
+    // 1. Batch deposit: empty vectors -> fails with InvalidBatch (Error 303)
+    let empty_assets: Vec<Symbol> = vec![&env];
+    let empty_amounts: Vec<i128> = vec![&env];
+    assert!(distributor_client
+        .try_distribute_batch(&payer, &empty_assets, &empty_amounts)
+        .is_err());
+
+    // 2. Batch deposit: vector length mismatch -> fails with InvalidBatch (Error 303)
+    let mismatch_assets = vec![&env, asset_a.clone()];
+    let mismatch_amounts = vec![&env, 1000i128, 2000i128];
+    assert!(distributor_client
+        .try_distribute_batch(&payer, &mismatch_assets, &mismatch_amounts)
+        .is_err());
+
+    // 3. Batch deposit: exceeding MAX_BATCH_SIZE (101 assets) -> fails with InvalidBatch (Error 303)
+    let mut over_assets = vec![&env];
+    let mut over_amounts = vec![&env];
+    for _ in 0..101 {
+        over_assets.push_back(asset_a.clone());
+        over_amounts.push_back(100i128);
+    }
+    assert!(distributor_client
+        .try_distribute_batch(&payer, &over_assets, &over_amounts)
+        .is_err());
+
+    // 4. Migration: self-migration attempt (old_payee == new_payee) resets migration destination to primary wallet
+    distributor_client.migrate_payee_address(&asset_a, &alice, &alice);
+    assert_eq!(
+        distributor_client.get_payee_migration(&alice, &asset_a),
+        Some(alice.clone())
+    );
+
+    // 5. Config updates: update_manager & update_token by admin succeed
+    let new_manager = Address::generate(&env);
+    let new_token = Address::generate(&env);
+    distributor_client.update_manager(&new_manager);
+    distributor_client.update_token(&new_token);
+
+    // Re-linking original manager & token
+    distributor_client.update_manager(&manager_id);
+    distributor_client.update_token(&token_id);
+
+    // 6. Unauthorized update_manager attempt by non-admin -> fails with Unauthorized (Error 201)
+    env.mock_auths(&[]);
+    assert!(distributor_client.try_update_manager(&new_manager).is_err());
+}

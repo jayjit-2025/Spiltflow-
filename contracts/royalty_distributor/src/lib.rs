@@ -14,6 +14,9 @@ pub enum Error {
     // Authorization Errors
     Unauthorized = 201,
 
+    // Allocation & Batch Errors
+    InvalidBatch = 303,
+
     // Asset Errors
     AssetDoesNotExist = 401,
     AssetInactive = 403,
@@ -120,6 +123,7 @@ pub enum DataKey {
 
 const TTL_THRESHOLD_LEDGERS: u32 = 10000;
 const TTL_LIMIT_LEDGERS: u32 = 100000;
+const MAX_BATCH_SIZE: u32 = 100;
 
 #[contract]
 pub struct RoyaltyDistributor;
@@ -348,11 +352,18 @@ impl RoyaltyDistributor {
             .extend_ttl(&payee_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
 
         let migration_key = DataKey::PayeeMigration(asset_id.clone(), payee.clone());
-        let recipient = env
-            .storage()
-            .persistent()
-            .get::<_, Address>(&migration_key)
-            .unwrap_or_else(|| payee.clone());
+        let recipient = if let Some(migrated_addr) =
+            env.storage().persistent().get::<_, Address>(&migration_key)
+        {
+            env.storage().persistent().extend_ttl(
+                &migration_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+            migrated_addr
+        } else {
+            payee.clone()
+        };
 
         if total_payout > 0 {
             let token_client = token::Client::new(&env, &token_address);
@@ -368,7 +379,10 @@ impl RoyaltyDistributor {
         Ok(total_payout)
     }
 
-    /// Queries total claimable balance for a payee on an asset without mutating state.
+    /// Queries claimable balance for a payee on an asset without mutating state.
+    /// Evaluates up to 500 unclaimed epochs starting from payee's next_epoch_to_claim checkpoint.
+    /// To prevent off-chain RPC CPU/footprint limits on long-lived assets, this query is bounded to
+    /// 500 epochs per call. As claims progress, next_epoch_to_claim advances to evaluate subsequent chunks.
     pub fn get_claimable_balance(env: Env, payee: Address, asset_id: Symbol) -> i128 {
         let manager_address: Address = match env.storage().instance().get(&DataKey::Manager) {
             Some(addr) => addr,
@@ -396,7 +410,13 @@ impl RoyaltyDistributor {
         let mut total_claimable: i128 = 0;
         let mut claimed_in_active = payee_state.claimed_in_active_epoch;
 
-        for epoch_id in start_epoch..current_epoch_id {
+        let end_epoch = if current_epoch_id > start_epoch {
+            (start_epoch + 500).min(current_epoch_id)
+        } else {
+            start_epoch
+        };
+
+        for epoch_id in start_epoch..end_epoch {
             let deposit_key = DataKey::EpochDeposit(asset_id.clone(), epoch_id);
             let epoch_deposit: i128 = env.storage().persistent().get(&deposit_key).unwrap_or(0);
 
@@ -585,7 +605,16 @@ impl RoyaltyDistributor {
     /// Queries if a payee has migrated their claim address on an asset.
     pub fn get_payee_migration(env: Env, payee: Address, asset_id: Symbol) -> Option<Address> {
         let migration_key = DataKey::PayeeMigration(asset_id, payee);
-        env.storage().persistent().get(&migration_key)
+        if let Some(migrated) = env.storage().persistent().get::<_, Address>(&migration_key) {
+            env.storage().persistent().extend_ttl(
+                &migration_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+            Some(migrated)
+        } else {
+            None
+        }
     }
 
     /// Returns smart contract semver version string.
@@ -593,7 +622,7 @@ impl RoyaltyDistributor {
         Symbol::new(&env, "v3_0_0")
     }
 
-    /// Executes batch deposit for multiple assets.
+    /// Executes batch deposit for multiple assets with MAX_BATCH_SIZE protection.
     pub fn distribute_batch(
         env: Env,
         payer: Address,
@@ -602,11 +631,12 @@ impl RoyaltyDistributor {
     ) -> Result<(), Error> {
         payer.require_auth();
 
-        if asset_ids.len() != amounts.len() {
-            return Err(Error::CalculationError);
+        let len = asset_ids.len();
+        if len == 0 || len > MAX_BATCH_SIZE || len != amounts.len() {
+            return Err(Error::InvalidBatch);
         }
 
-        for i in 0..asset_ids.len() {
+        for i in 0..len {
             let asset_id = asset_ids.get(i).unwrap();
             let amount = amounts.get(i).unwrap();
             Self::deposit_internal(&env, &payer, &asset_id, amount)?;
@@ -627,6 +657,11 @@ impl RoyaltyDistributor {
         env.storage()
             .instance()
             .set(&DataKey::Manager, &new_manager);
+
+        // Emit ManagerUpdated Event
+        env.events()
+            .publish((Symbol::new(&env, "ManagerUpdated"),), (admin, new_manager));
+
         Ok(())
     }
 
@@ -640,6 +675,11 @@ impl RoyaltyDistributor {
         admin.require_auth();
 
         env.storage().instance().set(&DataKey::Token, &new_token);
+
+        // Emit TokenUpdated Event
+        env.events()
+            .publish((Symbol::new(&env, "TokenUpdated"),), (admin, new_token));
+
         Ok(())
     }
 }

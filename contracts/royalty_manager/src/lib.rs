@@ -347,10 +347,12 @@ impl RoyaltyManager {
         }
     }
 
-    /// Queries asset details for multiple asset IDs in a single call.
+    /// Queries asset details for multiple asset IDs in a single call (up to 100 assets).
     pub fn batch_get_assets(env: Env, asset_ids: Vec<Symbol>) -> Vec<Option<AssetInfo>> {
         let mut results = Vec::new(&env);
-        for asset_id in asset_ids.iter() {
+        let limit = asset_ids.len().min(100);
+        for i in 0..limit {
+            let asset_id = asset_ids.get(i).unwrap();
             results.push_back(Self::get_asset(env.clone(), asset_id));
         }
         results
