@@ -1,20 +1,29 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, contracterror, Address, Env, Symbol, Vec, BytesN,
+    contract, contracterror, contractimpl, contracttype, Address, BytesN, Env, Symbol, Vec,
 };
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    NotInitialized = 1,
-    AlreadyInitialized = 2,
-    Unauthorized = 3,
-    InvalidShares = 4,
-    TooManyContributors = 5,
-    AssetAlreadyExists = 6,
-    AssetDoesNotExist = 7,
-    AssetInactive = 8,
+    // Lifecycle Errors
+    NotInitialized = 101,
+    AlreadyInitialized = 102,
+
+    // Authorization Errors
+    Unauthorized = 201,
+
+    // Allocation Errors
+    InvalidShares = 301,
+    TooManyContributors = 302,
+
+    // Asset Errors
+    AssetAlreadyExists = 401,
+    AssetDoesNotExist = 402,
+    AssetInactive = 403,
+    EpochDoesNotExist = 404,
+    AssetAlreadyActive = 405,
 }
 
 #[contracttype]
@@ -28,8 +37,15 @@ pub struct ContributorShare {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AssetInfo {
     pub owner: Address,
-    pub contributors: Vec<ContributorShare>,
+    pub current_epoch_id: u32,
     pub is_active: bool,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct EpochConfig {
+    pub epoch_id: u32,
+    pub contributors: Vec<ContributorShare>,
 }
 
 #[contracttype]
@@ -37,12 +53,13 @@ pub struct AssetInfo {
 pub enum DataKey {
     Admin,
     Asset(Symbol),
+    Epoch(Symbol, u32),
 }
 
 const BASIS_POINTS_MAX: u32 = 10000;
 const MAX_CONTRIBUTORS: u32 = 10;
 const TTL_THRESHOLD_LEDGERS: u32 = 10000; // ~14 hours at 5s/ledger
-const TTL_LIMIT_LEDGERS: u32 = 100000;    // ~5.7 days
+const TTL_LIMIT_LEDGERS: u32 = 100000; // ~5.7 days
 
 #[contract]
 pub struct RoyaltyManager;
@@ -58,8 +75,7 @@ impl RoyaltyManager {
         Ok(())
     }
 
-    /// Registers a new asset with contributor shares.
-    /// The owner must authorize the registration to prevent griefing.
+    /// Registers a new asset with contributor shares for Epoch 1.
     pub fn register_asset(
         env: Env,
         asset_id: Symbol,
@@ -68,8 +84,8 @@ impl RoyaltyManager {
     ) -> Result<(), Error> {
         owner.require_auth();
 
-        let key = DataKey::Asset(asset_id.clone());
-        if env.storage().persistent().has(&key) {
+        let asset_key = DataKey::Asset(asset_id.clone());
+        if env.storage().persistent().has(&asset_key) {
             return Err(Error::AssetAlreadyExists);
         }
 
@@ -78,34 +94,48 @@ impl RoyaltyManager {
 
         let asset_info = AssetInfo {
             owner: owner.clone(),
-            contributors,
+            current_epoch_id: 1,
             is_active: true,
         };
 
-        env.storage().persistent().set(&key, &asset_info);
-        env.storage().persistent().extend_ttl(&key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+        let epoch_config = EpochConfig {
+            epoch_id: 1,
+            contributors,
+        };
+
+        let epoch_key = DataKey::Epoch(asset_id.clone(), 1);
+
+        env.storage().persistent().set(&asset_key, &asset_info);
+        env.storage()
+            .persistent()
+            .extend_ttl(&asset_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+
+        env.storage().persistent().set(&epoch_key, &epoch_config);
+        env.storage()
+            .persistent()
+            .extend_ttl(&epoch_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
 
         // Emit Registration Event
         env.events().publish(
-            (Symbol::new(&env, "asset_registered"), asset_id),
-            owner,
+            (Symbol::new(&env, "AssetRegistered"), asset_id.clone()),
+            (owner, 1u32),
         );
 
         Ok(())
     }
 
-    /// Updates contributor shares for an existing asset.
-    /// Only the asset owner can update shares.
+    /// Updates contributor shares for an existing asset by creating a new Epoch.
+    /// Historical epoch configurations remain completely immutable!
     pub fn update_asset(
         env: Env,
         asset_id: Symbol,
         contributors: Vec<ContributorShare>,
     ) -> Result<(), Error> {
-        let key = DataKey::Asset(asset_id.clone());
+        let asset_key = DataKey::Asset(asset_id.clone());
         let mut asset_info: AssetInfo = env
             .storage()
             .persistent()
-            .get(&key)
+            .get(&asset_key)
             .ok_or(Error::AssetDoesNotExist)?;
 
         asset_info.owner.require_auth();
@@ -114,30 +144,50 @@ impl RoyaltyManager {
             return Err(Error::AssetInactive);
         }
 
-        // Validate contributors and shares
+        // Validate new contributors and shares
         Self::validate_contributors(&env, &contributors)?;
 
-        asset_info.contributors = contributors;
-        env.storage().persistent().set(&key, &asset_info);
-        env.storage().persistent().extend_ttl(&key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+        let next_epoch_id = asset_info
+            .current_epoch_id
+            .checked_add(1)
+            .ok_or(Error::InvalidShares)?;
+
+        let epoch_config = EpochConfig {
+            epoch_id: next_epoch_id,
+            contributors,
+        };
+
+        let epoch_key = DataKey::Epoch(asset_id.clone(), next_epoch_id);
+
+        // Store new Epoch config without mutating historical epochs
+        env.storage().persistent().set(&epoch_key, &epoch_config);
+        env.storage()
+            .persistent()
+            .extend_ttl(&epoch_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+
+        // Update active epoch ID on Asset Header
+        asset_info.current_epoch_id = next_epoch_id;
+        env.storage().persistent().set(&asset_key, &asset_info);
+        env.storage()
+            .persistent()
+            .extend_ttl(&asset_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
 
         // Emit Update Event
         env.events().publish(
-            (Symbol::new(&env, "asset_updated"), asset_id),
-            asset_info.owner,
+            (Symbol::new(&env, "EpochCreated"), asset_id.clone()),
+            (asset_info.owner.clone(), next_epoch_id),
         );
 
         Ok(())
     }
 
-    /// Deactivates an asset to halt royalty distribution.
-    /// Only the asset owner can deactivate.
+    /// Deactivates an asset to halt new deposits. Historical claims remain accessible.
     pub fn deactivate_asset(env: Env, asset_id: Symbol) -> Result<(), Error> {
-        let key = DataKey::Asset(asset_id.clone());
+        let asset_key = DataKey::Asset(asset_id.clone());
         let mut asset_info: AssetInfo = env
             .storage()
             .persistent()
-            .get(&key)
+            .get(&asset_key)
             .ok_or(Error::AssetDoesNotExist)?;
 
         asset_info.owner.require_auth();
@@ -147,39 +197,112 @@ impl RoyaltyManager {
         }
 
         asset_info.is_active = false;
-        env.storage().persistent().set(&key, &asset_info);
-        env.storage().persistent().extend_ttl(&key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+        env.storage().persistent().set(&asset_key, &asset_info);
+        env.storage()
+            .persistent()
+            .extend_ttl(&asset_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
 
         // Emit Deactivation Event
         env.events().publish(
-            (Symbol::new(&env, "asset_deactivated"), asset_id),
+            (Symbol::new(&env, "AssetDeactivated"), asset_id.clone()),
             asset_info.owner,
         );
 
         Ok(())
     }
 
-    /// Queries asset details.
+    /// Reactivates a previously deactivated asset, resuming deposit eligibility.
+    pub fn reactivate_asset(env: Env, asset_id: Symbol) -> Result<(), Error> {
+        let asset_key = DataKey::Asset(asset_id.clone());
+        let mut asset_info: AssetInfo = env
+            .storage()
+            .persistent()
+            .get(&asset_key)
+            .ok_or(Error::AssetDoesNotExist)?;
+
+        asset_info.owner.require_auth();
+
+        if asset_info.is_active {
+            return Err(Error::AssetAlreadyActive);
+        }
+
+        asset_info.is_active = true;
+        env.storage().persistent().set(&asset_key, &asset_info);
+        env.storage()
+            .persistent()
+            .extend_ttl(&asset_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+
+        // Emit Reactivation Event
+        env.events().publish(
+            (Symbol::new(&env, "AssetReactivated"), asset_id.clone()),
+            asset_info.owner,
+        );
+
+        Ok(())
+    }
+
+    /// Queries core asset header.
     pub fn get_asset(env: Env, asset_id: Symbol) -> Option<AssetInfo> {
-        let key = DataKey::Asset(asset_id);
-        if let Some(asset_info) = env.storage().persistent().get::<_, AssetInfo>(&key) {
-            env.storage().persistent().extend_ttl(&key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+        let asset_key = DataKey::Asset(asset_id);
+        if let Some(asset_info) = env.storage().persistent().get::<_, AssetInfo>(&asset_key) {
+            env.storage().persistent().extend_ttl(
+                &asset_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
             Some(asset_info)
         } else {
             None
         }
     }
 
-    /// Returns the smart contract semver version string.
-    pub fn version(env: Env) -> Symbol {
-        Symbol::new(&env, "v2_1_0")
+    /// Queries specific Epoch configuration.
+    pub fn get_epoch(env: Env, asset_id: Symbol, epoch_id: u32) -> Option<EpochConfig> {
+        let epoch_key = DataKey::Epoch(asset_id, epoch_id);
+        if let Some(epoch_config) = env.storage().persistent().get::<_, EpochConfig>(&epoch_key) {
+            env.storage().persistent().extend_ttl(
+                &epoch_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+            Some(epoch_config)
+        } else {
+            None
+        }
     }
 
-    /// Extends the persistent TTL of an existing asset registration.
+    /// Queries configuration for the current active Epoch.
+    pub fn get_current_epoch(env: Env, asset_id: Symbol) -> Option<EpochConfig> {
+        let asset_info = Self::get_asset(env.clone(), asset_id.clone())?;
+        Self::get_epoch(env, asset_id, asset_info.current_epoch_id)
+    }
+
+    /// Returns current active epoch contributors for backward compatibility.
+    pub fn get_contributors(env: Env, asset_id: Symbol) -> Option<Vec<ContributorShare>> {
+        let epoch_config = Self::get_current_epoch(env, asset_id)?;
+        Some(epoch_config.contributors)
+    }
+
+    /// Returns smart contract semver version string.
+    pub fn version(env: Env) -> Symbol {
+        Symbol::new(&env, "v3_0_0")
+    }
+
+    /// Extends the persistent TTL of an existing asset registration and active epoch.
     pub fn touch_asset(env: Env, asset_id: Symbol) -> Result<(), Error> {
-        let key = DataKey::Asset(asset_id);
-        if env.storage().persistent().has(&key) {
-            env.storage().persistent().extend_ttl(&key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+        let asset_key = DataKey::Asset(asset_id.clone());
+        if let Some(asset_info) = env.storage().persistent().get::<_, AssetInfo>(&asset_key) {
+            env.storage().persistent().extend_ttl(
+                &asset_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+            let epoch_key = DataKey::Epoch(asset_id, asset_info.current_epoch_id);
+            env.storage().persistent().extend_ttl(
+                &epoch_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
             Ok(())
         } else {
             Err(Error::AssetDoesNotExist)
@@ -207,27 +330,35 @@ impl RoyaltyManager {
         env.deployer().update_current_contract_wasm(new_wasm_hash);
 
         // Emit Upgrade Event
-        env.events().publish(
-            (Symbol::new(&env, "contract_upgraded"),),
-            admin,
-        );
+        env.events()
+            .publish((Symbol::new(&env, "contract_upgraded"),), admin);
 
         Ok(())
     }
 
-    // Helper to validate contributor list size and that shares sum to 100% (10000 bps)
-    fn validate_contributors(_env: &Env, contributors: &Vec<ContributorShare>) -> Result<(), Error> {
+    // Helper to validate contributor list size, duplicate addresses, and that shares sum to 10,000 BPS
+    fn validate_contributors(env: &Env, contributors: &Vec<ContributorShare>) -> Result<(), Error> {
         let len = contributors.len();
         if len == 0 || len > MAX_CONTRIBUTORS {
             return Err(Error::TooManyContributors);
         }
 
         let mut total_share: u32 = 0;
+        let mut seen = Vec::new(env);
+
         for item in contributors.iter() {
             if item.share == 0 {
                 return Err(Error::InvalidShares);
             }
-            total_share = total_share.checked_add(item.share).ok_or(Error::InvalidShares)?;
+            // Duplicate address check
+            if seen.contains(&item.address) {
+                return Err(Error::InvalidShares);
+            }
+            seen.push_back(item.address.clone());
+
+            total_share = total_share
+                .checked_add(item.share)
+                .ok_or(Error::InvalidShares)?;
         }
 
         if total_share != BASIS_POINTS_MAX {
