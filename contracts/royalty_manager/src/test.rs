@@ -1,10 +1,10 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{Env, Address, vec, Symbol};
 use soroban_sdk::testutils::Address as _;
+use soroban_sdk::{vec, Address, Env, Symbol};
 
 #[test]
-fn test_register_and_manage_asset() {
+fn test_register_and_manage_asset_epochs() {
     let env = Env::default();
     env.mock_all_auths();
 
@@ -12,6 +12,7 @@ fn test_register_and_manage_asset() {
     let owner = Address::generate(&env);
     let contrib1 = Address::generate(&env);
     let contrib2 = Address::generate(&env);
+    let contrib3 = Address::generate(&env);
 
     let contract_id = env.register(RoyaltyManager, ());
     let client = RoyaltyManagerClient::new(&env, &contract_id);
@@ -19,8 +20,8 @@ fn test_register_and_manage_asset() {
     // Initialize
     client.initialize(&admin);
 
-    let asset_id = Symbol::new(&env, "song1");
-    let contributors = vec![
+    let asset_id = Symbol::new(&env, "asset1");
+    let epoch1_contributors = vec![
         &env,
         ContributorShare {
             address: contrib1.clone(),
@@ -32,22 +33,27 @@ fn test_register_and_manage_asset() {
         },
     ];
 
-    // Register asset
-    client.register_asset(&asset_id, &owner, &contributors);
+    // 1. Register asset -> Creates Epoch 1
+    client.register_asset(&asset_id, &owner, &epoch1_contributors);
 
-    // Verify asset info
+    // Verify asset header
     let asset = client.get_asset(&asset_id).unwrap();
     assert_eq!(asset.owner, owner);
-    assert_eq!(asset.contributors.len(), 2);
-    assert_eq!(asset.is_active, true);
-    assert_eq!(asset.contributors.get(0).unwrap().share, 6000);
+    assert_eq!(asset.current_epoch_id, 1);
+    assert!(asset.is_active);
+
+    // Verify Epoch 1 config
+    let epoch1 = client.get_epoch(&asset_id, &1).unwrap();
+    assert_eq!(epoch1.epoch_id, 1);
+    assert_eq!(epoch1.contributors.len(), 2);
+    assert_eq!(epoch1.contributors.get(0).unwrap().share, 6000);
 
     // Verify duplicate registration fails
-    let res = client.try_register_asset(&asset_id, &owner, &contributors);
+    let res = client.try_register_asset(&asset_id, &owner, &epoch1_contributors);
     assert!(res.is_err());
 
-    // Update asset contributors
-    let new_contributors = vec![
+    // 2. Update asset -> Creates Epoch 2
+    let epoch2_contributors = vec![
         &env,
         ContributorShare {
             address: contrib1.clone(),
@@ -55,22 +61,37 @@ fn test_register_and_manage_asset() {
         },
         ContributorShare {
             address: contrib2.clone(),
-            share: 5000, // 50.00%
+            share: 3000, // 30.00%
+        },
+        ContributorShare {
+            address: contrib3.clone(),
+            share: 2000, // 20.00%
         },
     ];
-    client.update_asset(&asset_id, &new_contributors);
+    client.update_asset(&asset_id, &epoch2_contributors);
 
+    // Verify asset header updated to Epoch 2
     let asset = client.get_asset(&asset_id).unwrap();
-    assert_eq!(asset.contributors.get(0).unwrap().share, 5000);
-    assert_eq!(asset.contributors.get(1).unwrap().share, 5000);
+    assert_eq!(asset.current_epoch_id, 2);
 
-    // Deactivate asset
+    // Verify Epoch 2 config
+    let epoch2 = client.get_epoch(&asset_id, &2).unwrap();
+    assert_eq!(epoch2.epoch_id, 2);
+    assert_eq!(epoch2.contributors.len(), 3);
+    assert_eq!(epoch2.contributors.get(0).unwrap().share, 5000);
+
+    // CRITICAL INVARIANT: Epoch 1 config remains 100% IMMUTABLE!
+    let epoch1_after = client.get_epoch(&asset_id, &1).unwrap();
+    assert_eq!(epoch1_after.contributors.len(), 2);
+    assert_eq!(epoch1_after.contributors.get(0).unwrap().share, 6000);
+
+    // 3. Deactivate asset
     client.deactivate_asset(&asset_id);
     let asset = client.get_asset(&asset_id).unwrap();
-    assert_eq!(asset.is_active, false);
+    assert!(!asset.is_active);
 
     // Updating deactivated asset should fail
-    let res = client.try_update_asset(&asset_id, &new_contributors);
+    let res = client.try_update_asset(&asset_id, &epoch2_contributors);
     assert!(res.is_err());
 }
 
@@ -82,45 +103,65 @@ fn test_invalid_share_registration() {
     let admin = Address::generate(&env);
     let owner = Address::generate(&env);
     let contrib1 = Address::generate(&env);
+    let _contrib2 = Address::generate(&env);
 
     let contract_id = env.register(RoyaltyManager, ());
     let client = RoyaltyManagerClient::new(&env, &contract_id);
     client.initialize(&admin);
 
-    let asset_id = Symbol::new(&env, "song2");
+    let asset_id = Symbol::new(&env, "invalid_asset");
 
-    // Case 1: Sum is less than 10000 bps (9000 bps)
-    let invalid_shares_1 = vec![
+    // Case 1: Sum is less than 10000 BPS (9000 BPS)
+    let invalid1 = vec![
         &env,
         ContributorShare {
             address: contrib1.clone(),
             share: 9000,
         },
     ];
-    let res1 = client.try_register_asset(&asset_id, &owner, &invalid_shares_1);
-    assert!(res1.is_err());
+    assert!(client
+        .try_register_asset(&asset_id, &owner, &invalid1)
+        .is_err());
 
-    // Case 2: Sum is more than 10000 bps (11000 bps)
-    let invalid_shares_2 = vec![
+    // Case 2: Sum is more than 10000 BPS (11000 BPS)
+    let invalid2 = vec![
         &env,
         ContributorShare {
             address: contrib1.clone(),
             share: 11000,
         },
     ];
-    let res2 = client.try_register_asset(&asset_id, &owner, &invalid_shares_2);
-    assert!(res2.is_err());
+    assert!(client
+        .try_register_asset(&asset_id, &owner, &invalid2)
+        .is_err());
 
-    // Case 3: Contributor with 0 share
-    let invalid_shares_3 = vec![
+    // Case 3: 0 share
+    let invalid3 = vec![
         &env,
         ContributorShare {
             address: contrib1.clone(),
             share: 0,
         },
     ];
-    let res3 = client.try_register_asset(&asset_id, &owner, &invalid_shares_3);
-    assert!(res3.is_err());
+    assert!(client
+        .try_register_asset(&asset_id, &owner, &invalid3)
+        .is_err());
+
+    // Case 4: Duplicate payee addresses
+    let invalid4 = vec![
+        &env,
+        ContributorShare {
+            address: contrib1.clone(),
+            share: 5000,
+        },
+        ContributorShare {
+            address: contrib1.clone(), // duplicate!
+            share: 5000,
+        },
+    ];
+    assert!(client
+        .try_register_asset(&asset_id, &owner, &invalid4)
+        .is_err());
 }
 
 #[test]
@@ -135,10 +176,9 @@ fn test_max_contributors_limit() {
     let client = RoyaltyManagerClient::new(&env, &contract_id);
     client.initialize(&admin);
 
-    let asset_id = Symbol::new(&env, "song3");
+    let asset_id = Symbol::new(&env, "max_contrib_asset");
 
-    // Create 11 contributors, each with 909 shares (roughly splitting, but sum must equal 10000)
-    // 909 * 11 = 9999 + 1 = 10000
+    // Attempting 11 contributors should fail MAX_CONTRIBUTORS=10 check
     let mut contributors = vec![&env];
     for _ in 0..11 {
         contributors.push_back(ContributorShare {
@@ -147,8 +187,9 @@ fn test_max_contributors_limit() {
         });
     }
 
-    let res = client.try_register_asset(&asset_id, &owner, &contributors);
-    assert!(res.is_err());
+    assert!(client
+        .try_register_asset(&asset_id, &owner, &contributors)
+        .is_err());
 }
 
 #[test]
@@ -164,8 +205,7 @@ fn test_version_and_batch_queries() {
     let client = RoyaltyManagerClient::new(&env, &contract_id);
     client.initialize(&admin);
 
-    // Test Semver Version Query
-    assert_eq!(client.version(), Symbol::new(&env, "v2_1_0"));
+    assert_eq!(client.version(), Symbol::new(&env, "v3_0_0"));
 
     let asset1 = Symbol::new(&env, "batch1");
     let asset2 = Symbol::new(&env, "batch2");
@@ -180,13 +220,64 @@ fn test_version_and_batch_queries() {
     client.register_asset(&asset1, &owner, &contributors);
     client.register_asset(&asset2, &owner, &contributors);
 
-    // Test Touch Asset TTL
     client.touch_asset(&asset1);
 
-    // Test Batch Get Assets
     let batch_res = client.batch_get_assets(&vec![&env, asset1.clone(), asset2.clone()]);
     assert_eq!(batch_res.len(), 2);
     assert!(batch_res.get(0).unwrap().is_some());
     assert!(batch_res.get(1).unwrap().is_some());
 }
 
+#[test]
+fn test_asset_reactivation() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let admin = Address::generate(&env);
+    let owner = Address::generate(&env);
+    let contrib1 = Address::generate(&env);
+
+    let contract_id = env.register(RoyaltyManager, ());
+    let client = RoyaltyManagerClient::new(&env, &contract_id);
+    client.initialize(&admin);
+
+    let asset_id = Symbol::new(&env, "react_asset");
+    let shares = vec![
+        &env,
+        ContributorShare {
+            address: contrib1.clone(),
+            share: 10000,
+        },
+    ];
+
+    client.register_asset(&asset_id, &owner, &shares);
+
+    // 1. Reactivating an already-active asset returns AssetAlreadyActive (Error 405)
+    let err_res = client.try_reactivate_asset(&asset_id);
+    assert!(err_res.is_err());
+
+    // 2. Deactivate asset
+    client.deactivate_asset(&asset_id);
+    let asset = client.get_asset(&asset_id).unwrap();
+    assert!(!asset.is_active);
+
+    // 3. Unauthorized reactivation attempt (without owner signature)
+    env.mock_auths(&[]);
+    assert!(client.try_reactivate_asset(&asset_id).is_err());
+
+    // 4. Authorized reactivation
+    env.mock_all_auths();
+    client.reactivate_asset(&asset_id);
+    let asset = client.get_asset(&asset_id).unwrap();
+    assert!(asset.is_active);
+
+    // Confirm reactivation did NOT create a new epoch or alter EpochConfig
+    assert_eq!(asset.current_epoch_id, 1);
+    let epoch1 = client.get_epoch(&asset_id, &1).unwrap();
+    assert_eq!(epoch1.contributors.len(), 1);
+
+    // Updating asset now succeeds again (creating Epoch 2)
+    client.update_asset(&asset_id, &shares);
+    let asset = client.get_asset(&asset_id).unwrap();
+    assert_eq!(asset.current_epoch_id, 2);
+}
