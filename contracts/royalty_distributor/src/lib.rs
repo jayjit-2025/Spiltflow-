@@ -85,6 +85,25 @@ impl ManagerClient {
             soroban_sdk::vec![env, asset_id.clone().into_val(env), epoch_id.into_val(env)],
         )
     }
+
+    pub fn get_payee_share(
+        &self,
+        env: &Env,
+        asset_id: &Symbol,
+        epoch_id: u32,
+        payee: &Address,
+    ) -> u32 {
+        env.invoke_contract(
+            &self.address,
+            &Symbol::new(env, "get_payee_share"),
+            soroban_sdk::vec![
+                env,
+                asset_id.clone().into_val(env),
+                epoch_id.into_val(env),
+                payee.clone().into_val(env),
+            ],
+        )
+    }
 }
 
 #[contracttype]
@@ -210,7 +229,7 @@ impl RoyaltyDistributor {
         Self::claim_epochs(env, payee, asset_id, 100)
     }
 
-    /// Executes pull-based claim up to max_epochs.
+    /// Executes pull-based claim up to max_epochs using O(1) per-epoch payee share lookups.
     pub fn claim_epochs(
         env: Env,
         payee: Address,
@@ -261,32 +280,25 @@ impl RoyaltyDistributor {
             let epoch_deposit: i128 = env.storage().persistent().get(&deposit_key).unwrap_or(0);
 
             if epoch_deposit > 0 {
-                if let Some(epoch_config) = manager_client.get_epoch(&env, &asset_id, epoch_id) {
-                    let mut payee_share_bps: u32 = 0;
-                    for contrib in epoch_config.contributors.iter() {
-                        if contrib.address == payee {
-                            payee_share_bps = contrib.share;
-                            break;
-                        }
-                    }
+                let payee_share_bps =
+                    manager_client.get_payee_share(&env, &asset_id, epoch_id, &payee);
 
-                    if payee_share_bps > 0 {
-                        let full_entitlement = epoch_deposit
-                            .checked_mul(payee_share_bps as i128)
-                            .ok_or(Error::CalculationError)?
-                            .checked_div(10000)
-                            .ok_or(Error::CalculationError)?;
+                if payee_share_bps > 0 {
+                    let full_entitlement = epoch_deposit
+                        .checked_mul(payee_share_bps as i128)
+                        .ok_or(Error::CalculationError)?
+                        .checked_div(10000)
+                        .ok_or(Error::CalculationError)?;
 
-                        let unclaimed_portion = if epoch_id == start_epoch {
-                            full_entitlement.saturating_sub(payee_state.claimed_in_active_epoch)
-                        } else {
-                            full_entitlement
-                        };
+                    let unclaimed_portion = if epoch_id == start_epoch {
+                        full_entitlement.saturating_sub(payee_state.claimed_in_active_epoch)
+                    } else {
+                        full_entitlement
+                    };
 
-                        total_payout = total_payout
-                            .checked_add(unclaimed_portion)
-                            .ok_or(Error::CalculationError)?;
-                    }
+                    total_payout = total_payout
+                        .checked_add(unclaimed_portion)
+                        .ok_or(Error::CalculationError)?;
                 }
             }
             last_processed_epoch = epoch_id + 1;
@@ -307,32 +319,23 @@ impl RoyaltyDistributor {
                 .unwrap_or(0);
 
             if active_deposit > 0 {
-                if let Some(active_config) =
-                    manager_client.get_epoch(&env, &asset_id, current_epoch_id)
-                {
-                    let mut payee_share_bps: u32 = 0;
-                    for contrib in active_config.contributors.iter() {
-                        if contrib.address == payee {
-                            payee_share_bps = contrib.share;
-                            break;
-                        }
-                    }
+                let payee_share_bps =
+                    manager_client.get_payee_share(&env, &asset_id, current_epoch_id, &payee);
 
-                    if payee_share_bps > 0 {
-                        let active_full_entitlement = active_deposit
-                            .checked_mul(payee_share_bps as i128)
-                            .ok_or(Error::CalculationError)?
-                            .checked_div(10000)
+                if payee_share_bps > 0 {
+                    let active_full_entitlement = active_deposit
+                        .checked_mul(payee_share_bps as i128)
+                        .ok_or(Error::CalculationError)?
+                        .checked_div(10000)
+                        .ok_or(Error::CalculationError)?;
+
+                    let additional_claimable =
+                        active_full_entitlement.saturating_sub(payee_state.claimed_in_active_epoch);
+                    if additional_claimable > 0 {
+                        total_payout = total_payout
+                            .checked_add(additional_claimable)
                             .ok_or(Error::CalculationError)?;
-
-                        let additional_claimable = active_full_entitlement
-                            .saturating_sub(payee_state.claimed_in_active_epoch);
-                        if additional_claimable > 0 {
-                            total_payout = total_payout
-                                .checked_add(additional_claimable)
-                                .ok_or(Error::CalculationError)?;
-                            payee_state.claimed_in_active_epoch = active_full_entitlement;
-                        }
+                        payee_state.claimed_in_active_epoch = active_full_entitlement;
                     }
                 }
             }
@@ -398,19 +401,15 @@ impl RoyaltyDistributor {
             let epoch_deposit: i128 = env.storage().persistent().get(&deposit_key).unwrap_or(0);
 
             if epoch_deposit > 0 {
-                if let Some(epoch_config) = manager_client.get_epoch(&env, &asset_id, epoch_id) {
-                    for contrib in epoch_config.contributors.iter() {
-                        if contrib.address == payee {
-                            let entitlement = (epoch_deposit * contrib.share as i128) / 10000;
-                            let unclaimed = if epoch_id == start_epoch {
-                                entitlement.saturating_sub(claimed_in_active)
-                            } else {
-                                entitlement
-                            };
-                            total_claimable += unclaimed;
-                            break;
-                        }
-                    }
+                let share_bps = manager_client.get_payee_share(&env, &asset_id, epoch_id, &payee);
+                if share_bps > 0 {
+                    let entitlement = (epoch_deposit * share_bps as i128) / 10000;
+                    let unclaimed = if epoch_id == start_epoch {
+                        entitlement.saturating_sub(claimed_in_active)
+                    } else {
+                        entitlement
+                    };
+                    total_claimable += unclaimed;
                 }
             }
             claimed_in_active = 0;
@@ -424,16 +423,12 @@ impl RoyaltyDistributor {
             .get(&active_deposit_key)
             .unwrap_or(0);
         if active_deposit > 0 {
-            if let Some(active_config) = manager_client.get_epoch(&env, &asset_id, current_epoch_id)
-            {
-                for contrib in active_config.contributors.iter() {
-                    if contrib.address == payee {
-                        let active_entitlement = (active_deposit * contrib.share as i128) / 10000;
-                        let additional = active_entitlement.saturating_sub(claimed_in_active);
-                        total_claimable += additional;
-                        break;
-                    }
-                }
+            let share_bps =
+                manager_client.get_payee_share(&env, &asset_id, current_epoch_id, &payee);
+            if share_bps > 0 {
+                let active_entitlement = (active_deposit * share_bps as i128) / 10000;
+                let additional = active_entitlement.saturating_sub(claimed_in_active);
+                total_claimable += additional;
             }
         }
 

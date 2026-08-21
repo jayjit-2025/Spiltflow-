@@ -794,3 +794,73 @@ fn test_cross_asset_isolation_and_lifecycle_flow() {
     assert_eq!(claim_after_reactive, 1000);
     assert_eq!(token_client.balance(&wallet_b), 2000);
 }
+
+#[test]
+fn test_50_contributor_claim_and_decoupled_lookups() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let admin = Address::generate(&env);
+    let owner = Address::generate(&env);
+    let payer = Address::generate(&env);
+    let non_contributor = Address::generate(&env);
+
+    let manager_id = env.register(RoyaltyManager, ());
+    let manager_client = RoyaltyManagerClient::new(&env, &manager_id);
+    manager_client.initialize(&admin);
+
+    let token_admin = Address::generate(&env);
+    let token_id = env
+        .register_stellar_asset_contract_v2(token_admin.clone())
+        .address();
+    let token_admin_client = token::StellarAssetClient::new(&env, &token_id);
+    let token_client = token::Client::new(&env, &token_id);
+
+    let distributor_id = env.register(RoyaltyDistributor, ());
+    let distributor_client = RoyaltyDistributorClient::new(&env, &distributor_id);
+    distributor_client.initialize(&admin, &manager_id, &token_id);
+
+    let asset_id = Symbol::new(&env, "asset50");
+
+    // 1. Build 50 contributors (200 BPS each)
+    let mut contributors50 = vec![&env];
+    let mut payee_addresses = Vec::new(&env);
+    for _ in 0..50 {
+        let addr = Address::generate(&env);
+        payee_addresses.push_back(addr.clone());
+        contributors50.push_back(ManagerContributorShare {
+            address: addr,
+            share: 200,
+        });
+    }
+
+    manager_client.register_asset(&asset_id, &owner, &contributors50);
+
+    // 2. Deposit 10,000 stroops into Epoch 1
+    token_admin_client.mint(&payer, &10000);
+    distributor_client.deposit(&payer, &asset_id, &10000);
+
+    // 3. Contributor #50 (the last element in the 50-contributor vector) claims
+    let last_payee = payee_addresses.get(49).unwrap();
+    let claimed_amount = distributor_client.claim(&last_payee, &asset_id);
+
+    // Payout = 10,000 * 200 / 10,000 = 200
+    assert_eq!(claimed_amount, 200);
+    assert_eq!(token_client.balance(&last_payee), 200);
+
+    // 4. Non-contributor receives 0
+    let non_contrib_claim = distributor_client.claim(&non_contributor, &asset_id);
+    assert_eq!(non_contrib_claim, 0);
+    assert_eq!(token_client.balance(&non_contributor), 0);
+
+    // 5. Migration test under 50-contributor asset
+    let first_payee = payee_addresses.get(0).unwrap();
+    let first_payee_new_wallet = Address::generate(&env);
+
+    distributor_client.migrate_payee_address(&asset_id, &first_payee, &first_payee_new_wallet);
+    let migrated_claim = distributor_client.claim(&first_payee, &asset_id);
+
+    assert_eq!(migrated_claim, 200);
+    assert_eq!(token_client.balance(&first_payee_new_wallet), 200);
+    assert_eq!(token_client.balance(&first_payee), 0);
+}

@@ -281,3 +281,86 @@ fn test_asset_reactivation() {
     let asset = client.get_asset(&asset_id).unwrap();
     assert_eq!(asset.current_epoch_id, 2);
 }
+
+#[test]
+fn test_50_contributors_registration_and_limit() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let admin = Address::generate(&env);
+    let owner = Address::generate(&env);
+
+    let contract_id = env.register(RoyaltyManager, ());
+    let client = RoyaltyManagerClient::new(&env, &contract_id);
+    client.initialize(&admin);
+
+    let asset_id = Symbol::new(&env, "big_asset");
+
+    // 1. Build exactly 50 contributors (200 BPS each = 10,000 BPS)
+    let mut contributors50 = vec![&env];
+    let mut payee_addresses = Vec::new(&env);
+    for _ in 0..50 {
+        let addr = Address::generate(&env);
+        payee_addresses.push_back(addr.clone());
+        contributors50.push_back(ContributorShare {
+            address: addr,
+            share: 200, // 200 * 50 = 10,000 BPS
+        });
+    }
+
+    // 2. Register asset with 50 contributors -> succeeds
+    client.register_asset(&asset_id, &owner, &contributors50);
+    let asset = client.get_asset(&asset_id).unwrap();
+    assert_eq!(asset.current_epoch_id, 1);
+
+    // Verify all 50 payees have individual PayeeShare entry = 200 BPS in Epoch 1
+    for addr in payee_addresses.iter() {
+        let share = client.get_payee_share(&asset_id, &1, &addr);
+        assert_eq!(share, 200);
+    }
+
+    // 3. Attempting 51 contributors -> fails with TooManyContributors (302)
+    let asset51_id = Symbol::new(&env, "too_big");
+    let mut contributors51 = vec![&env];
+    for _ in 0..51 {
+        contributors51.push_back(ContributorShare {
+            address: Address::generate(&env),
+            share: 196,
+        });
+    }
+    assert!(client
+        .try_register_asset(&asset51_id, &owner, &contributors51)
+        .is_err());
+
+    // 4. Update asset with 50 new contributors for Epoch 2
+    let mut epoch2_contributors = vec![&env];
+    let first_payee = payee_addresses.get(0).unwrap();
+    epoch2_contributors.push_back(ContributorShare {
+        address: first_payee.clone(),
+        share: 5000,
+    });
+    for i in 1..50 {
+        epoch2_contributors.push_back(ContributorShare {
+            address: payee_addresses.get(i).unwrap(),
+            share: 102, // 5000 + 49 * 102 + remainder... wait 102*49 = 4998, 5000+4998=9998, let's fix math
+        });
+    }
+    // Let's adjust exact sum to 10000: first payee 5100, remaining 49 payees 100 each (5100 + 4900 = 10000)
+    let mut exact_epoch2 = vec![&env];
+    exact_epoch2.push_back(ContributorShare {
+        address: first_payee.clone(),
+        share: 5100,
+    });
+    for i in 1..50 {
+        exact_epoch2.push_back(ContributorShare {
+            address: payee_addresses.get(i).unwrap(),
+            share: 100,
+        });
+    }
+    client.update_asset(&asset_id, &exact_epoch2);
+
+    // Verify Epoch 1 PayeeShare remains 200 (HISTORICAL IMMUTABILITY)
+    assert_eq!(client.get_payee_share(&asset_id, &1, &first_payee), 200);
+    // Verify Epoch 2 PayeeShare is 5100
+    assert_eq!(client.get_payee_share(&asset_id, &2, &first_payee), 5100);
+}

@@ -54,10 +54,11 @@ pub enum DataKey {
     Admin,
     Asset(Symbol),
     Epoch(Symbol, u32),
+    PayeeShare(Symbol, u32, Address), // (asset_id, epoch_id, payee) -> share_bps
 }
 
 const BASIS_POINTS_MAX: u32 = 10000;
-const MAX_CONTRIBUTORS: u32 = 10;
+const MAX_CONTRIBUTORS: u32 = 50;
 const TTL_THRESHOLD_LEDGERS: u32 = 10000; // ~14 hours at 5s/ledger
 const TTL_LIMIT_LEDGERS: u32 = 100000; // ~5.7 days
 
@@ -115,6 +116,17 @@ impl RoyaltyManager {
             .persistent()
             .extend_ttl(&epoch_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
 
+        // Store individual PayeeShare keys for O(1) claim-time lookups
+        for contrib in epoch_config.contributors.iter() {
+            let share_key = DataKey::PayeeShare(asset_id.clone(), 1, contrib.address);
+            env.storage().persistent().set(&share_key, &contrib.share);
+            env.storage().persistent().extend_ttl(
+                &share_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+        }
+
         // Emit Registration Event
         env.events().publish(
             (Symbol::new(&env, "AssetRegistered"), asset_id.clone()),
@@ -164,6 +176,17 @@ impl RoyaltyManager {
         env.storage()
             .persistent()
             .extend_ttl(&epoch_key, TTL_THRESHOLD_LEDGERS, TTL_LIMIT_LEDGERS);
+
+        // Store individual PayeeShare keys for O(1) claim-time lookups
+        for contrib in epoch_config.contributors.iter() {
+            let share_key = DataKey::PayeeShare(asset_id.clone(), next_epoch_id, contrib.address);
+            env.storage().persistent().set(&share_key, &contrib.share);
+            env.storage().persistent().extend_ttl(
+                &share_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+        }
 
         // Update active epoch ID on Asset Header
         asset_info.current_epoch_id = next_epoch_id;
@@ -268,6 +291,21 @@ impl RoyaltyManager {
             Some(epoch_config)
         } else {
             None
+        }
+    }
+
+    /// Queries individual payee share (in BPS) for an asset and epoch.
+    pub fn get_payee_share(env: Env, asset_id: Symbol, epoch_id: u32, payee: Address) -> u32 {
+        let share_key = DataKey::PayeeShare(asset_id, epoch_id, payee);
+        if let Some(share) = env.storage().persistent().get::<_, u32>(&share_key) {
+            env.storage().persistent().extend_ttl(
+                &share_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+            share
+        } else {
+            0
         }
     }
 
