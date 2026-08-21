@@ -944,3 +944,58 @@ fn test_phase5_protocol_hardening_and_batch_limits() {
     env.mock_auths(&[]);
     assert!(distributor_client.try_update_manager(&new_manager).is_err());
 }
+
+#[test]
+fn test_phase6_token_update_vault_safety_and_config_getters() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let admin = Address::generate(&env);
+    let owner = Address::generate(&env);
+    let payer = Address::generate(&env);
+    let alice = Address::generate(&env);
+
+    let manager_id = env.register(RoyaltyManager, ());
+    let manager_client = RoyaltyManagerClient::new(&env, &manager_id);
+    manager_client.initialize(&admin);
+
+    let token_admin = Address::generate(&env);
+    let token_id = env
+        .register_stellar_asset_contract_v2(token_admin.clone())
+        .address();
+    let token_admin_client = token::StellarAssetClient::new(&env, &token_id);
+
+    let distributor_id = env.register(RoyaltyDistributor, ());
+    let distributor_client = RoyaltyDistributorClient::new(&env, &distributor_id);
+    distributor_client.initialize(&admin, &manager_id, &token_id);
+
+    // 1. Config view getters
+    assert_eq!(distributor_client.get_admin(), Some(admin.clone()));
+    assert_eq!(distributor_client.get_manager(), Some(manager_id.clone()));
+    assert_eq!(distributor_client.get_token(), Some(token_id.clone()));
+
+    let asset_a = Symbol::new(&env, "vault_test");
+    let shares = vec![
+        &env,
+        ManagerContributorShare {
+            address: alice.clone(),
+            share: 10000,
+        },
+    ];
+    manager_client.register_asset(&asset_a, &owner, &shares);
+
+    // 2. Deposit 5000 stroops into distributor -> vault balance becomes 5000
+    token_admin_client.mint(&payer, &5000);
+    distributor_client.deposit(&payer, &asset_a, &5000);
+
+    // 3. Attempt update_token while vault balance > 0 -> fails with Unauthorized (201)
+    let new_token = Address::generate(&env);
+    assert!(distributor_client.try_update_token(&new_token).is_err());
+
+    // 4. Claim all funds -> vault balance returns to 0
+    distributor_client.claim(&alice, &asset_a);
+
+    // 5. update_token now succeeds since vault balance is 0
+    distributor_client.update_token(&new_token);
+    assert_eq!(distributor_client.get_token(), Some(new_token));
+}

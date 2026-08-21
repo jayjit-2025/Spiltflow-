@@ -458,13 +458,31 @@ impl RoyaltyDistributor {
     /// Queries total deposit accumulated for a specific epoch.
     pub fn get_epoch_deposit(env: Env, asset_id: Symbol, epoch_id: u32) -> i128 {
         let deposit_key = DataKey::EpochDeposit(asset_id, epoch_id);
-        env.storage().persistent().get(&deposit_key).unwrap_or(0)
+        if let Some(deposit) = env.storage().persistent().get::<_, i128>(&deposit_key) {
+            env.storage().persistent().extend_ttl(
+                &deposit_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+            deposit
+        } else {
+            0
+        }
     }
 
     /// Queries payee state checkpoint.
     pub fn get_payee_state(env: Env, payee: Address, asset_id: Symbol) -> Option<PayeeState> {
         let payee_key = DataKey::PayeeState(asset_id, payee);
-        env.storage().persistent().get(&payee_key)
+        if let Some(state) = env.storage().persistent().get::<_, PayeeState>(&payee_key) {
+            env.storage().persistent().extend_ttl(
+                &payee_key,
+                TTL_THRESHOLD_LEDGERS,
+                TTL_LIMIT_LEDGERS,
+            );
+            Some(state)
+        } else {
+            None
+        }
     }
 
     /// Queries total accumulated dust reserve for an asset across all epochs.
@@ -617,6 +635,21 @@ impl RoyaltyDistributor {
         }
     }
 
+    /// Queries configured admin address.
+    pub fn get_admin(env: Env) -> Option<Address> {
+        env.storage().instance().get(&DataKey::Admin)
+    }
+
+    /// Queries linked manager contract address.
+    pub fn get_manager(env: Env) -> Option<Address> {
+        env.storage().instance().get(&DataKey::Manager)
+    }
+
+    /// Queries linked token contract address.
+    pub fn get_token(env: Env) -> Option<Address> {
+        env.storage().instance().get(&DataKey::Token)
+    }
+
     /// Returns smart contract semver version string.
     pub fn version(env: Env) -> Symbol {
         Symbol::new(&env, "v3_0_0")
@@ -666,6 +699,7 @@ impl RoyaltyDistributor {
     }
 
     /// Updates linked token contract address. Only admin can call.
+    /// Safety invariant: Cannot re-link token address while vault holds outstanding deposits in the old token.
     pub fn update_token(env: Env, new_token: Address) -> Result<(), Error> {
         let admin: Address = env
             .storage()
@@ -673,6 +707,20 @@ impl RoyaltyDistributor {
             .get(&DataKey::Admin)
             .ok_or(Error::NotInitialized)?;
         admin.require_auth();
+
+        let current_token: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::Token)
+            .ok_or(Error::NotInitialized)?;
+
+        // Verify current vault balance in current token is 0 before token re-linking
+        let token_client = token::Client::new(&env, &current_token);
+        if let Ok(Ok(bal)) = token_client.try_balance(&env.current_contract_address()) {
+            if bal > 0 {
+                return Err(Error::Unauthorized);
+            }
+        }
 
         env.storage().instance().set(&DataKey::Token, &new_token);
 
